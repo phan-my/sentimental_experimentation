@@ -1,7 +1,7 @@
 /*
  * main.c
  *
- * gcc main.c -lm -lSDL2 -lSDL2_image -o omain.out
+ * gcc main.c -lm -lSDL2 -lSDL2_image -lSDL2_mixer -o omain.out
  */
 #include <stdio.h>
 #include <stdbool.h>
@@ -11,6 +11,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 #include "logic.h"
 
 // (480x560 | 384x448)
@@ -139,6 +140,17 @@ int main(int argc, char **argv)
 		dest[i].x = SCREEN_WIDTH / 2;
 		dest[i].y = SCREEN_HEIGHT * (1. / 4);
 	}
+
+	
+	/* music loader */
+	// https://thenumb.at/cpp-course/sdl2/06/06.html#mixer
+	int result = Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
+	Mix_Music *music;
+	music = Mix_LoadMUS("assets/02.mp3");
+
+	if (!music)
+		printf("ERROR loading music: %d\n", Mix_GetError());
+	Mix_PlayMusic(music, -2);
 
 
 	/* numerical setup */
@@ -366,6 +378,9 @@ int main(int argc, char **argv)
 	// delay termination
 	Uint32 delay = 0; // delay in ms
 	SDL_Delay(delay);
+
+	Mix_FreeMusic(music);
+	Mix_Quit();
 	// close all windows and quit
 	SDL_DestroyWindow(win);
 	SDL_Quit();
