@@ -96,7 +96,6 @@ int main(int argc, char **argv)
 	player.surface = IMG_Load("assets/reimu.png");	// path to sprite
 
 	// load image to memory
-	// FIXME?: initially SDL_Texture *player_tex = ...
 	player.tex = SDL_CreateTextureFromSurface(rend, player.surface);
 	SDL_FreeSurface(player.surface);
 
@@ -351,15 +350,15 @@ int main(int argc, char **argv)
 		// github.com/arpit2297/Collision-Detection-using-Quad-Trees
 		
 
+/*
 		for (i = 0; i < NUM_BULLETS; i++) {
 			if (is_hit(dest[i], player)) {
-/*
 				printf("%d: HIT\n", i);
 				if (i % 2)
 					printf("T\n");
-*/
 			}
 		}
+*/
 
 
 		/* appendix */
