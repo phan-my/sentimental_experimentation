@@ -15,8 +15,11 @@
 #include "logic.h"
 
 // (480x560 | 384x448)
-#define SCREEN_WIDTH 480
-#define SCREEN_HEIGHT 560
+#define FIELD_WIDTH 384
+#define FIELD_LENGTH 448
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
+#define FIELD_OFFSET_X 32
 
 #define D_RECT_X 0
 #define D_RECT_Y 1
@@ -91,6 +94,12 @@ int main(int argc, char **argv)
 	struct entity player;
 	int num_fairies = 100;
 	struct entity fairies[num_fairies];
+
+	// load background
+	SDL_Surface *border_surface;	
+	border_surface = IMG_Load("assets/window.png");
+	SDL_Texture *border_tex = SDL_CreateTextureFromSurface(rend, border_surface);
+	SDL_FreeSurface(border_surface);
 	
 	// load player
 	player.surface = IMG_Load("assets/reimu.png");	// path to sprite
@@ -115,6 +124,13 @@ int main(int argc, char **argv)
 	
 	/* positioning hitboxes */
 
+	// background
+	SDL_Rect border_dest;
+	SDL_QueryTexture(border_tex, NULL, NULL, &border_dest.w,
+				&border_dest.h);
+	border_dest.x = 0;
+
+	// player
 	double scale = 1; 
 	// create object
 	SDL_QueryTexture(player.tex, NULL, NULL, &player.dest.w,
@@ -368,6 +384,7 @@ int main(int argc, char **argv)
 		SDL_RenderCopy(rend, player.tex, NULL, &player.dest);
 		for (i = 0; i < NUM_BULLETS; i++)
 			SDL_RenderCopy(rend, tex, NULL, &dest[i]);
+		SDL_RenderCopy(rend, border_tex, NULL, &border_dest);
 	
 		// double buffer
 		SDL_RenderPresent(rend);
