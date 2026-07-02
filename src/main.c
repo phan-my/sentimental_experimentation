@@ -16,10 +16,11 @@
 
 // (480x560 | 384x448)
 #define FIELD_WIDTH 384
-#define FIELD_LENGTH 448
+#define FIELD_HEIGHT 448
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
 #define FIELD_OFFSET_X 32
+#define FIELD_OFFSET_Y 16
 
 #define D_RECT_X 0
 #define D_RECT_Y 1
@@ -137,8 +138,8 @@ int main(int argc, char **argv)
 				&player.dest.h);
 	player.dest.w /= scale;
 	player.dest.h /= scale;
-	player.x = player.dest.x = SCREEN_WIDTH / 2.;
-	player.y = player.dest.y = SCREEN_HEIGHT / 2.;
+	player.x = player.dest.x = FIELD_WIDTH / 2. + FIELD_OFFSET_X;
+	player.y = player.dest.y = (int)(FIELD_HEIGHT * 0.75) + FIELD_OFFSET_Y;
 	player.dx = 3.;
 	player.dy = 3.;
 	player.radius = 2.;
@@ -152,8 +153,8 @@ int main(int argc, char **argv)
 		SDL_QueryTexture(tex, NULL, NULL, &dest[i].w, &dest[i].h);
 		dest[i].w /= scale;
 		dest[i].h /= scale;
-		dest[i].x = SCREEN_WIDTH / 2;
-		dest[i].y = SCREEN_HEIGHT * (1. / 4);
+		dest[i].x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+		dest[i].y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
 	}
 
 	
@@ -170,10 +171,30 @@ int main(int argc, char **argv)
 
 	/* numerical setup */
 	
+	// JELLYFISH
 	// set bullet speeds
+	double speed[NUM_BULLETS];
+	double cap_speed;
+	for (i = 1; i < NUM_BULLETS; i++) {
+		if (i % 40 < 20)
+			cap_speed = 2.;
+		else
+			cap_speed = 2.3;
+		if (i % 2)
+			speed[i] = (double) i / 50. / 3.;
+		else
+			speed[i] = (double) i / 67. / 3.;
+		if (speed[i] > cap_speed)
+			speed[i] = cap_speed;
+	}
+
+	// NORMAL (SPIRAL SPEEDS
+	// set bullet speeds
+	/*
 	double speed[NUM_BULLETS];
 	for (i = 0; i < NUM_BULLETS; i++) 
 		speed[i] = (double) i / 50;
+	*/
 	
 	// create double version of dest for subpixel precision
 	double d_dest[NUM_BULLETS][2];
@@ -181,7 +202,10 @@ int main(int argc, char **argv)
 	for (i = 0; i < NUM_BULLETS; i++) {
 		d_dest[i][D_RECT_X] = (double)dest[i].x;
 		d_dest[i][D_RECT_Y] = (double)dest[i].y;
-		angles[i] = i * GOLDEN_RATIO;
+		if (i % 2)
+			angles[i] = i * GOLDEN_RATIO;
+		else
+			angles[i] = i * 1.3 * GOLDEN_RATIO;
 	}
 	
 	// variables for bullet movement
@@ -326,6 +350,7 @@ int main(int argc, char **argv)
 		phi += 0.05;
 		*/
 
+		/*
 		// sunflower spirals
 		for (i = 0; i < moving; i++) {
 			double p = 1.;
@@ -342,8 +367,10 @@ int main(int argc, char **argv)
 			printf("Recycle your bullets!\n");
 			break;
 		}
+		*/
 
-		/* Jellyfish??
+
+		// Jellyfish
 		// speed[i] = (double)i / 100;
 		for (i = 0; i < moving; i++) {
 			d_dest[i][D_RECT_X] += speed[i] * cos(angles[i]);
@@ -354,8 +381,7 @@ int main(int argc, char **argv)
 		}
 		
 		if (moving < NUM_BULLETS)
-			moving++;
-		*/
+			moving += 5;
 
 		
 		/* unoptimized collision detection */
@@ -366,7 +392,6 @@ int main(int argc, char **argv)
 		// github.com/arpit2297/Collision-Detection-using-Quad-Trees
 		
 
-/*
 		for (i = 0; i < NUM_BULLETS; i++) {
 			if (is_hit(dest[i], player)) {
 				printf("%d: HIT\n", i);
@@ -374,7 +399,6 @@ int main(int argc, char **argv)
 					printf("T\n");
 			}
 		}
-*/
 
 
 		/* appendix */
