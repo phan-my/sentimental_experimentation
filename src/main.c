@@ -245,11 +245,29 @@ int main(int argc, char **argv)
 	clock_gettime(CLOCK_MONOTONIC_RAW, &dt_end);
 	Uint64 ticks = 0;
 
+	// prevent movement at field border
+	bool in_left; 
+	bool in_down;
+	bool in_up;
+	bool in_right;
+
+	// extra margins for player at bottom of field
+	int player_bottom_margin = 3;
+
+	// main loop
 	while (!close) {
 		//		SDL_EnableKeyRepeat(0, 0);
 		// questions/1252976
 
 		const Uint8 *keyboard_states = SDL_GetKeyboardState(NULL);
+		
+		// mechanism for player to grind at field border
+		in_left	= player.x > FIELD_OFFSET_X;
+		in_up = player.y > FIELD_OFFSET_Y;
+		in_down = player.y < FIELD_OFFSET_Y + FIELD_HEIGHT
+			- player.dest.h + player_bottom_margin;
+		in_right = player.x < FIELD_OFFSET_X + FIELD_WIDTH
+			- player.dest.w;
 
 		while (SDL_PollEvent(&event)) {
 			switch (event.type) {
@@ -286,40 +304,49 @@ int main(int argc, char **argv)
 			/* movement */
 
 			if (keyboard_states[SDL_SCANCODE_LSHIFT])
-				factored_speed = focus_factor * reimu_default_speed;
+				factored_speed =
+					focus_factor * reimu_default_speed;
 			else
 				factored_speed = reimu_default_speed;
 			diagonal = factored_speed * (INVERSE_SQRT_2 - 1);
 
 			// non-diagonal movement
-			if (keyboard_states[SDL_SCANCODE_LEFT])
+			if (keyboard_states[SDL_SCANCODE_LEFT] && in_left)
 				player.x -= factored_speed;
-			if (keyboard_states[SDL_SCANCODE_DOWN])
+			if (keyboard_states[SDL_SCANCODE_DOWN] && in_down)
 				player.y += factored_speed;
-			if (keyboard_states[SDL_SCANCODE_UP])
+			if (keyboard_states[SDL_SCANCODE_UP] && in_up)
 				player.y -= factored_speed;
-			if (keyboard_states[SDL_SCANCODE_RIGHT])
+			if (keyboard_states[SDL_SCANCODE_RIGHT] && in_right)
 				player.x += factored_speed;
 
 			// diagonal movement
 			if (keyboard_states[SDL_SCANCODE_LEFT] &&
 					keyboard_states[SDL_SCANCODE_DOWN]) {
-					player.x -= diagonal;
+				if (in_down)
 					player.y += diagonal;
+				if (in_left)
+					player.x -= diagonal;
 			}
 			if (keyboard_states[SDL_SCANCODE_LEFT] &&
 					keyboard_states[SDL_SCANCODE_UP]) {
+				if (in_left)
 					player.x -= diagonal;
+				if (in_up)
 					player.y -= diagonal;
 			}
 			if (keyboard_states[SDL_SCANCODE_RIGHT] &&
 					keyboard_states[SDL_SCANCODE_DOWN]) {
+				if (in_right)
 					player.x += diagonal;
+				if (in_down)
 					player.y += diagonal;
 			}
 			if (keyboard_states[SDL_SCANCODE_RIGHT] &&
 					keyboard_states[SDL_SCANCODE_UP]) {
+				if (in_right)
 					player.x += diagonal;
+				if (in_up)
 					player.y -= diagonal;
 			}
 
@@ -381,7 +408,7 @@ int main(int argc, char **argv)
 		}
 		
 		if (moving < NUM_BULLETS)
-			moving += 5;
+			moving += 2;
 
 		
 		/* unoptimized collision detection */
