@@ -92,9 +92,9 @@ int main(int argc, char **argv)
 
 	/* image loader */
 
-	struct entity player;
+	struct player reimu;
 	int num_fairies = 100;
-	struct entity fairies[num_fairies];
+	struct enemy fairies[num_fairies];
 
 	// load background
 	SDL_Surface *border_surface;	
@@ -103,21 +103,23 @@ int main(int argc, char **argv)
 	SDL_FreeSurface(border_surface);
 	
 	// load player
-	player.surface = IMG_Load("assets/reimu.png");	// path to sprite
+	reimu.sdl.surface = IMG_Load("assets/reimu.png"); // path to sprite
 
 	// load image to memory
-	player.tex = SDL_CreateTextureFromSurface(rend, player.surface);
-	SDL_FreeSurface(player.surface);
+	reimu.sdl.texture =
+		SDL_CreateTextureFromSurface(rend, reimu.sdl.surface);
+	SDL_FreeSurface(reimu.sdl.surface);
 
 	// load fairies
 	for (i = 0; i < num_fairies; i++) {
-		fairies[i].surface = IMG_Load("assets/fairy.png");
-		fairies[i].tex = SDL_CreateTextureFromSurface(rend,
-				fairies[i].surface);
-		SDL_FreeSurface(fairies[i].surface);
+		fairies[i].sdl.surface = IMG_Load("assets/fairy.png");
+		fairies[i].sdl.texture = SDL_CreateTextureFromSurface(rend,
+				fairies[i].sdl.surface);
+		SDL_FreeSurface(fairies[i].sdl.surface);
 	}
 
 	// load bullets
+	struct ball dest[NUM_BULLETS];
 	SDL_Surface *surface = IMG_Load("assets/bullet_snow.png");
 	SDL_Texture *tex = SDL_CreateTextureFromSurface(rend, surface);
 	SDL_FreeSurface(surface);
@@ -132,32 +134,27 @@ int main(int argc, char **argv)
 	border_dest.x = 0;
 
 	// player
-	double scale = 1; 
 	// create object
-	SDL_QueryTexture(player.tex, NULL, NULL, &player.dest.w,
-				&player.dest.h);
-	player.dest.w /= scale;
-	player.dest.h /= scale;
-	player.x = player.dest.x = FIELD_WIDTH / 2. + FIELD_OFFSET_X;
-	player.y = player.dest.y = (int)(FIELD_HEIGHT * 0.75) + FIELD_OFFSET_Y;
-	player.dx = 3.;
-	player.dy = 3.;
-	player.radius = 2.;
+	SDL_QueryTexture(reimu.sdl.texture, NULL, NULL, &reimu.sdl.rect.w,
+				&reimu.sdl.rect.h);
+	reimu.hitbox.x = FIELD_WIDTH / 2. + FIELD_OFFSET_X;
+	reimu.hitbox.y = FIELD_HEIGHT * 0.75 + FIELD_OFFSET_Y;
+	update_player_position(&reimu);
+	reimu.hitbox.r = 2.;
 
 	// "snowball" bullets
-	SDL_Rect dest[NUM_BULLETS];
-	double snowball_width = 8.;
-	double snowball_height = 8.;
-	
 	for (i = 0; i < NUM_BULLETS; i++) {
-		SDL_QueryTexture(tex, NULL, NULL, &dest[i].w, &dest[i].h);
-		dest[i].w /= scale;
-		dest[i].h /= scale;
-		dest[i].x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-		dest[i].y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
+		SDL_QueryTexture(tex, NULL, NULL, &dest[i].sdl.rect.w,
+				&dest[i].sdl.rect.h);
+//		dest[i].w /= scale;
+//		dest[i].h /= scale;
+		dest[i].hitbox.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+		dest[i].hitbox.y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
+		dest[i].hitbox.r = 4.;
+		update_ball_position(&dest[i]);
 	}
-
 	
+
 	/* music loader */
 	// https://thenumb.at/cpp-course/sdl2/06/06.html#mixer
 	int result = Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
@@ -197,11 +194,9 @@ int main(int argc, char **argv)
 	*/
 	
 	// create double version of dest for subpixel precision
-	double d_dest[NUM_BULLETS][2];
 	double angles[NUM_BULLETS];
 	for (i = 0; i < NUM_BULLETS; i++) {
-		d_dest[i][D_RECT_X] = (double)dest[i].x;
-		d_dest[i][D_RECT_Y] = (double)dest[i].y;
+		update_ball_position(&dest[i]);
 		if (i % 2)
 			angles[i] = i * GOLDEN_RATIO;
 		else
@@ -262,12 +257,12 @@ int main(int argc, char **argv)
 		const Uint8 *keyboard_states = SDL_GetKeyboardState(NULL);
 		
 		// mechanism for player to grind at field border
-		in_left	= player.x > FIELD_OFFSET_X;
-		in_up = player.y > FIELD_OFFSET_Y;
-		in_down = player.y < FIELD_OFFSET_Y + FIELD_HEIGHT
-			- player.dest.h + player_bottom_margin;
-		in_right = player.x < FIELD_OFFSET_X + FIELD_WIDTH
-			- player.dest.w;
+		in_left	= reimu.sdl.rect.x > FIELD_OFFSET_X;
+		in_up = reimu.sdl.rect.y > FIELD_OFFSET_Y;
+		in_down = reimu.sdl.rect.y < FIELD_OFFSET_Y + FIELD_HEIGHT
+			- reimu.sdl.rect.h + player_bottom_margin;
+		in_right = reimu.sdl.rect.x < FIELD_OFFSET_X + FIELD_WIDTH
+			- reimu.sdl.rect.w;
 
 		while (SDL_PollEvent(&event)) {
 			switch (event.type) {
@@ -312,48 +307,48 @@ int main(int argc, char **argv)
 
 			// non-diagonal movement
 			if (keyboard_states[SDL_SCANCODE_LEFT] && in_left)
-				player.x -= factored_speed;
+				reimu.hitbox.x -= factored_speed;
 			if (keyboard_states[SDL_SCANCODE_DOWN] && in_down)
-				player.y += factored_speed;
+				reimu.hitbox.y += factored_speed;
 			if (keyboard_states[SDL_SCANCODE_UP] && in_up)
-				player.y -= factored_speed;
+				reimu.hitbox.y -= factored_speed;
 			if (keyboard_states[SDL_SCANCODE_RIGHT] && in_right)
-				player.x += factored_speed;
+				reimu.hitbox.x += factored_speed;
 
 			// diagonal movement
 			if (keyboard_states[SDL_SCANCODE_LEFT] &&
 					keyboard_states[SDL_SCANCODE_DOWN]) {
 				if (in_down)
-					player.y += diagonal;
+					reimu.hitbox.y += diagonal;
 				if (in_left)
-					player.x -= diagonal;
+					reimu.hitbox.x -= diagonal;
 			}
 			if (keyboard_states[SDL_SCANCODE_LEFT] &&
 					keyboard_states[SDL_SCANCODE_UP]) {
 				if (in_left)
-					player.x -= diagonal;
+					reimu.hitbox.x -= diagonal;
 				if (in_up)
-					player.y -= diagonal;
+					reimu.hitbox.y -= diagonal;
 			}
 			if (keyboard_states[SDL_SCANCODE_RIGHT] &&
 					keyboard_states[SDL_SCANCODE_DOWN]) {
 				if (in_right)
-					player.x += diagonal;
+					reimu.hitbox.x += diagonal;
 				if (in_down)
-					player.y += diagonal;
+					reimu.hitbox.y += diagonal;
 			}
 			if (keyboard_states[SDL_SCANCODE_RIGHT] &&
 					keyboard_states[SDL_SCANCODE_UP]) {
 				if (in_right)
-					player.x += diagonal;
+					reimu.hitbox.x += diagonal;
 				if (in_up)
-					player.y -= diagonal;
+					reimu.hitbox.y -= diagonal;
 			}
 
-			// very unoptimized player position update
+//			reimu.sdl.rect.x = reimu.hitbox.x;
+//			reimu.sdl.rect.y = reimu.hitbox.y;
+			update_player_position(&reimu);
 
-			player.dest.x = (int)(player.x);
-			player.dest.y = (int)(player.y);
 		}
 
 		/*
@@ -400,11 +395,9 @@ int main(int argc, char **argv)
 		// Jellyfish
 		// speed[i] = (double)i / 100;
 		for (i = 0; i < moving; i++) {
-			d_dest[i][D_RECT_X] += speed[i] * cos(angles[i]);
-			d_dest[i][D_RECT_Y] += speed[i] * sin(angles[i]);
-			dest[i].x = d_dest[i][D_RECT_X];
-			dest[i].y = d_dest[i][D_RECT_Y];
-
+			dest[i].hitbox.x += speed[i] * cos(angles[i]);
+			dest[i].hitbox.y += speed[i] * sin(angles[i]);
+			update_ball_position(&dest[i]);
 		}
 		
 		if (moving < NUM_BULLETS)
@@ -420,7 +413,7 @@ int main(int argc, char **argv)
 		
 
 		for (i = 0; i < NUM_BULLETS; i++) {
-			if (is_hit(dest[i], player)) {
+			if (is_hit(dest[i], reimu)) {
 				printf("%d: HIT\n", i);
 				if (i % 2)
 					printf("T\n");
@@ -432,9 +425,9 @@ int main(int argc, char **argv)
 
 		// clear screen
 		SDL_RenderClear(rend);
-		SDL_RenderCopy(rend, player.tex, NULL, &player.dest);
+		SDL_RenderCopy(rend, reimu.sdl.texture, NULL, &reimu.sdl.rect);
 		for (i = 0; i < NUM_BULLETS; i++)
-			SDL_RenderCopy(rend, tex, NULL, &dest[i]);
+			SDL_RenderCopy(rend, tex, NULL, &dest[i].sdl.rect);
 		SDL_RenderCopy(rend, border_tex, NULL, &border_dest);
 	
 		// double buffer
