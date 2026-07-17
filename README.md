@@ -1,5 +1,7 @@
 # 極東方実験情 ~ Sentimental Experimentation
-w title, 200 mL alcohol confirmed
+~~w title, 200 mL alcohol confirmed~~
+
+This is a unofficial fan derivative work based on Touhou Project by Team Shanghai Alice.
 
 ## Installation
 ### Requirements
@@ -20,4 +22,3 @@ Then run by using
 ``
 ./oFILE.out
 ``
-
