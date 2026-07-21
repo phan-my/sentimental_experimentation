@@ -13,6 +13,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include "logic.h"
+#include "random.h"
 
 // (480x560 | 384x448)
 #define FIELD_WIDTH 384
@@ -24,7 +25,7 @@
 
 #define D_RECT_X 0
 #define D_RECT_Y 1
-#define NUM_BULLETS 10000
+#define NUM_BULLETS 1000
 #define PI 3.1415926535897932384626433832795028841971693993751058209749445923078
 #define GOLDEN_RATIO 0.6180339887498948482045868343656381177203091798057628621
 #define INVERSE_SQRT_2 0.7071067811865475244008444
@@ -52,6 +53,9 @@ double rolling_average(double *points, int n)
 
 int main(int argc, char **argv)
 {
+	// set RNG seed
+	srand(time(NULL));
+
 //	printf("Hello, World\n");
 	printf("I have %d argument(s), namely:\n", argc);
 	int i;
@@ -93,7 +97,7 @@ int main(int argc, char **argv)
 	/* image loader */
 
 	struct player reimu;
-	int num_fairies = 100;
+	int num_fairies = 10;
 	struct enemy fairies[num_fairies];
 
 	// load background
@@ -132,6 +136,7 @@ int main(int argc, char **argv)
 	SDL_QueryTexture(border_tex, NULL, NULL, &border_dest.w,
 				&border_dest.h);
 	border_dest.x = 0;
+	
 
 	// player
 	// create object
@@ -150,10 +155,21 @@ int main(int argc, char **argv)
 //		dest[i].h /= scale;
 		dest[i].hitbox.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
 		dest[i].hitbox.y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
-		dest[i].hitbox.r = 4.;
+		dest[i].hitbox.r = 3.8;
 		update_ball_position(&dest[i]);
 	}
-	
+
+
+	// fairy
+	for (i = 0; i < num_fairies; i++) {
+		SDL_QueryTexture(fairies[i].sdl.texture, NULL, NULL,
+				&fairies[i].sdl.rect.w, &fairies[i].sdl.rect.h);
+		fairies[i].hitbox.x = FIELD_OFFSET_X + randint(0, FIELD_WIDTH);
+		fairies[i].hitbox.y = FIELD_OFFSET_Y;
+		update_enemy_position(&fairies[i]);
+		fairies[i].hitbox.r = 8.;
+	}
+
 
 	/* music loader */
 	// https://thenumb.at/cpp-course/sdl2/06/06.html#mixer
@@ -176,11 +192,11 @@ int main(int argc, char **argv)
 		if (i % 40 < 20)
 			cap_speed = 2.;
 		else
-			cap_speed = 2.3;
+			cap_speed = 3.;
 		if (i % 2)
-			speed[i] = (double) i / 50. / 3.;
+			speed[i] = (double) 1. + i / 50. / 6.;
 		else
-			speed[i] = (double) i / 67. / 3.;
+			speed[i] = (double) 1. + i / 67. / 6.;
 		if (speed[i] > cap_speed)
 			speed[i] = cap_speed;
 	}
@@ -211,8 +227,8 @@ int main(int argc, char **argv)
 	
 	// player speed
 	// https://en.touhouwiki.net/wiki/User:Arcorann/Character_Speeds#Massive_chart
-	double reimu_default_speed = 4.5;
-	const double focus_factor = 2. / 4.5;
+	double reimu_default_speed = 4.;
+	const double focus_factor = 1.6 / reimu_default_speed;
 	double marisa_speed = reimu_default_speed * 1.5;
 	// for lshift focus
 	double factored_speed = reimu_default_speed;
@@ -247,7 +263,8 @@ int main(int argc, char **argv)
 	bool in_right;
 
 	// extra margins for player at bottom of field
-	int player_bottom_margin = 3;
+	int player_bottom_margin = 16;
+
 
 	// main loop
 	while (!close) {
@@ -351,6 +368,8 @@ int main(int argc, char **argv)
 
 		}
 
+		/* BULLET MOVEMENTS */
+
 		/*
 		// sine movement
 		double period = 300;
@@ -403,21 +422,36 @@ int main(int argc, char **argv)
 		if (moving < NUM_BULLETS)
 			moving += 2;
 
-		
-		/* unoptimized collision detection */
 
-		// todo: snowball hitbox -> circle
-		// todo: quadtree hitbox detection
+		/* ENEMY MOVEMENT */
+
+		int stopping_line = FIELD_OFFSET_Y + 200;
+		double fairy_speed = 1.;
+		
+		for (i = 0; i < num_fairies; i++) {
+			double diff = stopping_line - fairies[i].hitbox.y;
+			if (fairies[i].hitbox.y < stopping_line)
+				fairies[i].hitbox.y += fairy_speed ;
+
+			update_enemy_position(&fairies[i]);
+		}
+		
+
+		/* COLLISION DETECTION*/
+		// TODO: quadtree hitbox detection
 		// questions/21650246/sdl-2-collision-detetection
 		// github.com/arpit2297/Collision-Detection-using-Quad-Trees
-		
-
 		for (i = 0; i < NUM_BULLETS; i++) {
-			if (is_hit(dest[i], reimu)) {
+			if (is_hit(dest[i].hitbox, reimu.hitbox)) {
 				printf("%d: HIT\n", i);
 				if (i % 2)
 					printf("T\n");
 			}
+		}
+
+		for (i = 0; i < num_fairies; i++) {
+			if (is_hit(fairies[i].hitbox, reimu.hitbox))
+				printf("FAIRY HITT  \n");
 		}
 
 
@@ -428,6 +462,9 @@ int main(int argc, char **argv)
 		SDL_RenderCopy(rend, reimu.sdl.texture, NULL, &reimu.sdl.rect);
 		for (i = 0; i < NUM_BULLETS; i++)
 			SDL_RenderCopy(rend, tex, NULL, &dest[i].sdl.rect);
+		for (i = 0; i < num_fairies; i++)
+			SDL_RenderCopy(rend, fairies[i].sdl.texture, NULL,
+					&fairies[i].sdl.rect);
 		SDL_RenderCopy(rend, border_tex, NULL, &border_dest);
 	
 		// double buffer
@@ -436,8 +473,8 @@ int main(int argc, char **argv)
 
 	/* program termination */
 	// delay termination
-	Uint32 delay = 0; // delay in ms
-	SDL_Delay(delay);
+//	Uint32 delay = 0; // delay in ms
+//	SDL_Delay(delay);
 
 	Mix_FreeMusic(music);
 	Mix_Quit();

@@ -80,35 +80,41 @@ double bottomright(double core, double radius)
 }
 */
 
-// assuming square bullet hitbox
+// assuming circle bullet hitbox
 // FIXME: code looks awful
 // FIXME: allow hitbox adjustment in y-axis of sprite
 // FIXME: Pythagorean expression optimizable?
 // https://silentmatt.com/rectangle-intersection/
 // basic circle-circle collision
 // https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
-bool is_hit(struct ball dest, struct player src)
+bool is_hit(struct circlebox dest, struct circlebox src)
 {
-	double dx = src.hitbox.x + src.hitbox.r
-		- (dest.hitbox.x + dest.hitbox.r);
-	double dy = src.hitbox.y + src.hitbox.r
-		- (dest.hitbox.y + dest.hitbox.r);
+	double dx = src.x + src.r - (dest.x + dest.r);
+	double dy = src.y + src.r - (dest.y + dest.r);
 	double distance = sqrt(dx * dx + dy * dy);
-	return distance < src.hitbox.r + dest.hitbox.r;
+	return distance < src.r + dest.r;
 }
 
+// set sdl int position to match the float position
 void update_ball_position(struct ball *p)
 {
 	p -> sdl.rect.x = (int)(p -> hitbox.x - p -> sdl.rect.w / 2.);
 	p -> sdl.rect.y = (int)(p -> hitbox.y - p -> sdl.rect.h / 2.);
 }
 
+// set sdl int position to match the float position
 void update_player_position(struct player *p)
 {
 	p -> sdl.rect.x = (int)(p -> hitbox.x - p -> sdl.rect.w / 2.);
 	p -> sdl.rect.y = (int)(p -> hitbox.y - p -> sdl.rect.h / 2.);
 }
 
+// set sdl int position to match the float position
+void update_enemy_position(struct enemy *p)
+{
+	p -> sdl.rect.x = (int)(p -> hitbox.x - p -> sdl.rect.w / 2.);
+	p -> sdl.rect.y = (int)(p -> hitbox.y - p -> sdl.rect.h / 2.);
+}
 
 /*
 bool is_hit(struct player p, struct bullet b)
@@ -122,3 +128,4 @@ void load_bullet_model()
 {
 
 }
+
