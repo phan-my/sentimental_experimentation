@@ -86,7 +86,7 @@ int main(int argc, char **argv)
 	// https://studios.ptilouk.net/superfluous-returnz/blog/2023-03-14_vsync.html
 	Uint32 render_flags =
 		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
-	SDL_Renderer *rend = SDL_CreateRenderer(win, -2, render_flags);
+	SDL_Renderer *rend = SDL_CreateRenderer(win, -1, render_flags);
 
 	/*
 	Uint32 reimu_render_flags = SDL_RENDERER_ACCELERATED;
@@ -405,14 +405,17 @@ int main(int argc, char **argv)
 		}
 
 		for (i = 0; i < num_player_bullets; i++) {
-			if (player_bullets[i].hitbox.y < 0) {
+			// update bullets if they fall out of bounds
+			if (player_bullets[i].hitbox.y < 0 ||
+					!player_bullet_trigger[i]) {
 				player_bullet_trigger[i] = 0;
 				player_bullets[i].hitbox.x = reimu.hitbox.x;
 				player_bullets[i].hitbox.y = reimu.hitbox.y;
 			}
-			if (player_bullet_trigger[i])
+			if (player_bullet_trigger[i]) {
 				player_bullets[i].hitbox.y -= player_bullet_speed;
 				update_ball_position(&player_bullets[i]);
+			}
 		}
 
 		/* BULLET MOVEMENTS */
