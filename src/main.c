@@ -58,7 +58,7 @@ int main(int argc, char **argv)
 
 //	printf("Hello, World\n");
 	printf("I have %d argument(s), namely:\n", argc);
-	int i;
+	int i, j;
 	for (i = 0; i < argc; i++)
 		printf("%s\n", argv[i]);
 
@@ -100,6 +100,9 @@ int main(int argc, char **argv)
 	struct ball dest[NUM_BULLETS];
 	int num_fairies = 10;
 	struct enemy fairies[num_fairies];
+	bool active_fairies[num_fairies];
+	for (i = 0; i < num_fairies; i++)
+		active_fairies[i] = 1;
 	const int num_player_bullets = 64;
 	struct ball player_bullets[num_player_bullets];
 
@@ -285,11 +288,14 @@ int main(int argc, char **argv)
 	int player_bottom_margin = 16;
 
 	// player bullet go! queue
-	bool player_bullet_trigger[num_player_bullets];
+	bool active_player_bullets[num_player_bullets];
 	for (i = 0; i < num_player_bullets; i++)
-		player_bullet_trigger[i] = false;
+		active_player_bullets[i] = false;
 	int nth_player_bullet = 0; // global variable
-
+	
+	// space between player bullet in ticks
+	const int MAX_RELOAD = 5;
+	int reload = MAX_RELOAD;
 
 	// main loop
 	while (!close) {
@@ -394,25 +400,30 @@ int main(int argc, char **argv)
 			
 			/* shooting */
 
-			// FIXME: Reimu goes full full auto
+			// https://www.parallelrealities.co.uk/tutorials/shooter/shooter5.php
 			if (keyboard_states[SDL_SCANCODE_Z]) {
-				player_bullet_trigger[nth_player_bullet] = 1;
+				// activate one bullet
+				if (reload == 0)
+					active_player_bullets[nth_player_bullet]
+						= 1;
+				// cycles through array
 				nth_player_bullet++;
 				nth_player_bullet %= num_player_bullets;
 			}
-
-
+			reload--;
+			if (reload < 0)
+				reload = MAX_RELOAD;
 		}
 
 		for (i = 0; i < num_player_bullets; i++) {
 			// update bullets if they fall out of bounds
 			if (player_bullets[i].hitbox.y < 0 ||
-					!player_bullet_trigger[i]) {
-				player_bullet_trigger[i] = 0;
+					!active_player_bullets[i]) {
+				active_player_bullets[i] = 0;
 				player_bullets[i].hitbox.x = reimu.hitbox.x;
 				player_bullets[i].hitbox.y = reimu.hitbox.y;
 			}
-			if (player_bullet_trigger[i]) {
+			if (active_player_bullets[i]) {
 				player_bullets[i].hitbox.y -= player_bullet_speed;
 				update_ball_position(&player_bullets[i]);
 			}
@@ -491,6 +502,8 @@ int main(int argc, char **argv)
 		// TODO: quadtree hitbox detection
 		// questions/21650246/sdl-2-collision-detetection
 		// github.com/arpit2297/Collision-Detection-using-Quad-Trees
+		
+		// player -- enemy bullet
 		for (i = 0; i < NUM_BULLETS; i++) {
 			if (is_hit(dest[i].hitbox, reimu.hitbox)) {
 				printf("%d: HIT\n", i);
@@ -499,9 +512,21 @@ int main(int argc, char **argv)
 			}
 		}
 
+		// player -- fairy -- player bullet
 		for (i = 0; i < num_fairies; i++) {
+			// fairy hits player
 			if (is_hit(fairies[i].hitbox, reimu.hitbox))
 				printf("FAIRY HITT  \n");
+
+			// player bullet hits fairy
+			for (j = 0; j < num_player_bullets; j++) {
+				if (is_hit(fairies[i].hitbox,
+							player_bullets[j].hitbox)) {
+					printf("PLAYER BULLET HTIS FAIRY\n");
+					active_fairies[i] = 0;
+					active_player_bullets[i] = 0;
+				}
+			}
 		}
 
 
@@ -512,12 +537,17 @@ int main(int argc, char **argv)
 		SDL_RenderCopy(rend, reimu.sdl.texture, NULL, &reimu.sdl.rect);
 		for (i = 0; i < NUM_BULLETS; i++)
 			SDL_RenderCopy(rend, tex, NULL, &dest[i].sdl.rect);
-		for (i = 0; i < num_fairies; i++)
-			SDL_RenderCopy(rend, fairies[i].sdl.texture, NULL,
-					&fairies[i].sdl.rect);
+		for (i = 0; i < num_fairies; i++) {
+			if (active_fairies[i]) {
+				SDL_RenderCopy(rend, fairies[i].sdl.texture,
+						NULL, &fairies[i].sdl.rect);
+			}
+		}
 		for (i = 0; i < num_player_bullets; i++)
-			SDL_RenderCopy(rend, player_bullet_texture,
-					NULL, &player_bullets[i].sdl.rect);
+			if (active_player_bullets[i])
+				SDL_RenderCopy(rend, player_bullet_texture,
+						NULL,
+						&player_bullets[i].sdl.rect);
 
 		SDL_RenderCopy(rend, border_tex, NULL, &border_dest);
 	
