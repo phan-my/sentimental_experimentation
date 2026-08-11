@@ -180,6 +180,7 @@ int main(int argc, char **argv)
 		fairies[i].hitbox.y = FIELD_OFFSET_Y;
 		update_enemy_position(&fairies[i]);
 		fairies[i].hitbox.r = 8.;
+		fairies[i].health = 2;
 	}
 
 	// player_bullets
@@ -189,6 +190,7 @@ int main(int argc, char **argv)
 		player_bullets[i].hitbox.x = reimu.hitbox.x;
 		player_bullets[i].hitbox.y = reimu.hitbox.y;
 		player_bullets[i].hitbox.r = 8.;
+		player_bullets[i].power = 1;
 	}
 
 	/* music loader */
@@ -415,6 +417,7 @@ int main(int argc, char **argv)
 				reload = MAX_RELOAD;
 		}
 
+		// update player bullets
 		for (i = 0; i < num_player_bullets; i++) {
 			// update bullets if they fall out of bounds
 			if (player_bullets[i].hitbox.y < 0 ||
@@ -520,15 +523,26 @@ int main(int argc, char **argv)
 
 			// player bullet hits fairy
 			for (j = 0; j < num_player_bullets; j++) {
-				if (is_hit(fairies[i].hitbox,
+				// fairy takes damage
+				if (active_player_bullets[j] && active_fairies[i] && is_hit(fairies[i].hitbox,
 							player_bullets[j].hitbox)) {
 					printf("PLAYER BULLET HTIS FAIRY\n");
+
+					// damage dealt based on player bullet power
+					fairies[i].health -= player_bullets[j].power;
+					
+					// unload bullet
+					player_bullets[j].hitbox.y = 0;
+				}
+
+				// fairy dies
+				if (fairies[i].health == 0) {
 					active_fairies[i] = 0;
 					active_player_bullets[i] = 0;
 				}
 			}
 		}
-
+		
 
 		/* appendix */
 

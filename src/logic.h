@@ -57,6 +57,7 @@ struct enemy {
 struct ball {
 	struct circlebox hitbox;
 	struct sdl_types sdl;
+	int power;
 };
 
 /*
