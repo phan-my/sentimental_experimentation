@@ -409,8 +409,10 @@ int main(int argc, char **argv)
 					active_player_bullets[nth_player_bullet]
 						= 1;
 				// cycles through array
-				nth_player_bullet++;
-				nth_player_bullet %= num_player_bullets;
+				while (active_player_bullets[nth_player_bullet]) {
+					nth_player_bullet++;
+					nth_player_bullet %= num_player_bullets;
+				}
 			}
 			reload--;
 			if (reload < 0)
@@ -533,13 +535,14 @@ int main(int argc, char **argv)
 					
 					// unload bullet
 					player_bullets[j].hitbox.y = 0;
+
+					// fairy dies
+					if (fairies[i].health == 0) {
+						active_fairies[i] = 0;
+						active_player_bullets[j] = 0;
+					}
 				}
 
-				// fairy dies
-				if (fairies[i].health == 0) {
-					active_fairies[i] = 0;
-					active_player_bullets[i] = 0;
-				}
 			}
 		}
 		
