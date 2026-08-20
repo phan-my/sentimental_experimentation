@@ -14,6 +14,7 @@
 #include <SDL2/SDL_mixer.h>
 #include "logic.h"
 #include "random.h"
+#include "sounds.h"
 
 // (480x560 | 384x448)
 #define FIELD_WIDTH 384
@@ -53,15 +54,7 @@ double rolling_average(double *points, int n)
 
 int main(int argc, char **argv)
 {
-	// set RNG seed
-	srand(time(NULL));
-
-//	printf("Hello, World\n");
-	printf("I have %d argument(s), namely:\n", argc);
 	int i, j;
-	for (i = 0; i < argc; i++)
-		printf("%s\n", argv[i]);
-
 
 	// begin SDL2 setup
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -70,7 +63,7 @@ int main(int argc, char **argv)
 	}
 
 	// create window
-	SDL_Window *win = SDL_CreateWindow("Sentimental Experiments",
+	SDL_Window *win = SDL_CreateWindow("Sentimental Experimentation",
 				SDL_WINDOWPOS_UNDEFINED,
 				SDL_WINDOWPOS_CENTERED,
 				SCREEN_WIDTH, SCREEN_HEIGHT,
@@ -195,13 +188,8 @@ int main(int argc, char **argv)
 
 	/* music loader */
 	// https://thenumb.at/cpp-course/sdl2/06/06.html#mixer
-	int result = Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
-	Mix_Music *music;
-	music = Mix_LoadMUS("assets/02.mp3");
-
-	if (!music)
-		printf("ERROR loading music: %d\n", Mix_GetError());
-	Mix_PlayMusic(music, -2);
+	init_sounds();
+	play_track("02");
 
 
 	/* numerical setup */
@@ -577,7 +565,8 @@ int main(int argc, char **argv)
 //	Uint32 delay = 0; // delay in ms
 //	SDL_Delay(delay);
 
-	Mix_FreeMusic(music);
+	// TODO: Implement free music
+//	Mix_FreeMusic(music);
 	Mix_Quit();
 	// close all windows and quit
 	SDL_DestroyWindow(win);
