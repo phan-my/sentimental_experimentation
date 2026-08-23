@@ -1,7 +1,9 @@
-# 極東方実験情 ~ Sentimental Experimentation
-~~w title, 200 mL alcohol confirmed~~
-
+# 極東実験情　～ Sentimental Experimentation
 This is a unofficial fan derivative work based on Touhou Project by Team Shanghai Alice.
+
+This game serves as a first step to my project to develop a bullet hell game engine.
+
+~~w title, 200 mL alcohol confirmed~~
 
 ## Installation
 ### Requirements
@@ -11,14 +13,13 @@ apt install libglew-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libglm-d
 ``
 
 ### Compiling
-Refer to the header of each file for compilation guides.
-
-Usually, compile use
+In the `src/` directory, type
 ``
-gcc FILE.c -lm -lSDL2 -lSDL2_image -lSDL2_mixer oFILE.out
+make
 ``
 
-Then run by using
+Then run by typing
 ``
-./oFILE.out
+./omain.out
 ``
+

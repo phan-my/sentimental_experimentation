@@ -1,8 +1,11 @@
 /*
- * main.c
+ * main.c to be compiled as `gcc main.c -lm -lSDL2 -lSDL2_image -lSDL2_mixer`.
+ * Copyright (c) 2026 phan-my <manhhung.phan at proton.me>.
  *
- * gcc main.c -lm -lSDL2 -lSDL2_image -lSDL2_mixer -o omain.out
+ * This software is licenced under the terms of BSD-2-Clause.
+ * See LICENCE for further information.
  */
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -11,7 +14,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL_mixer.h>
 #include "logic.h"
 #include "random.h"
 #include "sounds.h"
@@ -63,7 +65,8 @@ int main(int argc, char **argv)
 	}
 
 	// create window
-	SDL_Window *win = SDL_CreateWindow("Sentimental Experimentation",
+	char *windows_title = "極東実験情　～ Sentimental Experimentation";
+	SDL_Window *win = SDL_CreateWindow(windows_title,
 				SDL_WINDOWPOS_UNDEFINED,
 				SDL_WINDOWPOS_CENTERED,
 				SCREEN_WIDTH, SCREEN_HEIGHT,
@@ -107,7 +110,6 @@ int main(int argc, char **argv)
 	
 	// load player
 	reimu.sdl.surface = IMG_Load("assets/reimu.png"); // path to sprite
-
 	// load image to memory
 	reimu.sdl.texture =
 		SDL_CreateTextureFromSurface(rend, reimu.sdl.surface);
@@ -188,7 +190,7 @@ int main(int argc, char **argv)
 
 	/* music loader */
 	// https://thenumb.at/cpp-course/sdl2/06/06.html#mixer
-	init_sounds();
+	initialize_sounds();
 	play_track("02");
 
 
@@ -561,13 +563,9 @@ int main(int argc, char **argv)
 	}
 
 	/* program termination */
-	// delay termination
-//	Uint32 delay = 0; // delay in ms
-//	SDL_Delay(delay);
 
-	// TODO: Implement free music
-//	Mix_FreeMusic(music);
-	Mix_Quit();
+	terminate_sounds();
+
 	// close all windows and quit
 	SDL_DestroyWindow(win);
 	SDL_Quit();
