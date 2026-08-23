@@ -82,6 +82,9 @@ struct ball {
 	int power;
 };
 
+// variables
+extern struct player reimu;
+
 // functions
 bool is_hit(struct circlebox dest, struct circlebox src);
 void update_ball_position(struct ball *p);

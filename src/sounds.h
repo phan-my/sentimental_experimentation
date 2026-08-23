@@ -10,7 +10,6 @@
 #define SOUNDS_H
 
 // includes
-#pragma once
 #include <SDL2/SDL_mixer.h>
 
 // globals

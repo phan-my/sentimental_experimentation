@@ -16,6 +16,11 @@
 #include "logic.h"
 
 
+/* VARIABLES */
+
+struct player reimu;
+
+
 /* FUNCTIONS */
 
 // circle-circle collision

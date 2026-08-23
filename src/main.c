@@ -9,20 +9,18 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <math.h>
 #include <time.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_image.h>
+
 #include "logic.h"
 #include "random.h"
 #include "sounds.h"
+#include "render.h"
+#include "common.h"
+#include "input.h"
 
-// (480x560 | 384x448)
-#define FIELD_WIDTH 384
-#define FIELD_HEIGHT 448
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
 #define FIELD_OFFSET_X 32
 #define FIELD_OFFSET_Y 16
 
@@ -41,58 +39,16 @@ double *launch_straight(double *d_dest, double speed, double turns)
 	return d_dest;
 }
 
-// simple moving average (SMA)
-double rolling_average(double *points, int n)
-{
-	int k = 60;
-	double sum;
-	int i;
-
-	for (i = n - k + 1; i <= n; i++) 
-		sum += points[i];
-
-	return (1. / k) * sum;
-}
-
+// main function
 int main(int argc, char **argv)
 {
 	int i, j;
 
-	// begin SDL2 setup
-	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-		printf("ERROR %s\n", SDL_GetError());
-		return 1;
-	}
-
-	// create window
-	char *windows_title = "極東実験情　～ Sentimental Experimentation";
-	SDL_Window *win = SDL_CreateWindow(windows_title,
-				SDL_WINDOWPOS_UNDEFINED,
-				SDL_WINDOWPOS_CENTERED,
-				SCREEN_WIDTH, SCREEN_HEIGHT,
-				SDL_WINDOW_OPENGL);
-
-	// check that surface was retrieved
-	if(win == NULL){
-		SDL_Quit();
-		return 1;
-	}
-
-	// flag setup
-	// https://studios.ptilouk.net/superfluous-returnz/blog/2023-03-14_vsync.html
-	Uint32 render_flags =
-		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
-	SDL_Renderer *rend = SDL_CreateRenderer(win, -1, render_flags);
-
-	/*
-	Uint32 reimu_render_flags = SDL_RENDERER_ACCELERATED;
-	SDL_Renderer *reimu_rend = SDL_CreateRenderer(win, -1, reimu_render_flags);
-	*/
-
+	check_sdl_init();	// begin SDL2 setup
+	initialize_screen();	// create window
 
 	/* image loader */
 
-	struct player reimu;
 	struct ball dest[NUM_BULLETS];
 	int num_fairies = 10;
 	struct enemy fairies[num_fairies];
@@ -239,8 +195,8 @@ int main(int argc, char **argv)
 	
 	// player speed
 	// https://en.touhouwiki.net/wiki/User:Arcorann/Character_Speeds#Massive_chart
-	double reimu_default_speed = 4.;
-	const double focus_factor = 1.6 / reimu_default_speed;
+	double reimu_default_speed = 4.5;
+	const double focus_factor = 2.0 / reimu_default_speed;
 	double marisa_speed = reimu_default_speed * 1.5;
 	// for lshift focus
 	double factored_speed = reimu_default_speed;
@@ -286,17 +242,14 @@ int main(int argc, char **argv)
 	int nth_player_bullet = 0; // global variable
 	
 	// space between player bullet in ticks
-	const int MAX_RELOAD = 5;
+	const int MAX_RELOAD = 2;
 	int reload = MAX_RELOAD;
 
 	// main loop
 	while (!close) {
-		//		SDL_EnableKeyRepeat(0, 0);
-		// questions/1252976
-
 		const Uint8 *keyboard_states = SDL_GetKeyboardState(NULL);
-		
-		// mechanism for player to grind at field border
+
+      		// mechanism for player to grind at field border
 		in_left	= reimu.sdl.rect.x > FIELD_OFFSET_X;
 		in_up = reimu.sdl.rect.y > FIELD_OFFSET_Y;
 		in_down = reimu.sdl.rect.y < FIELD_OFFSET_Y + FIELD_HEIGHT
@@ -565,10 +518,7 @@ int main(int argc, char **argv)
 	/* program termination */
 
 	terminate_sounds();
-
-	// close all windows and quit
-	SDL_DestroyWindow(win);
-	SDL_Quit();
+	terminate_screen();
 	
 	return 0;
 }
