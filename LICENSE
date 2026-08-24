@@ -1,3 +1,27 @@
+Copyright (c) 2026 phan-my <manhhung.phan at proton.me>.
+================================================================================
+
+"Kyokutou Jikkenjou ~ Sentimental Experimentation" -- encompassing this
+software, associated visual data, associated audio data, and associated
+documentation files (collectively, the "Software") -- is an unofficial
+derivative work based on the "Touhou Project" video game series by Team Shanghai
+Alice.
+
+Team Shanghai Alice's "Guidelines for Touhou Project Fan Creators" (the
+"Guidelines") is a permissive guideline that gives details on the legal
+requirements for publishing unofficial self-published derivative works based on
+"Touhou Project". The Guidelines are accessible on the web site
+	https://touhou-project.news/guideline/.
+The copyright holder of the Software (the "Author") has determined that the
+Software complies with the requirements explained by the Guidelines. Team
+Shanghai Alice did not have a say in the development or publishing of the
+Software.
+
+The Software is released under the terms of the BSD 2-Clause "Simplified"
+License (BSD-2-Clause). The contents of BSD-2-Clause are as follows:
+
+-----BEGINNING OF LICENCE TERMS-----
+
 BSD 2-Clause "Simplified" License
 
 Copyright (c) 2026 phan-my.
@@ -22,3 +46,6 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-----END OF LICENCE TERMS-----
+
