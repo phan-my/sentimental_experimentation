@@ -19,7 +19,7 @@
 #include "sounds.h"
 #include "render.h"
 #include "common.h"
-#include "input.h"
+//	#include "input.h"
 
 #define FIELD_OFFSET_X 32
 #define FIELD_OFFSET_Y 16
@@ -58,38 +58,13 @@ int main(int argc, char **argv)
 	const int num_player_bullets = 64;
 	struct ball player_bullets[num_player_bullets];
 
-	// load background
-	SDL_Surface *border_surface;	
-	border_surface = IMG_Load("assets/window.png");
-	SDL_Texture *border_tex = SDL_CreateTextureFromSurface(rend, border_surface);
-	SDL_FreeSurface(border_surface);
-	
-	// load player
-	reimu.sdl.surface = IMG_Load("assets/reimu.png"); // path to sprite
-	// load image to memory
-	reimu.sdl.texture =
-		SDL_CreateTextureFromSurface(rend, reimu.sdl.surface);
-	SDL_FreeSurface(reimu.sdl.surface);
-
-	// load fairies
-	for (i = 0; i < num_fairies; i++) {
-		fairies[i].sdl.surface = IMG_Load("assets/fairy.png");
-		fairies[i].sdl.texture = SDL_CreateTextureFromSurface(rend,
-				fairies[i].sdl.surface);
-		SDL_FreeSurface(fairies[i].sdl.surface);
-	}
-
-	// load bullets
-	SDL_Surface *surface = IMG_Load("assets/bullet_snow.png");
-	SDL_Texture *tex = SDL_CreateTextureFromSurface(rend, surface);
-	SDL_FreeSurface(surface);
-
-	// load player bullets
-	SDL_Surface *player_bullet_surface =
-		IMG_Load("assets/player_bullet.png");
-	SDL_Texture *player_bullet_texture = SDL_CreateTextureFromSurface(rend,
-			player_bullet_surface);
-	SDL_FreeSurface(player_bullet_surface);
+	// load sprites
+	SDL_Texture *border_tex = create_texture("assets/window.png"); // UI
+	reimu.sdl.texture = create_texture("assets/reimu.png"); // player
+	fairies[0].sdl.texture = create_texture("assets/fairy.png");
+	SDL_Texture *tex = create_texture("assets/bullet_snow.png"); // bullets
+	SDL_Texture *player_bullet_texture =
+		create_texture("assets/player_bullet.png");
 
 	
 	/* positioning hitboxes */
@@ -125,7 +100,7 @@ int main(int argc, char **argv)
 
 	// fairy
 	for (i = 0; i < num_fairies; i++) {
-		SDL_QueryTexture(fairies[i].sdl.texture, NULL, NULL,
+		SDL_QueryTexture(fairies[0].sdl.texture, NULL, NULL,
 				&fairies[i].sdl.rect.w, &fairies[i].sdl.rect.h);
 		fairies[i].hitbox.x = FIELD_OFFSET_X + randint(0, FIELD_WIDTH);
 		fairies[i].hitbox.y = FIELD_OFFSET_Y;
@@ -499,7 +474,7 @@ int main(int argc, char **argv)
 			SDL_RenderCopy(rend, tex, NULL, &dest[i].sdl.rect);
 		for (i = 0; i < num_fairies; i++) {
 			if (active_fairies[i]) {
-				SDL_RenderCopy(rend, fairies[i].sdl.texture,
+				SDL_RenderCopy(rend, fairies[0].sdl.texture,
 						NULL, &fairies[i].sdl.rect);
 			}
 		}

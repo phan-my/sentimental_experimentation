@@ -11,6 +11,7 @@
 
 // include
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 // macros
 #define WINDOW_TITLE "極東実験情　～ Sentimental Experimentation"
@@ -29,5 +30,6 @@ extern SDL_Renderer *rend;
 void check_sdl_init(void);
 void initialize_screen(void);
 void terminate_screen(void);
+SDL_Texture *create_texture(char *sprite);
 
 #endif /* RENDER_H */

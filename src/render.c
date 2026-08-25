@@ -9,6 +9,7 @@
 /* INCLUDES */
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include "render.h"
 
 
@@ -56,4 +57,14 @@ void terminate_screen(void)
 {
 	SDL_DestroyWindow(screen);
 	SDL_Quit();
+}
+
+// simplify tex creation by omitting surface
+SDL_Texture *create_texture(char *sprite)
+{
+	SDL_Surface *surface = IMG_Load(sprite);
+	// load image to memory
+	SDL_Texture *texture = SDL_CreateTextureFromSurface(rend, surface);
+	SDL_FreeSurface(surface);
+	return texture;
 }
