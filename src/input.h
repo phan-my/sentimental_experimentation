@@ -10,9 +10,14 @@
 #define INPUT_H
 
 // includes
+#pragma once
 #include <SDL2/SDL.h>
 
-// constants
-// extern const Uint8 *keyboard_states;
+// variables
+extern int reload;
+extern int nth_player_bullet;
+
+// functions
+int do_input();
 
 #endif /* INPUT_H */

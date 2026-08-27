@@ -12,9 +12,22 @@
 #define LOGIC_H
 
 // includes
-#include <SDL2/SDL.h>
+#pragma once
+#include <stdbool.h>
 #include <math.h>
+#include <SDL2/SDL.h>
 
+// macros
+#define REIMU_DEFAULT_SPEED 4.5  
+#define REIMU_FOCUS_FACTOR 0.4444444
+#define PLAYER_BOTTOM_MARGIN 16 // extra margins for player at bottom of field
+
+
+#define MAX_RELOAD 2
+#define MAX_PLAYER_BULLETS 100
+
+#define FIELD_OFFSET_X 32
+#define FIELD_OFFSET_Y 16
 
 /* STRUCTS */ 
 
@@ -58,6 +71,7 @@ struct player {
 	double level;
 	double speed;
 	double diagonal;
+	bool active;
 };
 
 struct position {
@@ -80,10 +94,12 @@ struct ball {
 	struct circlebox hitbox;
 	struct sdl_types sdl;
 	int power;
+	bool active;
 };
 
 // variables
 extern struct player reimu;
+extern bool active_player_bullets[MAX_PLAYER_BULLETS];
 
 // functions
 bool is_hit(struct circlebox dest, struct circlebox src);

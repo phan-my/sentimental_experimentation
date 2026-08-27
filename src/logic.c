@@ -19,6 +19,7 @@
 /* VARIABLES */
 
 struct player reimu;
+bool active_player_bullets[MAX_PLAYER_BULLETS];
 
 
 /* FUNCTIONS */

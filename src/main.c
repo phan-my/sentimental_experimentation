@@ -19,17 +19,13 @@
 #include "sounds.h"
 #include "render.h"
 #include "common.h"
-//	#include "input.h"
-
-#define FIELD_OFFSET_X 32
-#define FIELD_OFFSET_Y 16
+#include "input.h"
 
 #define D_RECT_X 0
 #define D_RECT_Y 1
 #define NUM_BULLETS 1000
 #define PI 3.1415926535897932384626433832795028841971693993751058209749445923078
 #define GOLDEN_RATIO 0.6180339887498948482045868343656381177203091798057628621
-#define INVERSE_SQRT_2 0.7071067811865475244008444
 
 // invoke as dest = f(d_dest, speed, turns)
 double *launch_straight(double *d_dest, double speed, double turns)
@@ -55,8 +51,10 @@ int main(int argc, char **argv)
 	bool active_fairies[num_fairies];
 	for (i = 0; i < num_fairies; i++)
 		active_fairies[i] = 1;
-	const int num_player_bullets = 64;
-	struct ball player_bullets[num_player_bullets];
+	// player bullet go! queue
+	for (i = 0; i < MAX_PLAYER_BULLETS; i++)
+		active_player_bullets[i] = false;
+	struct ball player_bullets[MAX_PLAYER_BULLETS];
 
 	// load sprites
 	SDL_Texture *border_tex = create_texture("assets/window.png"); // UI
@@ -110,7 +108,7 @@ int main(int argc, char **argv)
 	}
 
 	// player_bullets
-	for (i = 0; i < num_player_bullets; i++) {
+	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
 		SDL_QueryTexture(player_bullet_texture, NULL, NULL,
 				&player_bullets[i].sdl.rect.w, &player_bullets[i].sdl.rect.h);
 		player_bullets[i].hitbox.x = reimu.hitbox.x;
@@ -170,11 +168,9 @@ int main(int argc, char **argv)
 	
 	// player speed
 	// https://en.touhouwiki.net/wiki/User:Arcorann/Character_Speeds#Massive_chart
-	double reimu_default_speed = 4.5;
-	const double focus_factor = 2.0 / reimu_default_speed;
-	double marisa_speed = reimu_default_speed * 1.5;
+	double marisa_speed = REIMU_DEFAULT_SPEED * 1.5;
 	// for lshift focus
-	double factored_speed = reimu_default_speed;
+	double factored_speed = REIMU_DEFAULT_SPEED;
 	double diagonal;
 
 	// player bullet
@@ -201,144 +197,14 @@ int main(int argc, char **argv)
 	clock_gettime(CLOCK_MONOTONIC_RAW, &dt_end);
 	Uint64 ticks = 0;
 
-	// prevent movement at field border
-	bool in_left; 
-	bool in_down;
-	bool in_up;
-	bool in_right;
-
-	// extra margins for player at bottom of field
-	int player_bottom_margin = 16;
-
-	// player bullet go! queue
-	bool active_player_bullets[num_player_bullets];
-	for (i = 0; i < num_player_bullets; i++)
-		active_player_bullets[i] = false;
-	int nth_player_bullet = 0; // global variable
-	
-	// space between player bullet in ticks
-	const int MAX_RELOAD = 2;
-	int reload = MAX_RELOAD;
-
 	// main loop
 	while (!close) {
 		const Uint8 *keyboard_states = SDL_GetKeyboardState(NULL);
 
-      		// mechanism for player to grind at field border
-		in_left	= reimu.sdl.rect.x > FIELD_OFFSET_X;
-		in_up = reimu.sdl.rect.y > FIELD_OFFSET_Y;
-		in_down = reimu.sdl.rect.y < FIELD_OFFSET_Y + FIELD_HEIGHT
-			- reimu.sdl.rect.h + player_bottom_margin;
-		in_right = reimu.sdl.rect.x < FIELD_OFFSET_X + FIELD_WIDTH
-			- reimu.sdl.rect.w;
-
-		while (SDL_PollEvent(&event)) {
-			switch (event.type) {
-
-			// close button
-			case SDL_QUIT:
-				close = 1;
-				break;
-
-			// any key pressed
-			case SDL_KEYDOWN:
-				key_down = 1;
-				scanned_key = event.key.keysym.scancode;
-				break;
-			case SDL_KEYUP:
-// 				key_down = 0;
-// 				scanned_key = 0;
-				break;
-			default:
-				break;
-			}
-		}
-		
-		// avoids key repeat delay
-		// questions/21311824/sdl2-key-repeat-delay
-		if (key_down) {
-			// keyboard API
-			
-			// escape key
-			if (keyboard_states[SDL_SCANCODE_ESCAPE])
-				close = 1;
-
-
-			/* movement */
-
-			if (keyboard_states[SDL_SCANCODE_LSHIFT])
-				factored_speed =
-					focus_factor * reimu_default_speed;
-			else
-				factored_speed = reimu_default_speed;
-			diagonal = factored_speed * (INVERSE_SQRT_2 - 1);
-
-			// non-diagonal movement
-			if (keyboard_states[SDL_SCANCODE_LEFT] && in_left)
-				reimu.hitbox.x -= factored_speed;
-			if (keyboard_states[SDL_SCANCODE_DOWN] && in_down)
-				reimu.hitbox.y += factored_speed;
-			if (keyboard_states[SDL_SCANCODE_UP] && in_up)
-				reimu.hitbox.y -= factored_speed;
-			if (keyboard_states[SDL_SCANCODE_RIGHT] && in_right)
-				reimu.hitbox.x += factored_speed;
-
-			// diagonal movement
-			if (keyboard_states[SDL_SCANCODE_LEFT] &&
-					keyboard_states[SDL_SCANCODE_DOWN]) {
-				if (in_down)
-					reimu.hitbox.y += diagonal;
-				if (in_left)
-					reimu.hitbox.x -= diagonal;
-			}
-			if (keyboard_states[SDL_SCANCODE_LEFT] &&
-					keyboard_states[SDL_SCANCODE_UP]) {
-				if (in_left)
-					reimu.hitbox.x -= diagonal;
-				if (in_up)
-					reimu.hitbox.y -= diagonal;
-			}
-			if (keyboard_states[SDL_SCANCODE_RIGHT] &&
-					keyboard_states[SDL_SCANCODE_DOWN]) {
-				if (in_right)
-					reimu.hitbox.x += diagonal;
-				if (in_down)
-					reimu.hitbox.y += diagonal;
-			}
-			if (keyboard_states[SDL_SCANCODE_RIGHT] &&
-					keyboard_states[SDL_SCANCODE_UP]) {
-				if (in_right)
-					reimu.hitbox.x += diagonal;
-				if (in_up)
-					reimu.hitbox.y -= diagonal;
-			}
-
-//			reimu.sdl.rect.x = reimu.hitbox.x;
-//			reimu.sdl.rect.y = reimu.hitbox.y;
-			update_player_position(&reimu);
-
-			
-			/* shooting */
-
-			// https://www.parallelrealities.co.uk/tutorials/shooter/shooter5.php
-			if (keyboard_states[SDL_SCANCODE_Z]) {
-				// activate one bullet
-				if (reload == 0)
-					active_player_bullets[nth_player_bullet]
-						= 1;
-				// cycles through array
-				while (active_player_bullets[nth_player_bullet]) {
-					nth_player_bullet++;
-					nth_player_bullet %= num_player_bullets;
-				}
-			}
-			reload--;
-			if (reload < 0)
-				reload = MAX_RELOAD;
-		}
+		close = do_input();
 
 		// update player bullets
-		for (i = 0; i < num_player_bullets; i++) {
+		for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
 			// update bullets if they fall out of bounds
 			if (player_bullets[i].hitbox.y < 0 ||
 					!active_player_bullets[i]) {
@@ -442,7 +308,7 @@ int main(int argc, char **argv)
 				printf("FAIRY HITT  \n");
 
 			// player bullet hits fairy
-			for (j = 0; j < num_player_bullets; j++) {
+			for (j = 0; j < MAX_PLAYER_BULLETS; j++) {
 				// fairy takes damage
 				if (active_player_bullets[j] && active_fairies[i] && is_hit(fairies[i].hitbox,
 							player_bullets[j].hitbox)) {
@@ -478,7 +344,7 @@ int main(int argc, char **argv)
 						NULL, &fairies[i].sdl.rect);
 			}
 		}
-		for (i = 0; i < num_player_bullets; i++)
+		for (i = 0; i < MAX_PLAYER_BULLETS; i++)
 			if (active_player_bullets[i])
 				SDL_RenderCopy(rend, player_bullet_texture,
 						NULL,
