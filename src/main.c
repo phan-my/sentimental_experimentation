@@ -54,11 +54,13 @@ int main(int argc, char **argv)
 	SDL_QueryTexture(border_tex, NULL, NULL, &border_dest.w,
 				&border_dest.h);
 	border_dest.x = 0;
+	border_dest.y = 0;
 	
 	// menu
 	SDL_Rect main_menu_dest;
 	SDL_QueryTexture(main_menu, NULL, NULL, &main_menu_dest.w, &main_menu_dest.h);
 	main_menu_dest.x = 0;
+	main_menu_dest.y = 0;
 
 	// player
 	// create object

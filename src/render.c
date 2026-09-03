@@ -79,7 +79,7 @@ void initialize_textures(void)
 	int i;
 	// fairy movement control
 	for (i = 0; i < MAX_FAIRIES; i++)
-		fairies[i].active = false;
+		fairies[i].active = true;
 	// player bullet go! queue
 	for (i = 0; i < MAX_PLAYER_BULLETS; i++)
 		player_bullets[i].active = false;
