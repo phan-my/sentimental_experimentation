@@ -16,11 +16,15 @@
 #include <stdbool.h>
 #include <math.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 // macros
 #define REIMU_DEFAULT_SPEED 4.5  
 #define REIMU_FOCUS_FACTOR 0.4444444
 #define PLAYER_BOTTOM_MARGIN 16 // extra margins for player at bottom of field
+
+#define MAX_BULLETS 1000
+#define MAX_FAIRIES 255
 
 
 #define MAX_RELOAD 2
@@ -88,6 +92,7 @@ struct enemy {
 	struct circlebox hitbox;
 	struct sdl_types sdl;
 	int health;
+	bool active;
 };
 
 struct ball {
@@ -97,9 +102,14 @@ struct ball {
 	bool active;
 };
 
-// variables
+// globals
 extern struct player reimu;
-extern bool active_player_bullets[MAX_PLAYER_BULLETS];
+extern struct ball player_bullets[MAX_PLAYER_BULLETS];
+
+extern SDL_Texture *border_tex; // UI
+extern SDL_Texture *tex; // bullets
+extern SDL_Texture *player_bullet_texture;
+extern SDL_Texture *main_menu;
 
 // functions
 bool is_hit(struct circlebox dest, struct circlebox src);

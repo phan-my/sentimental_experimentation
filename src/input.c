@@ -138,10 +138,9 @@ int do_input()
 		if (keyboard_states[SDL_SCANCODE_Z]) {
 			// activate one bullet
 			if (reload == 0)
-				active_player_bullets[nth_player_bullet]
-					= 1;
+				player_bullets[nth_player_bullet].active = 1;
 			// cycles through array
-			while (active_player_bullets[nth_player_bullet]) {
+			while (player_bullets[nth_player_bullet].active) {
 				nth_player_bullet++;
 				nth_player_bullet %= MAX_PLAYER_BULLETS;
 			}

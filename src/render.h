@@ -13,6 +13,7 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include "logic.h"
 
 // macros
 #define WINDOW_TITLE "極東実験情　～ Sentimental Experimentation"
@@ -26,10 +27,13 @@
 // globals
 extern SDL_Window *screen;
 extern SDL_Renderer *rend;
+extern struct ball dest[MAX_BULLETS];
+extern struct enemy fairies[MAX_FAIRIES];
 
 // functions
 void check_sdl_init(void);
 void initialize_screen(void);
+void initialize_textures(void);
 void terminate_screen(void);
 SDL_Texture *create_texture(char *sprite);
 

@@ -10,14 +10,18 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <stdbool.h>
+
 #include "render.h"
+#include "logic.h"
 
 
 /* VARIABLES */
 
 SDL_Window *screen;
 SDL_Renderer *rend;
-
+struct ball dest[MAX_BULLETS];
+struct enemy fairies[MAX_FAIRIES];
 
 /* FUNCTIONS */
 
@@ -67,4 +71,25 @@ SDL_Texture *create_texture(char *sprite)
 	SDL_Texture *texture = SDL_CreateTextureFromSurface(rend, surface);
 	SDL_FreeSurface(surface);
 	return texture;
+}
+
+// TODO: compress setup in main.c
+void initialize_textures(void)
+{
+	int i;
+	// fairy movement control
+	for (i = 0; i < MAX_FAIRIES; i++)
+		fairies[i].active = false;
+	// player bullet go! queue
+	for (i = 0; i < MAX_PLAYER_BULLETS; i++)
+		player_bullets[i].active = false;
+
+	// FIXME: menu rendering bugs
+	// load sprites
+	border_tex = create_texture("assets/window.png"); // UI
+	reimu.sdl.texture = create_texture("assets/reimu.png"); // player
+	fairies[0].sdl.texture = create_texture("assets/fairy.png");
+	tex = create_texture("assets/bullet_snow.png"); // bullets
+	player_bullet_texture = create_texture("assets/player_bullet.png");
+	main_menu = create_texture("assets/main_menu.png");
 }

@@ -12,6 +12,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #include "logic.h"
 
@@ -19,7 +20,12 @@
 /* VARIABLES */
 
 struct player reimu;
-bool active_player_bullets[MAX_PLAYER_BULLETS];
+struct ball player_bullets[MAX_PLAYER_BULLETS];
+
+SDL_Texture *border_tex; // UI
+SDL_Texture *tex; // bullets
+SDL_Texture *player_bullet_texture;
+SDL_Texture *main_menu;
 
 
 /* FUNCTIONS */
