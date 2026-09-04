@@ -1,5 +1,5 @@
 /*
- * main.c to be compiled as `gcc main.c -lm -lSDL2 -lSDL2_image -lSDL2_mixer`.
+ * main.c to be compiled as `make`.
  * Copyright (c) 2026 phan-my <manhhung.phan at proton.me>.
  *
  * This software is licenced under the terms of BSD-2-Clause.
@@ -57,10 +57,17 @@ int main(int argc, char **argv)
 	border_dest.y = 0;
 	
 	// menu
+	// TODO: incorporate as ->dest into sdl_types
 	SDL_Rect main_menu_dest;
 	SDL_QueryTexture(main_menu, NULL, NULL, &main_menu_dest.w, &main_menu_dest.h);
 	main_menu_dest.x = 0;
 	main_menu_dest.y = 0;
+
+	SDL_Rect loading_dest;
+	SDL_QueryTexture(loading, NULL, NULL, &loading_dest.w, &loading_dest.h);
+	loading_dest.x = 0;
+	loading_dest.y = 0;
+
 
 	// player
 	// create object
@@ -105,10 +112,6 @@ int main(int argc, char **argv)
 		player_bullets[i].power = 1;
 	}
 
-	/* music loader */
-	// https://thenumb.at/cpp-course/sdl2/06/06.html#mixer
-	initialize_sounds();
-	play_track("02");
 
 
 	/* numerical setup */
@@ -171,6 +174,7 @@ int main(int argc, char **argv)
 	SDL_Event event;
 	bool key_down = 0;
 	int scanned_key = 0;
+	int current_level = 1;
 
 	// timing
 	double frames[10000];
@@ -217,14 +221,24 @@ int main(int argc, char **argv)
 			if (key_down) {
 
 				if (keyboard_states[SDL_SCANCODE_Z])
-					state_menu = STATE_PLAY;
+					state_menu = STATE_LOADING;
 			}
 
+			// update sprites
 			SDL_RenderClear(rend);
 			SDL_RenderCopy(rend, main_menu, NULL, &main_menu_dest);
-		
-			// double buffer
 			SDL_RenderPresent(rend);
+			break;
+		case STATE_LOADING:
+			SDL_RenderClear(rend);
+			SDL_RenderCopy(rend, main_menu, NULL, &loading_dest);
+			SDL_RenderPresent(rend);
+	
+			/* music loader */
+			// https://thenumb.at/cpp-course/sdl2/06/06.html#mixer
+			initialize_sounds();
+			play_track("02");
+			state_menu = STATE_PLAY;
 			break;
 		case STATE_PLAY:
 			close = do_input();

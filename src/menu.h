@@ -14,8 +14,9 @@
 // macros
 #define STATE_PLAY	0
 #define STATE_MAIN	1
-#define STATE_PAUSE	2
-#define STATE_ENDING	3
+#define STATE_LOADING	2
+#define STATE_PAUSE	3
+#define STATE_ENDING	4
 
 // globals
 extern int state_menu;

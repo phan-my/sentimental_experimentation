@@ -26,6 +26,7 @@ SDL_Texture *border_tex; // UI
 SDL_Texture *tex; // bullets
 SDL_Texture *player_bullet_texture;
 SDL_Texture *main_menu;
+SDL_Texture *loading;
 
 
 /* FUNCTIONS */

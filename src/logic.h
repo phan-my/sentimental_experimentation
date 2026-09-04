@@ -102,6 +102,11 @@ struct ball {
 	bool active;
 };
 
+struct overlay {
+	struct sdl_types sdl;
+
+};
+
 // globals
 extern struct player reimu;
 extern struct ball player_bullets[MAX_PLAYER_BULLETS];
@@ -110,6 +115,7 @@ extern SDL_Texture *border_tex; // UI
 extern SDL_Texture *tex; // bullets
 extern SDL_Texture *player_bullet_texture;
 extern SDL_Texture *main_menu;
+extern SDL_Texture *loading;
 
 // functions
 bool is_hit(struct circlebox dest, struct circlebox src);
