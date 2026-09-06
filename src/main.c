@@ -47,36 +47,6 @@ int main(int argc, char **argv)
 
 	initialize_textures();
 	
-	/* positioning hitboxes */
-
-	// background
-	SDL_Rect border_dest;
-	SDL_QueryTexture(border_tex, NULL, NULL, &border_dest.w,
-				&border_dest.h);
-	border_dest.x = 0;
-	border_dest.y = 0;
-	
-	// menu
-	// TODO: incorporate as ->dest into sdl_types
-	SDL_Rect main_menu_dest;
-	SDL_QueryTexture(main_menu, NULL, NULL, &main_menu_dest.w, &main_menu_dest.h);
-	main_menu_dest.x = 0;
-	main_menu_dest.y = 0;
-
-	SDL_Rect loading_dest;
-	SDL_QueryTexture(loading, NULL, NULL, &loading_dest.w, &loading_dest.h);
-	loading_dest.x = 0;
-	loading_dest.y = 0;
-
-
-	// player
-	// create object
-	SDL_QueryTexture(reimu.sdl.texture, NULL, NULL, &reimu.sdl.rect.w,
-				&reimu.sdl.rect.h);
-	reimu.hitbox.x = FIELD_WIDTH / 2. + FIELD_OFFSET_X;
-	reimu.hitbox.y = FIELD_HEIGHT * 0.75 + FIELD_OFFSET_Y;
-	update_player_position(&reimu);
-	reimu.hitbox.r = 2.;
 
 	// "snowball" bullets
 	for (i = 0; i < MAX_BULLETS; i++) {
@@ -226,19 +196,19 @@ int main(int argc, char **argv)
 
 			// update sprites
 			SDL_RenderClear(rend);
-			SDL_RenderCopy(rend, main_menu, NULL, &main_menu_dest);
+			SDL_RenderCopy(rend, main_menu.sdl.texture, NULL, &main_menu.sdl.rect);
 			SDL_RenderPresent(rend);
 			break;
 		case STATE_LOADING:
-			SDL_RenderClear(rend);
-			SDL_RenderCopy(rend, main_menu, NULL, &loading_dest);
-			SDL_RenderPresent(rend);
-	
 			/* music loader */
 			// https://thenumb.at/cpp-course/sdl2/06/06.html#mixer
 			initialize_sounds();
 			play_track("02");
 			state_menu = STATE_PLAY;
+
+			SDL_RenderClear(rend);
+			SDL_RenderCopy(rend, loading.sdl.texture, NULL, &loading.sdl.rect);
+			SDL_RenderPresent(rend);
 			break;
 		case STATE_PLAY:
 			close = do_input();
@@ -390,7 +360,7 @@ int main(int argc, char **argv)
 							NULL,
 							&player_bullets[i].sdl.rect);
 
-			SDL_RenderCopy(rend, border_tex, NULL, &border_dest);
+			SDL_RenderCopy(rend, border.sdl.texture, NULL, &border.sdl.rect);
 
 			SDL_RenderPresent(rend);
 			break;

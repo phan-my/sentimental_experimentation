@@ -76,6 +76,49 @@ SDL_Texture *create_texture(char *sprite)
 	return texture;
 }
 
+void position_rect(SDL_Rect rect, int x, int y)
+{
+	rect.x = (int)x;
+	rect.y = (int)y;
+}
+
+// create and position in-game overlay
+void initialize_overlays()
+{
+	// main menu
+	main_menu.sdl.texture = create_texture("assets/main_menu.png");
+	SDL_QueryTexture(main_menu.sdl.texture, NULL, NULL,
+			&main_menu.sdl.rect.w, &main_menu.sdl.rect.h);
+	position_rect(main_menu.sdl.rect, 0, 0);
+
+	// in-game overlay
+	border.sdl.texture = create_texture("assets/window.png"); // UI
+	SDL_QueryTexture(border.sdl.texture, NULL, NULL, &border.sdl.rect.w,
+				&border.sdl.rect.h);
+	position_rect(border.sdl.rect, 0, 0);
+
+	// loading screen
+	loading.sdl.texture = create_texture("assets/loading.png");
+	SDL_QueryTexture(loading.sdl.texture, NULL, NULL, &loading.sdl.rect.w,
+			&loading.sdl.rect.h);
+	position_rect(loading.sdl.rect, 0, 0);
+}
+
+
+void initialize_player()
+{
+	// player
+	// create object
+	reimu.sdl.texture = create_texture("assets/reimu.png");
+	SDL_QueryTexture(reimu.sdl.texture, NULL, NULL, &reimu.sdl.rect.w,
+				&reimu.sdl.rect.h);
+	// positioning
+	reimu.hitbox.x = FIELD_WIDTH / 2. + FIELD_OFFSET_X;
+	reimu.hitbox.y = FIELD_HEIGHT * 0.75 + FIELD_OFFSET_Y;
+	update_player_position(&reimu); // subpixel hitbox -> macro rect
+	reimu.hitbox.r = 2.;
+}
+
 void initialize_textures(void)
 {
 	int i;
@@ -87,11 +130,9 @@ void initialize_textures(void)
 		player_bullets[i].active = false;
 
 	// load sprites
-	border_tex = create_texture("assets/window.png"); // UI
-	reimu.sdl.texture = create_texture("assets/reimu.png"); // player
+	initialize_overlays();
+	initialize_player();
 	fairies[0].sdl.texture = create_texture("assets/fairy.png");
 	tex = create_texture("assets/bullet_snow.png"); // bullets
 	player_bullet_texture = create_texture("assets/player_bullet.png");
-	main_menu = create_texture("assets/main_menu.png");
-	loading = create_texture("assets/loading.png");
 }

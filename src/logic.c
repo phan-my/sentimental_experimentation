@@ -22,11 +22,11 @@
 struct player reimu;
 struct ball player_bullets[MAX_PLAYER_BULLETS];
 
-SDL_Texture *border_tex; // UI
+struct overlay main_menu;
+struct overlay border; // UI
+struct overlay loading;
 SDL_Texture *tex; // bullets
 SDL_Texture *player_bullet_texture;
-SDL_Texture *main_menu;
-SDL_Texture *loading;
 
 
 /* FUNCTIONS */
