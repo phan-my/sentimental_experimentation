@@ -107,6 +107,7 @@ void initialize_overlays()
 // initialize chosen player
 void initialize_player()
 {
+	int i;
 	// TODO: player selection in main menu
 	// player
 	// create object
@@ -118,6 +119,21 @@ void initialize_player()
 	reimu.hitbox.y = FIELD_HEIGHT * 0.75 + FIELD_OFFSET_Y;
 	update_player_position(&reimu); // subpixel hitbox -> macro rect
 	reimu.hitbox.r = 2.;
+
+	// player bullets
+	player_bullets[0].sdl.texture = create_texture("assets/player_bullet.png");
+	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
+		SDL_QueryTexture(player_bullets[0].sdl.texture, NULL, NULL,
+				&player_bullets[i].sdl.rect.w,
+				&player_bullets[i].sdl.rect.h);
+		// player bullet go! queue
+		player_bullets[i].active = false;
+
+		player_bullets[i].hitbox.x = reimu.hitbox.x;
+		player_bullets[i].hitbox.y = reimu.hitbox.y;
+		player_bullets[i].hitbox.r = 8.;
+		player_bullets[i].power = 1;
+	}
 }
 
 // load sprites of stage enemies, bullets, and bosses
@@ -134,28 +150,22 @@ void initialize_enemies()
 
 	// fairies
 	fairies[0].sdl.texture = create_texture("assets/fairy.png");
-	for (i = 0; i < MAX_FAIRIES; i++)
+	for (i = 0; i < MAX_FAIRIES; i++) {
 		SDL_QueryTexture(fairies[0].sdl.texture, NULL, NULL,
 				&fairies[i].sdl.rect.w, &fairies[i].sdl.rect.h);
+		
+		// fairy movement control
+		fairies[i].active = true;
+
+		fairies[i].hitbox.r = 8.;
+		fairies[i].health = 2;
+	}
 	
-	// player bullets
-	player_bullets[0].sdl.texture = create_texture("assets/player_bullet.png");
-	for (i = 0; i < MAX_PLAYER_BULLETS; i++) 
-		SDL_QueryTexture(player_bullets[0].sdl.texture, NULL, NULL,
-				&player_bullets[i].sdl.rect.w, &player_bullets[i].sdl.rect.h);
 }
 
+// load sprites
 void initialize_textures(void)
 {
-	int i;
-	// fairy movement control
-	for (i = 0; i < MAX_FAIRIES; i++)
-		fairies[i].active = true;
-	// player bullet go! queue
-	for (i = 0; i < MAX_PLAYER_BULLETS; i++)
-		player_bullets[i].active = false;
-
-	// load sprites
 	initialize_overlays();
 	initialize_player();
 	initialize_enemies();

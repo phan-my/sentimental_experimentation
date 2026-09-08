@@ -15,12 +15,12 @@
 #include <SDL2/SDL_image.h>
 
 #include "logic.h"
-#include "random.h"
 #include "sounds.h"
 #include "render.h"
 #include "common.h"
 #include "input.h"
 #include "menu.h"
+#include "stage.h"
 
 #define D_RECT_X 0
 #define D_RECT_Y 1
@@ -46,37 +46,6 @@ int main(int argc, char **argv)
 	/* image loader */
 
 	initialize_textures();
-	
-
-	// TODO: move to soft_initialize_stage(1) at stage.c 
-	// "snowball" bullets
-	for (i = 0; i < MAX_BULLETS; i++) {
-//		ball_8x8[i].w /= scale;
-//		ball_8x8[i].h /= scale;
-		ball_8x8[i].hitbox.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-		ball_8x8[i].hitbox.y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
-		ball_8x8[i].hitbox.r = 3.8;
-		update_ball_position(&ball_8x8[i]);
-	}
-
-
-	// fairy
-	for (i = 0; i < MAX_FAIRIES; i++) {
-		fairies[i].hitbox.x = FIELD_OFFSET_X + randint(0, FIELD_WIDTH);
-		fairies[i].hitbox.y = FIELD_OFFSET_Y;
-		update_enemy_position(&fairies[i]);
-		fairies[i].hitbox.r = 8.;
-		fairies[i].health = 2;
-	}
-
-	// player_bullets
-	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
-		player_bullets[i].hitbox.x = reimu.hitbox.x;
-		player_bullets[i].hitbox.y = reimu.hitbox.y;
-		player_bullets[i].hitbox.r = 8.;
-		player_bullets[i].power = 1;
-	}
-
 
 
 	/* numerical setup */
@@ -121,13 +90,6 @@ int main(int argc, char **argv)
 	double phi = 0.;
 	double a = 1;
 	double moving = 1;
-	
-	// player speed
-	// https://en.touhouwiki.net/wiki/User:Arcorann/Character_Speeds#Massive_chart
-	double marisa_speed = REIMU_DEFAULT_SPEED * 1.5;
-	// for lshift focus
-	double factored_speed = REIMU_DEFAULT_SPEED;
-	double diagonal;
 
 	
 	/* main loop */
@@ -137,7 +99,6 @@ int main(int argc, char **argv)
 	SDL_Event event;
 	bool key_down = 0;
 	int scanned_key = 0;
-	int current_level = 1;
 
 	// timing
 	double frames[10000];
@@ -195,6 +156,7 @@ int main(int argc, char **argv)
 		case STATE_LOADING:
 			/* music loader */
 			// https://thenumb.at/cpp-course/sdl2/06/06.html#mixer
+			initialize_stage(current_stage);
 			initialize_sounds();
 			play_track("02");
 			state_menu = STATE_PLAY;

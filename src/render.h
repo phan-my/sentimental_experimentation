@@ -24,6 +24,9 @@
 #define FIELD_WIDTH 384		// (480x560 | 384x448)
 #define FIELD_HEIGHT 448
 
+#define FIELD_OFFSET_X 32
+#define FIELD_OFFSET_Y 16
+
 // globals
 extern SDL_Window *screen;
 extern SDL_Renderer *rend;

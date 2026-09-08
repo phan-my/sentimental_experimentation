@@ -19,20 +19,23 @@
 #include <SDL2/SDL_image.h>
 
 // macros
+// https://en.touhouwiki.net/wiki/User:Arcorann/Character_Speeds#Massive_chart
 #define REIMU_DEFAULT_SPEED 4.5  
 #define REIMU_FOCUS_FACTOR 0.4444444
+
+#define MARISA_DEFAULT_SPEED 5.0
+#define MARISA_FOCUS_FACTOR 0.4
+
+
 #define PLAYER_BOTTOM_MARGIN 16 // extra margins for player at bottom of field
-
-#define MAX_BULLETS 1000
-#define MAX_FAIRIES 255
-
 
 #define MAX_PLAYER_BULLETS 100
 #define MAX_RELOAD 3
 #define PLAYER_BULLET_SPEED 16.
 
-#define FIELD_OFFSET_X 32
-#define FIELD_OFFSET_Y 16
+#define MAX_BULLETS 1000
+#define MAX_FAIRIES 255
+
 
 /* STRUCTS */ 
 
@@ -94,6 +97,7 @@ struct enemy {
 	struct sdl_types sdl;
 	int health;
 	bool active;
+	bool clearable; // 1: automatically unloaded if reaches off-screen
 };
 
 struct ball {
