@@ -27,8 +27,9 @@
 #define MAX_FAIRIES 255
 
 
-#define MAX_RELOAD 2
 #define MAX_PLAYER_BULLETS 100
+#define MAX_RELOAD 3
+#define PLAYER_BULLET_SPEED 16.
 
 #define FIELD_OFFSET_X 32
 #define FIELD_OFFSET_Y 16

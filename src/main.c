@@ -48,23 +48,20 @@ int main(int argc, char **argv)
 	initialize_textures();
 	
 
+	// TODO: move to soft_initialize_stage(1) at stage.c 
 	// "snowball" bullets
 	for (i = 0; i < MAX_BULLETS; i++) {
-		SDL_QueryTexture(tex, NULL, NULL, &dest[i].sdl.rect.w,
-				&dest[i].sdl.rect.h);
-//		dest[i].w /= scale;
-//		dest[i].h /= scale;
-		dest[i].hitbox.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-		dest[i].hitbox.y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
-		dest[i].hitbox.r = 3.8;
-		update_ball_position(&dest[i]);
+//		ball_8x8[i].w /= scale;
+//		ball_8x8[i].h /= scale;
+		ball_8x8[i].hitbox.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+		ball_8x8[i].hitbox.y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
+		ball_8x8[i].hitbox.r = 3.8;
+		update_ball_position(&ball_8x8[i]);
 	}
 
 
 	// fairy
 	for (i = 0; i < MAX_FAIRIES; i++) {
-		SDL_QueryTexture(fairies[0].sdl.texture, NULL, NULL,
-				&fairies[i].sdl.rect.w, &fairies[i].sdl.rect.h);
 		fairies[i].hitbox.x = FIELD_OFFSET_X + randint(0, FIELD_WIDTH);
 		fairies[i].hitbox.y = FIELD_OFFSET_Y;
 		update_enemy_position(&fairies[i]);
@@ -74,8 +71,6 @@ int main(int argc, char **argv)
 
 	// player_bullets
 	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
-		SDL_QueryTexture(player_bullet_texture, NULL, NULL,
-				&player_bullets[i].sdl.rect.w, &player_bullets[i].sdl.rect.h);
 		player_bullets[i].hitbox.x = reimu.hitbox.x;
 		player_bullets[i].hitbox.y = reimu.hitbox.y;
 		player_bullets[i].hitbox.r = 8.;
@@ -114,7 +109,7 @@ int main(int argc, char **argv)
 	// create double version of dest for subpixel precision
 	double angles[MAX_BULLETS];
 	for (i = 0; i < MAX_BULLETS; i++) {
-		update_ball_position(&dest[i]);
+		update_ball_position(&ball_8x8[i]);
 		if (i % 2)
 			angles[i] = i * GOLDEN_RATIO;
 		else
@@ -134,9 +129,7 @@ int main(int argc, char **argv)
 	double factored_speed = REIMU_DEFAULT_SPEED;
 	double diagonal;
 
-	// player bullet
-	double player_bullet_speed = 8.;
-
+	
 	/* main loop */
 
 	// events management
@@ -223,7 +216,7 @@ int main(int argc, char **argv)
 					player_bullets[i].hitbox.y = reimu.hitbox.y;
 				}
 				if (player_bullets[i].active) {
-					player_bullets[i].hitbox.y -= player_bullet_speed;
+					player_bullets[i].hitbox.y -= PLAYER_BULLET_SPEED;
 					update_ball_position(&player_bullets[i]);
 				}
 			}
@@ -235,18 +228,18 @@ int main(int argc, char **argv)
 			double period = 300;
 			double amplitude = 100;
 			for (i = 0; i < MAX_BULLETS; i++) {
-				d_dest[i][D_RECT_Y] += amplitude * 2 * PI / period * 
-					cos(2 * PI * dest[i].x / period);
-				dest[i].y = (int)d_dest[i][D_RECT_Y];
-				dest[i].x = (int)(d_dest[i][D_RECT_X] += speed[i]);
+				d_ball_8x8[i][D_RECT_Y] += amplitude * 2 * PI / period * 
+					cos(2 * PI * ball_8x8[i].x / period);
+				ball_8x8[i].y = (int)d_ball_8x8[i][D_RECT_Y];
+				ball_8x8[i].x = (int)(d_ball_8x8[i][D_RECT_X] += speed[i]);
 			}
 			*/
 			
 			/* spiral TRAIL movement
 			r = a * phi;
 			for (i = 0; i < MAX_BULLETS; i++) {
-				dest[i].y = (d_dest[i][D_RECT_Y] = speed[i] * r * cos(phi) + SCREEN_HEIGHT / 2);
-				dest[i].x = (d_dest[i][D_RECT_X] = speed[i] * r * sin(phi) + SCREEN_WIDTH / 2);
+				ball_8x8[i].y = (d_ball_8x8[i][D_RECT_Y] = speed[i] * r * cos(phi) + SCREEN_HEIGHT / 2);
+				ball_8x8[i].x = (d_ball_8x8[i][D_RECT_X] = speed[i] * r * sin(phi) + SCREEN_WIDTH / 2);
 			}
 			phi += 0.05;
 			*/
@@ -255,10 +248,10 @@ int main(int argc, char **argv)
 			// sunflower spirals
 			for (i = 0; i < moving; i++) {
 				double p = 1.;
-				d_dest[i][D_RECT_X] += 3. * cos(angles[i] / p);
-				d_dest[i][D_RECT_Y] += 3. * sin(angles[i] / p);
-				dest[i].x = d_dest[i][D_RECT_X];
-				dest[i].y = d_dest[i][D_RECT_Y];
+				d_ball_8x8[i][D_RECT_X] += 3. * cos(angles[i] / p);
+				d_ball_8x8[i][D_RECT_Y] += 3. * sin(angles[i] / p);
+				ball_8x8[i].x = d_ball_8x8[i][D_RECT_X];
+				ball_8x8[i].y = d_ball_8x8[i][D_RECT_Y];
 			}
 			
 			if (moving < MAX_BULLETS - 60) {
@@ -274,9 +267,9 @@ int main(int argc, char **argv)
 			// Jellyfish
 			// speed[i] = (double)i / 100;
 			for (i = 0; i < moving; i++) {
-				dest[i].hitbox.x += speed[i] * cos(angles[i]);
-				dest[i].hitbox.y += speed[i] * sin(angles[i]);
-				update_ball_position(&dest[i]);
+				ball_8x8[i].hitbox.x += speed[i] * cos(angles[i]);
+				ball_8x8[i].hitbox.y += speed[i] * sin(angles[i]);
+				update_ball_position(&ball_8x8[i]);
 			}
 			
 			if (moving < MAX_BULLETS)
@@ -304,7 +297,7 @@ int main(int argc, char **argv)
 			
 			// player -- enemy bullet
 			for (i = 0; i < MAX_BULLETS; i++) {
-				if (is_hit(dest[i].hitbox, reimu.hitbox)) {
+				if (is_hit(ball_8x8[i].hitbox, reimu.hitbox)) {
 					printf("%d: HIT\n", i);
 					if (i % 2)
 						printf("T\n");
@@ -347,7 +340,7 @@ int main(int argc, char **argv)
 			SDL_RenderClear(rend);
 			SDL_RenderCopy(rend, reimu.sdl.texture, NULL, &reimu.sdl.rect);
 			for (i = 0; i < MAX_BULLETS; i++)
-				SDL_RenderCopy(rend, tex, NULL, &dest[i].sdl.rect);
+				SDL_RenderCopy(rend, ball_8x8[0].sdl.texture, NULL, &ball_8x8[i].sdl.rect);
 			for (i = 0; i < MAX_FAIRIES; i++) {
 				if (fairies[i].active) {
 					SDL_RenderCopy(rend, fairies[0].sdl.texture,
@@ -356,7 +349,7 @@ int main(int argc, char **argv)
 			}
 			for (i = 0; i < MAX_PLAYER_BULLETS; i++)
 				if (player_bullets[i].active)
-					SDL_RenderCopy(rend, player_bullet_texture,
+					SDL_RenderCopy(rend, player_bullets[0].sdl.texture,
 							NULL,
 							&player_bullets[i].sdl.rect);
 

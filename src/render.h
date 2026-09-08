@@ -27,7 +27,7 @@
 // globals
 extern SDL_Window *screen;
 extern SDL_Renderer *rend;
-extern struct ball dest[MAX_BULLETS];
+extern struct ball ball_8x8[MAX_BULLETS];
 extern struct enemy fairies[MAX_FAIRIES];
 
 // functions

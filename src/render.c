@@ -21,7 +21,7 @@
 // textures
 SDL_Window *screen;
 SDL_Renderer *rend;
-struct ball dest[MAX_BULLETS];
+struct ball ball_8x8[MAX_BULLETS];
 struct enemy fairies[MAX_FAIRIES];
 
 // dests
@@ -104,9 +104,10 @@ void initialize_overlays()
 	position_rect(loading.sdl.rect, 0, 0);
 }
 
-
+// initialize chosen player
 void initialize_player()
 {
+	// TODO: player selection in main menu
 	// player
 	// create object
 	reimu.sdl.texture = create_texture("assets/reimu.png");
@@ -117,6 +118,31 @@ void initialize_player()
 	reimu.hitbox.y = FIELD_HEIGHT * 0.75 + FIELD_OFFSET_Y;
 	update_player_position(&reimu); // subpixel hitbox -> macro rect
 	reimu.hitbox.r = 2.;
+}
+
+// load sprites of stage enemies, bullets, and bosses
+void initialize_enemies()
+{
+	int i;
+
+	// "snowball" bullets
+	ball_8x8[0].sdl.texture = create_texture("assets/bullet_snow.png");
+	for (i = 0; i < MAX_BULLETS; i++) {
+		SDL_QueryTexture(ball_8x8[0].sdl.texture, NULL, NULL, &ball_8x8[i].sdl.rect.w,
+				&ball_8x8[i].sdl.rect.h);
+	}
+
+	// fairies
+	fairies[0].sdl.texture = create_texture("assets/fairy.png");
+	for (i = 0; i < MAX_FAIRIES; i++)
+		SDL_QueryTexture(fairies[0].sdl.texture, NULL, NULL,
+				&fairies[i].sdl.rect.w, &fairies[i].sdl.rect.h);
+	
+	// player bullets
+	player_bullets[0].sdl.texture = create_texture("assets/player_bullet.png");
+	for (i = 0; i < MAX_PLAYER_BULLETS; i++) 
+		SDL_QueryTexture(player_bullets[0].sdl.texture, NULL, NULL,
+				&player_bullets[i].sdl.rect.w, &player_bullets[i].sdl.rect.h);
 }
 
 void initialize_textures(void)
@@ -132,7 +158,5 @@ void initialize_textures(void)
 	// load sprites
 	initialize_overlays();
 	initialize_player();
-	fairies[0].sdl.texture = create_texture("assets/fairy.png");
-	tex = create_texture("assets/bullet_snow.png"); // bullets
-	player_bullet_texture = create_texture("assets/player_bullet.png");
+	initialize_enemies();
 }
