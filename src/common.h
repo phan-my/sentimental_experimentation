@@ -13,6 +13,7 @@
 
 // macros
 #define INVERSE_SQRT_2 0.7071067811865475244008444
+#define GOLDEN_RATIO 0.6180339887498948482045868343656381177203091798057628621
 
 // functions
 double rolling_average(double *points, int num_elements);

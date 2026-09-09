@@ -116,6 +116,9 @@ struct overlay {
 extern struct player reimu;
 extern struct ball player_bullets[MAX_PLAYER_BULLETS];
 
+extern struct ball ball_8x8[MAX_BULLETS];
+extern struct enemy fairies[MAX_FAIRIES];
+
 extern struct overlay main_menu;
 extern struct overlay border; // UI
 extern struct overlay loading;
@@ -127,5 +130,6 @@ bool is_hit(struct circlebox dest, struct circlebox src);
 void update_ball_position(struct ball *p);
 void update_player_position(struct player *p);
 void update_enemy_position(struct enemy *p);
+void do_collision();
 
 #endif /* LOGIC_H */

@@ -15,6 +15,7 @@
 #include "logic.h"
 #include "common.h"
 #include "render.h"
+#include "menu.h"
 
 /* VARIABLES */
 
@@ -29,6 +30,40 @@ bool key_down = 0;
 
 
 /* FUNCTIONS */
+
+int do_main_menu_input()
+{
+	SDL_Event event;
+	const Uint8 *keyboard_states = SDL_GetKeyboardState(NULL);
+
+	while (SDL_PollEvent(&event)) {
+		switch (event.type) {
+
+		// close button
+		case SDL_QUIT:
+			return 1;
+			break;
+
+		// any key pressed
+		case SDL_KEYDOWN:
+			key_down = 1;
+			scanned_key = event.key.keysym.scancode;
+			break;
+		case SDL_KEYUP:
+// 				key_down = 0;
+// 				scanned_key = 0;
+			break;
+		default:
+			break;
+		}
+	}
+	
+	// start game
+	if (key_down) {
+		if (keyboard_states[SDL_SCANCODE_Z])
+			state_menu = STATE_LOADING;
+	}
+}
 
 // returns 1 to exit the main loop
 int do_input()

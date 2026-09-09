@@ -11,6 +11,7 @@
 
 // includes
 #pragma once
+#include "logic.h"
 
 // macros
 #define MAX_STAGES 7
@@ -18,8 +19,15 @@
 
 // globals
 extern int current_stage;
+extern double moving;
+extern double speed[MAX_BULLETS];
+extern double cap_speed;
+extern double angles[MAX_BULLETS];
+extern int stopping_line;
+extern double fairy_speed;
 
 // functions
 void initialize_stage(int stage);
+void do_stage(int stage);
 
 #endif /* STAGE_H */

@@ -21,8 +21,6 @@
 // textures
 SDL_Window *screen;
 SDL_Renderer *rend;
-struct ball ball_8x8[MAX_BULLETS];
-struct enemy fairies[MAX_FAIRIES];
 
 // dests
 
@@ -170,3 +168,47 @@ void initialize_textures(void)
 	initialize_player();
 	initialize_enemies();
 }
+
+// update objects on screen
+void do_screen()
+{
+	int i;
+
+	// clear screen
+	SDL_RenderClear(rend);
+
+	// player
+	SDL_RenderCopy(rend, reimu.sdl.texture, NULL, &reimu.sdl.rect);
+
+	// bullets
+	for (i = 0; i < MAX_BULLETS; i++)
+		SDL_RenderCopy(rend, ball_8x8[0].sdl.texture, NULL, &ball_8x8[i].sdl.rect);
+
+	// enemies
+	for (i = 0; i < MAX_FAIRIES; i++) {
+		if (fairies[i].active) {
+			SDL_RenderCopy(rend, fairies[0].sdl.texture,
+					NULL, &fairies[i].sdl.rect);
+		}
+	}
+
+	// player bullets
+	for (i = 0; i < MAX_PLAYER_BULLETS; i++)
+		if (player_bullets[i].active)
+			SDL_RenderCopy(rend, player_bullets[0].sdl.texture,
+					NULL,
+					&player_bullets[i].sdl.rect);
+		SDL_RenderCopy(rend, border.sdl.texture, NULL, &border.sdl.rect);
+
+	// end
+	SDL_RenderPresent(rend);
+}
+
+// update sprites in main menu
+void do_main_menu_screen()
+{
+	SDL_RenderClear(rend);
+	SDL_RenderCopy(rend, main_menu.sdl.texture, NULL, &main_menu.sdl.rect);
+	SDL_RenderPresent(rend);
+}
+

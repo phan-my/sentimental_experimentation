@@ -30,8 +30,6 @@
 // globals
 extern SDL_Window *screen;
 extern SDL_Renderer *rend;
-extern struct ball ball_8x8[MAX_BULLETS];
-extern struct enemy fairies[MAX_FAIRIES];
 
 // functions
 void check_sdl_init(void);
@@ -39,5 +37,7 @@ void initialize_screen(void);
 void initialize_textures(void);
 void terminate_screen(void);
 SDL_Texture *create_texture(char *sprite);
+void do_screen();
+void do_main_menu_screen();
 
 #endif /* RENDER_H */

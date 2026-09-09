@@ -19,5 +19,6 @@ extern int nth_player_bullet;
 
 // functions
 int do_input();
+int do_main_menu_input();
 
 #endif /* INPUT_H */
