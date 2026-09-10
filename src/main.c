@@ -37,35 +37,13 @@ double *launch_straight(double *d_dest, double speed, double turns)
 // main function
 int main(int argc, char **argv)
 {
-	int i, j;
-
+	/* initialization */
 	check_sdl_init();	// begin SDL2 setup
 	initialize_screen();	// create window
-
-	/* image loader */
-
 	initialize_textures();
 
-	
 	/* main loop */
-
-	// events management
 	bool close = 0;
-	
-	// timing
-	double frames[10000];
-	struct timespec start_game;
-	clock_gettime(CLOCK_MONOTONIC_RAW, &start_game);
-	int hour, minute, second;
-
-	struct timespec dt_start;
-	struct timespec dt_end;
-	uint64_t dt; // in microseconds
-	clock_gettime(CLOCK_MONOTONIC_RAW, &dt_start);
-	clock_gettime(CLOCK_MONOTONIC_RAW, &dt_end);
-	Uint64 ticks = 0;
-
-	// main loop
 	while (!close) {
 //		const Uint8 *keyboard_states = SDL_GetKeyboardState(NULL);
 		switch (state_menu) {
@@ -88,10 +66,6 @@ int main(int argc, char **argv)
 			close = do_input();
 			do_stage(current_stage);
 			do_collision();
-			
-
-			/* appendix */
-			
 			do_screen();
 
 			break;
@@ -101,7 +75,6 @@ int main(int argc, char **argv)
 	}
 
 	/* program termination */
-
 	terminate_sounds();
 	terminate_screen();
 	
