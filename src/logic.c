@@ -15,6 +15,7 @@
 #include <SDL2/SDL_image.h>
 
 #include "logic.h"
+#include "render.h"
 
 
 /* VARIABLES */
@@ -67,6 +68,23 @@ void update_enemy_position(struct enemy *p)
 	p -> sdl.rect.y = (int)(p -> hitbox.y - p -> sdl.rect.h / 2.);
 }
 
+// full initialization of structs
+void initialize_logic()
+{
+	reimu.invincible = false;
+	reimu.iframes = MAX_IFRAMES;
+}
+
+// sets player at the main start position
+void set_player_position()
+{
+	// TODO: turn into macros
+	reimu.hitbox.x = FIELD_WIDTH / 2. + FIELD_OFFSET_X;
+	reimu.hitbox.y = FIELD_HEIGHT * 0.9 + FIELD_OFFSET_Y;
+	update_player_position(&reimu); // subpixel hitbox -> integer SDL_Rect
+
+}
+
 // main collision detection logic
 void do_collision()
 {
@@ -75,28 +93,46 @@ void do_collision()
 	// TODO: quadtree hitbox detection
 	// questions/21650246/sdl-2-collision-detetection
 	// github.com/arpit2297/Collision-Detection-using-Quad-Trees
-
-	// player -- enemy bullet
-	for (i = 0; i < MAX_BULLETS; i++) {
-		if (is_hit(ball_8x8[i].hitbox, reimu.hitbox)) {
-			printf("%d: HIT\n", i);
-			if (i % 2)
-				printf("T\n");
+	
+	// player hitting things
+	if (!reimu.invincible) {
+		// player -- enemy bullet
+		for (i = 0; i < MAX_BULLETS; i++) {
+			if (is_hit(ball_8x8[i].hitbox, reimu.hitbox)) {
+//				printf("%d: HIT\n", i);
+				reimu.invincible = true;
+				set_player_position();
+			}
 		}
+	
+		// player -- fairy
+		for (i = 0; i < MAX_FAIRIES; i++) {
+			// fairy hits player
+			if (is_hit(fairies[i].hitbox, reimu.hitbox) &&
+					fairies[i].active) {
+//				printf("player-fairy HIT  \n");
+				reimu.invincible = true;
+				set_player_position();
+			}
+		}
+	} else if (reimu.iframes > 0) {	// decrease iframe
+		reimu.iframes--;
+	} else { // if iframe is emptied: reset iframe
+		reimu.invincible = false;
+		reimu.iframes = MAX_IFRAMES;
 	}
+		
 
-	// player -- fairy -- player bullet
+	// player bullet hitting things
 	for (i = 0; i < MAX_FAIRIES; i++) {
-		// fairy hits player
-		if (is_hit(fairies[i].hitbox, reimu.hitbox) && fairies[i].active)
-			printf("FAIRY HITT  \n");
 
 		// player bullet hits fairy
 		for (j = 0; j < MAX_PLAYER_BULLETS; j++) {
 			// fairy takes damage
-			if (player_bullets[j].active && fairies[i].active && is_hit(fairies[i].hitbox,
+			if (player_bullets[j].active && fairies[i].active &&
+					is_hit(fairies[i].hitbox,
 						player_bullets[j].hitbox)) {
-				printf("PLAYER BULLET HTIS FAIRY\n");
+//				printf("PLAYER BULLET HTIS FAIRY\n");
 
 				// damage dealt based on player bullet power
 				fairies[i].health -= player_bullets[j].power;

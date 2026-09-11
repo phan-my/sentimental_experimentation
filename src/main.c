@@ -41,6 +41,7 @@ int main(int argc, char **argv)
 	check_sdl_init();	// begin SDL2 setup
 	initialize_screen();	// create window
 	initialize_textures();
+	initialize_logic();
 
 	/* main loop */
 	bool close = 0;

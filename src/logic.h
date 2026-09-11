@@ -36,6 +36,8 @@
 #define MAX_BULLETS 1000
 #define MAX_FAIRIES 255
 
+#define MAX_IFRAMES 240
+
 
 /* STRUCTS */ 
 
@@ -80,6 +82,8 @@ struct player {
 	double speed;
 	double diagonal;
 	bool active;
+	bool invincible; // i-frames
+	int iframes;
 };
 
 struct position {
@@ -131,5 +135,7 @@ void update_ball_position(struct ball *p);
 void update_player_position(struct player *p);
 void update_enemy_position(struct enemy *p);
 void do_collision();
+void initialize_logic();
+void set_player_position();
 
 #endif /* LOGIC_H */

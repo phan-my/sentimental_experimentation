@@ -113,10 +113,8 @@ void initialize_player()
 	SDL_QueryTexture(reimu.sdl.texture, NULL, NULL, &reimu.sdl.rect.w,
 				&reimu.sdl.rect.h);
 	// positioning
-	reimu.hitbox.x = FIELD_WIDTH / 2. + FIELD_OFFSET_X;
-	reimu.hitbox.y = FIELD_HEIGHT * 0.75 + FIELD_OFFSET_Y;
-	update_player_position(&reimu); // subpixel hitbox -> macro rect
 	reimu.hitbox.r = 2.;
+	set_player_position();
 
 	// player bullets
 	player_bullets[0].sdl.texture = create_texture("assets/player_bullet.png");
