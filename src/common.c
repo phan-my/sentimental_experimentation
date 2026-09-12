@@ -6,6 +6,8 @@
  * See LICENCE for further information.
  */
 
+/* INCLUDES */
+#include <math.h>
 
 /* FUNCTIONS */
 
@@ -22,3 +24,8 @@ double rolling_average(double *points, int num_elements)
 	return (1. / k) * sum;
 }
 
+// returns 
+double log_256(double x)
+{
+	return log(x)/log(256);
+}

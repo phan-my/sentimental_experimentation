@@ -17,5 +17,6 @@
 
 // functions
 double rolling_average(double *points, int num_elements);
+double log_256(double x);
 
 #endif /* COMMON_H */

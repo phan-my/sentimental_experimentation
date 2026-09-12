@@ -1,8 +1,15 @@
+/*
+ * random.h is the headerfile for random.c.
+ * Copyright (c) 2026 phan-my <manhhung.phan at proton.me>.
+ *
+ * This software is licenced under the terms of BSD-2-Clause.
+ * See LICENCE for further information.
+ */
+
+#ifndef RANDOM_H
+#define RANDOM_H
+
 #pragma once
-#include <unistd.h>
-#include <fcntl.h>
-#include <math.h>
-#include <stdbool.h>
 
 // trailing significant field = mantissa
 #define TSF_DOUBLE 52
@@ -12,26 +19,7 @@
 
 #define EMAX_DOUBLE 1023
 
-double log_256(double x)
-{
-	return log(x)/log(256);
-}
+// functions
+int randint(int min, int max);
 
-int randint(int min, int max)
-{
-	int difference = max - min;
-	int i;
-	int p = (int)floor(log_256(difference)) + 1;
-	int r;
-	unsigned char Buffer[p];   
-	do {
-		r = 0;
-		int fd = open("/dev/urandom", O_RDONLY);
-		read(fd, Buffer, p);
-		close(fd);
-		for(i = 0; i < p; ++i)
-			r += Buffer[i] * pow(256, i);
-	} while(r > difference);
-	return r + min;
-}
-
+#endif /* RANDOM_H */
