@@ -8,11 +8,6 @@
 
 #include <stdio.h>
 #include <stdbool.h>
-#include <stdlib.h>
-#include <time.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_timer.h>
-#include <SDL2/SDL_image.h>
 
 #include "logic.h"
 #include "sounds.h"
@@ -21,18 +16,6 @@
 #include "input.h"
 #include "menu.h"
 #include "stage.h"
-
-#define D_RECT_X 0
-#define D_RECT_Y 1
-#define PI 3.1415926535897932384626433832795028841971693993751058209749445923078
-
-// invoke as dest = f(d_dest, speed, turns)
-double *launch_straight(double *d_dest, double speed, double turns)
-{
-	d_dest[D_RECT_X] += speed * cos(turns);
-	d_dest[D_RECT_Y] += speed * sin(turns);
-	return d_dest;
-}
 
 // main function
 int main(int argc, char **argv)
