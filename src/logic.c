@@ -37,7 +37,7 @@ SDL_Texture *player_bullet_texture;
 
 // circle-circle collision
 // TODO: Pythagorean expression optimizable?
-bool is_hit(struct circlebox dest, struct circlebox src)
+bool circle_in_circle(struct circlebox dest, struct circlebox src)
 {
 	// https://silentmatt.com/rectangle-intersection/
 	// https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
@@ -98,7 +98,7 @@ void do_collision()
 	if (!reimu.invincible) {
 		// player -- enemy bullet
 		for (i = 0; i < MAX_BULLETS; i++) {
-			if (is_hit(ball_8x8[i].hitbox, reimu.hitbox)) {
+			if (circle_in_circle(ball_8x8[i].hitbox, reimu.hitbox)) {
 //				printf("%d: HIT\n", i);
 				reimu.invincible = true;
 				set_player_position();
@@ -108,7 +108,7 @@ void do_collision()
 		// player -- fairy
 		for (i = 0; i < MAX_FAIRIES; i++) {
 			// fairy hits player
-			if (is_hit(fairies[i].hitbox, reimu.hitbox) &&
+			if (circle_in_circle(fairies[i].hitbox, reimu.hitbox) &&
 					fairies[i].active) {
 //				printf("player-fairy HIT  \n");
 				reimu.invincible = true;
@@ -130,7 +130,7 @@ void do_collision()
 		for (j = 0; j < MAX_PLAYER_BULLETS; j++) {
 			// fairy takes damage
 			if (player_bullets[j].active && fairies[i].active &&
-					is_hit(fairies[i].hitbox,
+					circle_in_circle(fairies[i].hitbox,
 						player_bullets[j].hitbox)) {
 //				printf("PLAYER BULLET HTIS FAIRY\n");
 
@@ -172,7 +172,7 @@ double bottomright(double core, double radius)
 */
 
 /*
-bool is_hit(struct player p, struct bullet b)
+bool circle_in_circle(struct player p, struct bullet b)
 {
 
 }

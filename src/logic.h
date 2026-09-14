@@ -109,6 +109,10 @@ struct ball {
 	struct sdl_types sdl;
 	int power;
 	bool active;
+
+	// function pointer
+	// questions/840501
+	int (*trail)(double, double);
 };
 
 struct overlay {
@@ -130,7 +134,7 @@ extern SDL_Texture *tex; // bullets
 extern SDL_Texture *player_bullet_texture;
 
 // functions
-bool is_hit(struct circlebox dest, struct circlebox src);
+bool circle_in_circle(struct circlebox dest, struct circlebox src);
 void update_ball_position(struct ball *p);
 void update_player_position(struct player *p);
 void update_enemy_position(struct enemy *p);

@@ -36,7 +36,7 @@ int main(int argc, char **argv)
 			do_main_menu_screen();
 			break;
 		case STATE_LOADING:
-			initialize_stage(current_stage);
+			initialize_stage();
 			initialize_sounds();
 			state_menu = STATE_PLAY;
 
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 			break;
 		case STATE_PLAY:
 			close = do_input();
-			do_stage(current_stage);
+			do_stage();
 			do_collision();
 			do_screen();
 

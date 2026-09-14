@@ -27,7 +27,7 @@ extern int stopping_line;
 extern double fairy_speed;
 
 // functions
-void initialize_stage(int stage);
-void do_stage(int stage);
+void initialize_stage();
+void do_stage();
 
 #endif /* STAGE_H */

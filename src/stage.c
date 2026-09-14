@@ -31,6 +31,8 @@ double fairy_speed = 1.;
 
 
 /* FUNCTIONS */
+
+/* initialization */
 /*
 // "snowball" bullets
 for (i = 0; i < MAX_BULLETS; i++) {
@@ -44,7 +46,7 @@ for (i = 0; i < MAX_BULLETS; i++) {
 */
 
 // fly in sine waves down, sparsely
-void fairy_action_1()
+void fairy_single_1()
 {
 	int i;
 	double fairy_speed = 1.;
@@ -58,10 +60,10 @@ void fairy_action_1()
 }
 
 // invoke during the loading screen to init stage
-void initialize_stage(int stage)
+void initialize_stage()
 {
 	int i;
-	switch (stage) {
+	switch (current_stage) {
 	case 1:
 		// "snowball" bullets
 		for (i = 0; i < MAX_BULLETS; i++) {
@@ -74,7 +76,7 @@ void initialize_stage(int stage)
 			update_ball_position(&ball_8x8[i]);
 		}
 
-		fairy_action_1();
+		fairy_single_1();
 
 
 		// NORMAL (SPIRAL SPEEDS
@@ -89,9 +91,10 @@ void initialize_stage(int stage)
 			speed[i] = (double) i / 50;
 		*/
 
-		// JELLYFISH
-		// set bullet speeds
 
+		/* jellyfish */
+
+		// set bullet speeds
 		for (i = 1; i < MAX_BULLETS; i++) {
 			if (i % 40 < 20)
 				cap_speed = 2.;
@@ -123,11 +126,21 @@ void initialize_stage(int stage)
 	}
 }
 
+
+/* main loop */
+
+// complete template for player bullets
 void do_player_bullets()
 {
 	int i;
 	// update player bullets
 	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
+		// move activated bullet by specified speed
+		if (player_bullets[i].active) {
+			player_bullets[i].hitbox.y -=
+				PLAYER_BULLET_SPEED;
+			update_ball_position(&player_bullets[i]);
+		}
 		// reset bullets if they fall out of bounds
 		if (player_bullets[i].hitbox.y < 0 ||
 				!player_bullets[i].active) {
@@ -135,22 +148,18 @@ void do_player_bullets()
 			player_bullets[i].hitbox.x = reimu.hitbox.x;
 			player_bullets[i].hitbox.y = reimu.hitbox.y;
 		}
-		// move activated bullet by specified speed
-		if (player_bullets[i].active) {
-			player_bullets[i].hitbox.y -=
-				PLAYER_BULLET_SPEED;
-			update_ball_position(&player_bullets[i]);
-		}
 	}
 }
 
-void do_stage(int stage)
+// invoked in the main loop
+void do_stage()
 {
 	int i;
-	switch (stage) {
+	switch (current_stage) {
 	case 1:
 		/* FAIRY MOVEMENT */
 		
+		// fairy moves straight down
 		for (i = 0; i < MAX_FAIRIES; i++) {
 			if (fairies[i].hitbox.y < stopping_line)
 				fairies[i].hitbox.y += fairy_speed ;
