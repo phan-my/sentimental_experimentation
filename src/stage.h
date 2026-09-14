@@ -16,6 +16,7 @@
 // macros
 #define MAX_STAGES 7
 #define MAX_CHECKPOINTS 256
+#define CHECKPOINTS_STAGE_1 4
 
 // globals
 extern int current_stage;

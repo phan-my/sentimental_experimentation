@@ -8,6 +8,8 @@
 
 /* INCLUDES */
 #include <math.h>
+#include <time.h>
+
 #include "stage.h"
 #include "common.h"
 #include "logic.h"
@@ -16,7 +18,7 @@
 
 
 /* GLOBALS */
-double stages[MAX_STAGES][MAX_CHECKPOINTS] = {1, 14.5, 42, 70.5};
+double stages[MAX_STAGES][CHECKPOINTS_STAGE_1] = {{1, 14.5, 42, 70.5}};
 int current_stage = 1;
 
 // stage variables
@@ -26,7 +28,21 @@ double cap_speed;
 double angles[MAX_BULLETS];
 
 int stopping_line = FIELD_OFFSET_Y + 200;
-double fairy_speed = 1.;
+double fairy_speed = 2.;
+
+// timing
+struct timespec stage_start;
+struct timespec stage_now;
+uint64_t stage_progress;
+double stage_progress_seconds;
+
+// fps count
+double frames[10000];
+struct timespec dt_start;
+struct timespec dt_end;
+uint64_t dt; // in microseconds
+
+int hour, minute, second;
 
 
 
@@ -46,16 +62,20 @@ for (i = 0; i < MAX_BULLETS; i++) {
 */
 
 // fly in sine waves down, sparsely
-void fairy_single_1()
+void initialize_fairy_single_1()
 {
 	int i;
 	double fairy_speed = 1.;
+
+	int num_fairies = 12;
 	
-	// fairy
-	for (i = 0; i < MAX_FAIRIES; i++) {
-		fairies[i].hitbox.x = FIELD_OFFSET_X + randint(0, FIELD_WIDTH);
-		fairies[i].hitbox.y = FIELD_OFFSET_Y;
-		update_enemy_position(&fairies[i]);
+	// two columns of fairies
+	for (i = 0; i < num_fairies; i++) {
+		// creates left column and right column
+		fairies[i].hitbox.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
+			+ pow(-1, i) * 20;
+		// positions the fairies apart on the y axis
+		fairies[i].hitbox.y = FIELD_OFFSET_Y - i * 20;
 	}
 }
 
@@ -73,10 +93,9 @@ void initialize_stage()
 			ball_8x8[i].hitbox.y = FIELD_HEIGHT * (1. / 4)
 				+ FIELD_OFFSET_Y;
 			ball_8x8[i].hitbox.r = 3.8;
-			update_ball_position(&ball_8x8[i]);
 		}
 
-		fairy_single_1();
+		initialize_fairy_single_1();
 
 
 		// NORMAL (SPIRAL SPEEDS
@@ -95,7 +114,7 @@ void initialize_stage()
 		/* jellyfish */
 
 		// set bullet speeds
-		for (i = 1; i < MAX_BULLETS; i++) {
+		for (i = 0; i < MAX_BULLETS; i++) {
 			if (i % 40 < 20)
 				cap_speed = 2.;
 			else
@@ -110,13 +129,14 @@ void initialize_stage()
 
 		// create double version of dest for subpixel precision
 		for (i = 0; i < MAX_BULLETS; i++) {
-			update_ball_position(&ball_8x8[i]);
 			if (i % 2)
 				angles[i] = i * GOLDEN_RATIO;
 			else
 				angles[i] = i * 1.3 * GOLDEN_RATIO;
 		}
 
+		// initialize clock
+		clock_gettime(CLOCK_MONOTONIC_RAW, &stage_start);
 
 		break;
 	case 2:
@@ -208,6 +228,9 @@ void do_stage()
 		}
 		*/
 
+
+		if (stage_progress_seconds > stages[current_stage - 1][1])
+{
 		// Jellyfish
 		// speed[i] = (double)i / 100;
 		for (i = 0; i < moving; i++) {
@@ -215,10 +238,19 @@ void do_stage()
 			ball_8x8[i].hitbox.y += speed[i] * sin(angles[i]);
 			update_ball_position(&ball_8x8[i]);
 		}
-
 		if (moving < MAX_BULLETS)
 			moving += 2;
+}
 
+		/* timing */
+		clock_gettime(CLOCK_MONOTONIC_RAW, &stage_now);
+		stage_progress = (stage_now.tv_sec - stage_start.tv_sec)
+			* 1000000. + (stage_now.tv_nsec - stage_start.tv_nsec) 
+			/ 1000.;
+		stage_progress_seconds = stage_progress / 1000000.;
+//		printf("%d time\n", stage_progress);
+		
+		
 	// universal things in every stage
 	default:
 		do_player_bullets();

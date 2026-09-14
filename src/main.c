@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 	initialize_logic();
 
 	/* main loop */
-	bool close = 0;
+	bool close = false;
 	while (!close) {
 //		const Uint8 *keyboard_states = SDL_GetKeyboardState(NULL);
 		switch (state_menu) {
