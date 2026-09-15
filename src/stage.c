@@ -35,6 +35,7 @@ struct timespec stage_start;
 struct timespec stage_now;
 uint64_t stage_progress;
 double stage_progress_seconds;
+bool single_activation; // controls start of fairy spawning
 
 // fps count
 double frames[10000];
@@ -137,6 +138,7 @@ void initialize_stage()
 
 		// initialize clock
 		clock_gettime(CLOCK_MONOTONIC_RAW, &stage_start);
+		single_activation = true;
 
 		break;
 	case 2:
@@ -179,12 +181,25 @@ void do_stage()
 	case 1:
 		/* FAIRY MOVEMENT */
 		
-		// fairy moves straight down
-		for (i = 0; i < MAX_FAIRIES; i++) {
-			if (fairies[i].hitbox.y < stopping_line)
-				fairies[i].hitbox.y += fairy_speed ;
+		if (stage_progress_seconds > stages[current_stage - 1][0]) {
+			// update the fairies' position according to specification
+			if (!single_activation) {
+				for (i = 0; i < 12; i++) {
+					// fairy moves straight down
+					if (fairies[i].hitbox.y < stopping_line)
+						fairies[i].hitbox.y += fairy_speed;
+					update_enemy_position(&fairies[i]);
+				}
+			// activate the fairies
+			} else {
+				for (i = 0; i < 12; i++) {
+					// activate fairies
+					if (!fairies[i].active)
+						fairies[i].active = true;
+				}
+				single_activation = false;
 
-			update_enemy_position(&fairies[i]);
+			}
 		}
 		
 		/* BULLET MOVEMENTS */
