@@ -181,6 +181,7 @@ void do_stage()
 	case 1:
 		/* FAIRY MOVEMENT */
 		
+		// FIXME: creepypasta fairy mysteriously appears at around 30s
 		if (stage_progress_seconds > stages[current_stage - 1][0]) {
 			// update the fairies' position according to specification
 			if (!single_activation) {
@@ -248,6 +249,7 @@ void do_stage()
 		// Jellyfish
 		// speed[i] = (double)i / 100;
 		for (i = 0; i < moving; i++) {
+			ball_8x8[i].active = true;
 			ball_8x8[i].hitbox.x += speed[i] * cos(angles[i]);
 			ball_8x8[i].hitbox.y += speed[i] * sin(angles[i]);
 			update_ball_position(&ball_8x8[i]);

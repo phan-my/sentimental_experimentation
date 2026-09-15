@@ -143,6 +143,7 @@ void initialize_enemies()
 	for (i = 0; i < MAX_BULLETS; i++) {
 		SDL_QueryTexture(ball_8x8[0].sdl.texture, NULL, NULL, &ball_8x8[i].sdl.rect.w,
 				&ball_8x8[i].sdl.rect.h);
+		ball_8x8[i].active = false;
 	}
 
 	// fairies

@@ -125,7 +125,8 @@ void do_collision()
 	if (!reimu.invincible) {
 		// player -- enemy bullet
 		for (i = 0; i < MAX_BULLETS; i++) {
-			if (circle_in_circle(ball_8x8[i].hitbox, reimu.hitbox)) {
+			if (circle_in_circle(ball_8x8[i].hitbox, reimu.hitbox)
+					&& ball_8x8[i].active) {
 //				printf("%d: HIT\n", i);
 				reimu.invincible = true;
 				set_player_position();
