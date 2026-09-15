@@ -26,8 +26,12 @@ struct ball player_bullets[MAX_PLAYER_BULLETS];
 struct ball ball_8x8[MAX_BULLETS];
 struct enemy fairies[MAX_FAIRIES];
 
+// items
+struct item powerup[MAX_POWERUPS];
+int nth_powerup;
+
 struct overlay main_menu;
-struct overlay border; // U
+struct overlay border; // UI
 struct overlay loading;
 SDL_Texture *tex; // bullets
 SDL_Texture *player_bullet_texture;
@@ -68,13 +72,6 @@ void update_enemy_position(struct enemy *p)
 	p -> sdl.rect.y = (int)(p -> hitbox.y - p -> sdl.rect.h / 2.);
 }
 
-// full initialization of structs
-void initialize_logic()
-{
-	reimu.invincible = false;
-	reimu.iframes = MAX_IFRAMES;
-}
-
 // sets player at the main start position
 void set_player_position()
 {
@@ -85,15 +82,22 @@ void set_player_position()
 
 }
 
+// full initialization of structs
+void initialize_logic()
+{
+	reimu.invincible = false;
+	reimu.iframes = MAX_IFRAMES;
+	nth_powerup = 0;
+}
+
 // main collision detection logic
 void do_collision()
 {
 	int i, j;
 
-	// TODO: quadtree hitbox detection
-	// questions/21650246/sdl-2-collision-detetection
-	// github.com/arpit2297/Collision-Detection-using-Quad-Trees
+	// TODO: quadtree hitbox detection: github.com/arpit2297/Collision-Detection-using-Quad-Trees
 	
+	// questions/21650246/sdl-2-collision-detetection
 	// player hitting things
 	if (!reimu.invincible) {
 		// player -- enemy bullet
@@ -144,7 +148,17 @@ void do_collision()
 				if (fairies[i].health == 0) {
 					fairies[i].active = 0;
 					player_bullets[j].active = 0;
+					// item drop
+					powerup[nth_powerup].active = true;
+		
+					powerup[nth_powerup].hitbox.x = fairies[i].hitbox.x;
+					powerup[nth_powerup].hitbox.y = fairies[i].hitbox.y;
+		
+					powerup[i].sdl.rect.x = (int)(powerup[i].hitbox.x - powerup[i].sdl.rect.w / 2.);
+					powerup[i].sdl.rect.y = (int)(powerup[i].hitbox.y - powerup[i].sdl.rect.h / 2.);
+
 				}
+
 			}
 		}
 	}

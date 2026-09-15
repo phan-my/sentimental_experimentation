@@ -188,7 +188,6 @@ void do_stage()
 					// fairy moves straight down
 					if (fairies[i].hitbox.y < stopping_line)
 						fairies[i].hitbox.y += fairy_speed;
-					update_enemy_position(&fairies[i]);
 				}
 			// activate the fairies
 			} else {
@@ -268,9 +267,23 @@ void do_stage()
 		
 	// universal things in every stage
 	default:
-		do_player_bullets();
 		break;
 	}
+	do_player_bullets();
+
+	while (powerup[nth_powerup].active) {
+		nth_powerup++;
+	}
+
+	for (i = 0; i < MAX_POWERUPS; i++) {
+		if (powerup[i].active) {
+			powerup[i].hitbox.y += 1.;
+			powerup[i].sdl.rect.x = (int)(powerup[i].hitbox.x - powerup[i].sdl.rect.w / 2.);
+			powerup[i].sdl.rect.y = (int)(powerup[i].hitbox.y - powerup[i].sdl.rect.h / 2.);
+		}
+		
+	}
+
 }
 
 

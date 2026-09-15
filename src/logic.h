@@ -36,6 +36,8 @@
 #define MAX_BULLETS 1000
 #define MAX_FAIRIES 255
 
+#define MAX_POWERUPS 255
+
 #define MAX_IFRAMES 240
 
 
@@ -115,9 +117,14 @@ struct ball {
 	int (*trail)(double, double);
 };
 
+struct item {
+	struct squarebox hitbox;
+	struct sdl_types sdl;
+	bool active;
+};
+
 struct overlay {
 	struct sdl_types sdl;
-
 };
 
 // globals
@@ -132,6 +139,9 @@ extern struct overlay border; // UI
 extern struct overlay loading;
 extern SDL_Texture *tex; // bullets
 extern SDL_Texture *player_bullet_texture;
+
+extern struct item powerup[MAX_POWERUPS];
+extern int nth_powerup;
 
 // functions
 bool circle_in_circle(struct circlebox dest, struct circlebox src);
