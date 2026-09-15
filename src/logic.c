@@ -51,6 +51,29 @@ bool circle_in_circle(struct circlebox dest, struct circlebox src)
 	return distance < src.r + dest.r;
 }
 
+// checks if position is in rectbox
+bool in_rect(double x, double y, struct rectbox obj)
+{
+	if (obj.x <= x && x <= obj.x + obj.w
+			&& obj.y <= y && y <= obj.y + obj.h)
+		return true;
+	else
+		return false;
+}
+
+// rectangle-rectangle collision
+bool rect_in_rect(struct rectbox obj_1, struct rectbox obj_2)
+{
+	bool in_1 = obj_1.x <= obj_2.x + obj_2.w; // obj_2 next of obj_1
+	bool in_2 = obj_1.y <= obj_2.y + obj_2.h; // obj_2 over obj_1
+	bool in_3 = obj_1.x + obj_1.w >= obj_2.x; // obj_1 left of obt_2
+	bool in_4 = obj_1.y + obj_1.h >= obj_2.y; // obj_2 over obj_1
+	if (in_1 && in_2 && in_3 && in_4)
+		return true;
+	else
+		return false;
+}
+
 // set sdl int position to match the float position for a bullet
 void update_ball_position(struct ball *p)
 {
@@ -75,7 +98,6 @@ void update_enemy_position(struct enemy *p)
 // sets player at the main start position
 void set_player_position()
 {
-	// TODO: turn into macros
 	reimu.hitbox.x = FIELD_WIDTH / 2. + FIELD_OFFSET_X;
 	reimu.hitbox.y = FIELD_HEIGHT * 0.9 + FIELD_OFFSET_Y;
 	update_player_position(&reimu); // subpixel hitbox -> integer SDL_Rect
@@ -87,6 +109,7 @@ void initialize_logic()
 {
 	reimu.invincible = false;
 	reimu.iframes = MAX_IFRAMES;
+	reimu.attack = 0;
 	nth_powerup = 0;
 }
 
@@ -117,6 +140,15 @@ void do_collision()
 //				printf("player-fairy HIT  \n");
 				reimu.invincible = true;
 				set_player_position();
+			}
+		}
+
+		// player -- powerup
+		for (i = 0; i < MAX_POWERUPS; i++) {
+			if (rect_in_rect(powerup[i].hitbox, reimu.bigbox)
+					&& powerup[i].active) {
+				powerup[i].active = false;
+				reimu.attack += powerup[i].value;
 			}
 		}
 	} else if (reimu.iframes > 0) {	// decrease iframe

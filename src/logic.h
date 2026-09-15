@@ -51,8 +51,9 @@ struct circlebox {
 	double y; // ditto
 };
 
-struct squarebox {
-	double l;
+struct rectbox {
+	double w;
+	double h;
 	double x;
 	double y;
 };
@@ -78,8 +79,10 @@ struct sdl_types {
 // has a hitbox; players, enemies, by extension the boss
 struct player {
 	struct circlebox hitbox;
+	struct rectbox bigbox;
 	struct sdl_types sdl;
 	int health;
+	double attack;
 	double level;
 	double speed;
 	double diagonal;
@@ -118,9 +121,10 @@ struct ball {
 };
 
 struct item {
-	struct squarebox hitbox;
+	struct rectbox hitbox;
 	struct sdl_types sdl;
 	bool active;
+	double value;
 };
 
 struct overlay {

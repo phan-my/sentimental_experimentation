@@ -112,9 +112,10 @@ void initialize_player()
 	reimu.sdl.texture = create_texture("assets/reimu.png");
 	SDL_QueryTexture(reimu.sdl.texture, NULL, NULL, &reimu.sdl.rect.w,
 				&reimu.sdl.rect.h);
-	// positioning
 	reimu.hitbox.r = 2.;
-	set_player_position();
+	reimu.bigbox.w = reimu.sdl.rect.w;
+	reimu.bigbox.h = reimu.sdl.rect.h;
+	set_player_position(); // positioning
 
 	// player bullets
 	player_bullets[0].sdl.texture = create_texture("assets/player_bullet.png");
@@ -168,7 +169,10 @@ void initialize_items()
 	for (i = 0; i < MAX_POWERUPS; i++) {
 		SDL_QueryTexture(powerup[0].sdl.texture, NULL, NULL, &powerup[i].sdl.rect.w,
 				&powerup[i].sdl.rect.h);
+		powerup[i].hitbox.w = powerup[i].sdl.rect.w;
+		powerup[i].hitbox.h = powerup[i].sdl.rect.h;
 		powerup[i].active = false;
+		powerup[i].value = 1;
 	}
 }
 
@@ -191,6 +195,8 @@ void do_screen()
 
 	// player
 	SDL_RenderCopy(rend, reimu.sdl.texture, NULL, &reimu.sdl.rect);
+	reimu.bigbox.x = reimu.hitbox.x - reimu.bigbox.w / 2.;
+	reimu.bigbox.y = reimu.hitbox.y - reimu.bigbox.h / 2.;
 
 	// bullets
 	for (i = 0; i < MAX_BULLETS; i++)
@@ -214,6 +220,7 @@ void do_screen()
 		}
 	}
 
+	// items
 	for (i = 0; i < MAX_POWERUPS; i++) {
 		if (powerup[i].active) {
 			SDL_RenderCopy(rend, powerup[0].sdl.texture,
