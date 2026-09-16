@@ -16,6 +16,7 @@
 
 #include "logic.h"
 #include "render.h"
+#include "random.h"
 
 
 /* VARIABLES */
@@ -182,14 +183,13 @@ void do_collision()
 					fairies[i].active = 0;
 					player_bullets[j].active = 0;
 					// item drop
-					powerup[nth_powerup].active = true;
-		
-					powerup[nth_powerup].hitbox.x = fairies[i].hitbox.x;
-					powerup[nth_powerup].hitbox.y = fairies[i].hitbox.y;
-		
+					if (randint(0, 7) > 2) {
+						powerup[nth_powerup].active = true;
+						powerup[nth_powerup].hitbox.x = fairies[i].hitbox.x;
+						powerup[nth_powerup].hitbox.y = fairies[i].hitbox.y;
 					powerup[i].sdl.rect.x = (int)(powerup[i].hitbox.x - powerup[i].sdl.rect.w / 2.);
 					powerup[i].sdl.rect.y = (int)(powerup[i].hitbox.y - powerup[i].sdl.rect.h / 2.);
-
+					}
 				}
 
 			}
