@@ -177,18 +177,23 @@ void do_player_bullets()
 void do_stage()
 {
 	int i;
+
+	// update array pointers
+	while (powerup[nth_powerup].active) {
+		nth_powerup++;
+	}
+
 	switch (current_stage) {
 	case 1:
-		/* FAIRY MOVEMENT */
-		
-		// FIXME: creepypasta fairy mysteriously appears at around 30s
+		// fairy movement
 		if (stage_progress_seconds > stages[current_stage - 1][0]) {
 			// update the fairies' position according to specification
 			if (!single_activation) {
 				for (i = 0; i < 12; i++) {
+					// TODO: debug as to why stopped fairies appear again next phase
+//					if (fairies[i].hitbox.y <= stopping_line)
 					// fairy moves straight down
-					if (fairies[i].hitbox.y < stopping_line)
-						fairies[i].hitbox.y += fairy_speed;
+					fairies[i].hitbox.y += fairy_speed;
 				}
 			// activate the fairies
 			} else {
@@ -272,10 +277,6 @@ void do_stage()
 		break;
 	}
 	do_player_bullets();
-
-	while (powerup[nth_powerup].active) {
-		nth_powerup++;
-	}
 
 	for (i = 0; i < MAX_POWERUPS; i++) {
 		if (powerup[i].active) {
