@@ -24,3 +24,11 @@ Then run by typing
 ./omain.out
 ``
 
+## Controls
+arrows -- movement
+Z -- fire bullets (Y on German keyboard layout)
+X -- use bomb
+LShift -- focus
+Esc -- pause
+
+
