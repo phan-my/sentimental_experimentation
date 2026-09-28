@@ -112,9 +112,9 @@ void initialize_player()
 	reimu.sdl.texture = create_texture("assets/reimu.png");
 	SDL_QueryTexture(reimu.sdl.texture, NULL, NULL, &reimu.sdl.rect.w,
 				&reimu.sdl.rect.h);
-	reimu.hitbox.r = 2.;
-	reimu.bigbox.w = reimu.sdl.rect.w;
-	reimu.bigbox.h = reimu.sdl.rect.h;
+	reimu.core.r = 2.;
+	// TODO: redraw to deal with grazing
+	reimu.grazebox.r = reimu.sdl.rect.w;
 	set_player_position(); // positioning
 
 	// player bullets
@@ -126,8 +126,8 @@ void initialize_player()
 		// player bullet go! queue
 		player_bullets[i].active = false;
 
-		player_bullets[i].hitbox.x = reimu.hitbox.x;
-		player_bullets[i].hitbox.y = reimu.hitbox.y;
+		player_bullets[i].hitbox.p.x = reimu.core.p.x;
+		player_bullets[i].hitbox.p.y = reimu.core.p.y;
 		player_bullets[i].hitbox.r = 8.;
 		player_bullets[i].power = 1;
 	}
@@ -170,8 +170,7 @@ void initialize_items()
 	for (i = 0; i < MAX_POWERUPS; i++) {
 		SDL_QueryTexture(powerup[0].sdl.texture, NULL, NULL, &powerup[i].sdl.rect.w,
 				&powerup[i].sdl.rect.h);
-		powerup[i].hitbox.w = powerup[i].sdl.rect.w;
-		powerup[i].hitbox.h = powerup[i].sdl.rect.h;
+		powerup[i].hitbox.r = powerup[i].sdl.rect.w;
 		powerup[i].active = false;
 		powerup[i].value = 1;
 	}
@@ -186,6 +185,27 @@ void initialize_textures(void)
 	initialize_items();
 }
 
+// set sdl int position to match the float position for a bullet
+void update_bullet_position(struct bullet *p)
+{
+	p -> sdl.rect.x = (int)(p -> hitbox.p.x - p -> sdl.rect.w / 2.);
+	p -> sdl.rect.y = (int)(p -> hitbox.p.y - p -> sdl.rect.h / 2.);
+}
+
+// set sdl int position to match the float position for the player
+void update_player_position(struct player *p)
+{
+	p -> sdl.rect.x = (int)(p -> core.p.x - p -> sdl.rect.w / 2.);
+	p -> sdl.rect.y = (int)(p -> core.p.y - p -> sdl.rect.h / 2.);
+}
+
+// set sdl int position to match the float position for an enemy
+void update_enemy_position(struct enemy *p)
+{
+	p -> sdl.rect.x = (int)(p -> hitbox.p.x - p -> sdl.rect.w / 2.);
+	p -> sdl.rect.y = (int)(p -> hitbox.p.y - p -> sdl.rect.h / 2.);
+}
+
 // update objects on screen
 void do_screen()
 {
@@ -196,8 +216,8 @@ void do_screen()
 
 	// player
 	SDL_RenderCopy(rend, reimu.sdl.texture, NULL, &reimu.sdl.rect);
-	reimu.bigbox.x = reimu.hitbox.x - reimu.bigbox.w / 2.;
-	reimu.bigbox.y = reimu.hitbox.y - reimu.bigbox.h / 2.;
+	reimu.grazebox.p.x = reimu.core.p.x - reimu.grazebox.r / 2.;
+	reimu.grazebox.p.y = reimu.core.p.y - reimu.grazebox.r / 2.;
 
 	// bullets
 	for (i = 0; i < MAX_BULLETS; i++)

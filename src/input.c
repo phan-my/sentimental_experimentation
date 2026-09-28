@@ -124,46 +124,46 @@ int do_input()
 
 		// non-diagonal movement
 		if (keyboard_states[SDL_SCANCODE_LEFT] && in_left)
-			reimu.hitbox.x -= factored_speed;
+			reimu.core.p.x -= factored_speed;
 		if (keyboard_states[SDL_SCANCODE_DOWN] && in_down)
-			reimu.hitbox.y += factored_speed;
+			reimu.core.p.y += factored_speed;
 		if (keyboard_states[SDL_SCANCODE_UP] && in_up)
-			reimu.hitbox.y -= factored_speed;
+			reimu.core.p.y -= factored_speed;
 		if (keyboard_states[SDL_SCANCODE_RIGHT] && in_right)
-			reimu.hitbox.x += factored_speed;
+			reimu.core.p.x += factored_speed;
 
 		// diagonal movement
 		if (keyboard_states[SDL_SCANCODE_LEFT] &&
 				keyboard_states[SDL_SCANCODE_DOWN]) {
 			if (in_down)
-				reimu.hitbox.y += diagonal;
+				reimu.core.p.y += diagonal;
 			if (in_left)
-				reimu.hitbox.x -= diagonal;
+				reimu.core.p.x -= diagonal;
 		}
 		if (keyboard_states[SDL_SCANCODE_LEFT] &&
 				keyboard_states[SDL_SCANCODE_UP]) {
 			if (in_left)
-				reimu.hitbox.x -= diagonal;
+				reimu.core.p.x -= diagonal;
 			if (in_up)
-				reimu.hitbox.y -= diagonal;
+				reimu.core.p.y -= diagonal;
 		}
 		if (keyboard_states[SDL_SCANCODE_RIGHT] &&
 				keyboard_states[SDL_SCANCODE_DOWN]) {
 			if (in_right)
-				reimu.hitbox.x += diagonal;
+				reimu.core.p.x += diagonal;
 			if (in_down)
-				reimu.hitbox.y += diagonal;
+				reimu.core.p.y += diagonal;
 		}
 		if (keyboard_states[SDL_SCANCODE_RIGHT] &&
 				keyboard_states[SDL_SCANCODE_UP]) {
 			if (in_right)
-				reimu.hitbox.x += diagonal;
+				reimu.core.p.x += diagonal;
 			if (in_up)
-				reimu.hitbox.y -= diagonal;
+				reimu.core.p.y -= diagonal;
 		}
 
-//			reimu.sdl.rect.x = reimu.hitbox.x;
-//			reimu.sdl.rect.y = reimu.hitbox.y;
+//			reimu.sdl.rect.x = reimu.core.p.x;
+//			reimu.sdl.rect.y = reimu.core.p.y;
 		update_player_position(&reimu);
 
 		

@@ -55,8 +55,8 @@ int hour, minute, second;
 for (i = 0; i < MAX_BULLETS; i++) {
 //		ball_8x8[i].w /= scale;
 //		ball_8x8[i].h /= scale;
-        ball_8x8[i].hitbox.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-        ball_8x8[i].hitbox.y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
+        ball_8x8[i].hitbox.p.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+        ball_8x8[i].hitbox.p.y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
         ball_8x8[i].hitbox.r = 3.8;
         update_ball_position(&ball_8x8[i]);
 }
@@ -73,10 +73,10 @@ void initialize_fairy_single_1()
 	// two columns of fairies
 	for (i = 0; i < num_fairies; i++) {
 		// creates left column and right column
-		fairies[i].hitbox.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
+		fairies[i].hitbox.p.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
 			+ pow(-1, i) * 20;
 		// positions the fairies apart on the y axis
-		fairies[i].hitbox.y = FIELD_OFFSET_Y - i * 20;
+		fairies[i].hitbox.p.y = FIELD_OFFSET_Y - i * 20;
 	}
 }
 
@@ -90,8 +90,8 @@ void initialize_stage()
 		for (i = 0; i < MAX_BULLETS; i++) {
 	//		ball_8x8[i].w /= scale;
 	//		ball_8x8[i].h /= scale;
-			ball_8x8[i].hitbox.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-			ball_8x8[i].hitbox.y = FIELD_HEIGHT * (1. / 4)
+			ball_8x8[i].hitbox.p.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+			ball_8x8[i].hitbox.p.y = FIELD_HEIGHT * (1. / 4)
 				+ FIELD_OFFSET_Y;
 			ball_8x8[i].hitbox.r = 3.8;
 		}
@@ -159,16 +159,16 @@ void do_player_bullets()
 	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
 		// move activated bullet by specified speed
 		if (player_bullets[i].active) {
-			player_bullets[i].hitbox.y -=
+			player_bullets[i].hitbox.p.y -=
 				PLAYER_BULLET_SPEED;
-			update_ball_position(&player_bullets[i]);
+			update_bullet_position(&player_bullets[i]);
 		}
 		// reset bullets if they fall out of bounds
-		if (player_bullets[i].hitbox.y < 0 ||
+		if (player_bullets[i].hitbox.p.y < 0 ||
 				!player_bullets[i].active) {
 			player_bullets[i].active = 0;
-			player_bullets[i].hitbox.x = reimu.hitbox.x;
-			player_bullets[i].hitbox.y = reimu.hitbox.y;
+			player_bullets[i].hitbox.p.x = reimu.core.p.x;
+			player_bullets[i].hitbox.p.y = reimu.core.p.y;
 		}
 	}
 }
@@ -191,9 +191,9 @@ void do_stage()
 			if (!single_activation) {
 				for (i = 0; i < 12; i++) {
 					// TODO: debug as to why stopped fairies appear again next phase
-//					if (fairies[i].hitbox.y <= stopping_line)
+//					if (fairies[i].hitbox.p.y <= stopping_line)
 					// fairy moves straight down
-					fairies[i].hitbox.y += fairy_speed;
+					fairies[i].hitbox.p.y += fairy_speed;
 				}
 			// activate the fairies
 			} else {
@@ -255,9 +255,9 @@ void do_stage()
 		// speed[i] = (double)i / 100;
 		for (i = 0; i < moving; i++) {
 			ball_8x8[i].active = true;
-			ball_8x8[i].hitbox.x += speed[i] * cos(angles[i]);
-			ball_8x8[i].hitbox.y += speed[i] * sin(angles[i]);
-			update_ball_position(&ball_8x8[i]);
+			ball_8x8[i].hitbox.p.x += speed[i] * cos(angles[i]);
+			ball_8x8[i].hitbox.p.y += speed[i] * sin(angles[i]);
+			update_bullet_position(&ball_8x8[i]);
 		}
 		if (moving < MAX_BULLETS)
 			moving += 2;
@@ -280,9 +280,9 @@ void do_stage()
 
 	for (i = 0; i < MAX_POWERUPS; i++) {
 		if (powerup[i].active) {
-			powerup[i].hitbox.y += 1.;
-			powerup[i].sdl.rect.x = (int)(powerup[i].hitbox.x - powerup[i].sdl.rect.w / 2.);
-			powerup[i].sdl.rect.y = (int)(powerup[i].hitbox.y - powerup[i].sdl.rect.h / 2.);
+			powerup[i].hitbox.p.y += 1.;
+			powerup[i].sdl.rect.x = (int)(powerup[i].hitbox.p.x - powerup[i].sdl.rect.w / 2.);
+			powerup[i].sdl.rect.y = (int)(powerup[i].hitbox.p.y - powerup[i].sdl.rect.h / 2.);
 		}
 		
 	}

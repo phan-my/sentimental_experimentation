@@ -22,9 +22,9 @@
 /* VARIABLES */
 
 struct player reimu;
-struct ball player_bullets[MAX_PLAYER_BULLETS];
+struct bullet player_bullets[MAX_PLAYER_BULLETS];
 
-struct ball ball_8x8[MAX_BULLETS];
+struct bullet ball_8x8[MAX_BULLETS];
 struct enemy fairies[MAX_FAIRIES];
 
 // items
@@ -46,8 +46,8 @@ bool circle_in_circle(struct circlebox dest, struct circlebox src)
 {
 	// https://silentmatt.com/rectangle-intersection/
 	// https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
-	double dx = src.x + src.r - (dest.x + dest.r);
-	double dy = src.y + src.r - (dest.y + dest.r);
+	double dx = src.p.x + src.r - (dest.p.x + dest.r);
+	double dy = src.p.y + src.r - (dest.p.y + dest.r);
 	double distance = sqrt(dx * dx + dy * dy);
 	return distance < src.r + dest.r;
 }
@@ -75,32 +75,11 @@ bool rect_in_rect(struct rectbox obj_1, struct rectbox obj_2)
 		return false;
 }
 
-// set sdl int position to match the float position for a bullet
-void update_ball_position(struct ball *p)
-{
-	p -> sdl.rect.x = (int)(p -> hitbox.x - p -> sdl.rect.w / 2.);
-	p -> sdl.rect.y = (int)(p -> hitbox.y - p -> sdl.rect.h / 2.);
-}
-
-// set sdl int position to match the float position for the player
-void update_player_position(struct player *p)
-{
-	p -> sdl.rect.x = (int)(p -> hitbox.x - p -> sdl.rect.w / 2.);
-	p -> sdl.rect.y = (int)(p -> hitbox.y - p -> sdl.rect.h / 2.);
-}
-
-// set sdl int position to match the float position for an enemy
-void update_enemy_position(struct enemy *p)
-{
-	p -> sdl.rect.x = (int)(p -> hitbox.x - p -> sdl.rect.w / 2.);
-	p -> sdl.rect.y = (int)(p -> hitbox.y - p -> sdl.rect.h / 2.);
-}
-
 // sets player at the main start position
 void set_player_position()
 {
-	reimu.hitbox.x = FIELD_WIDTH / 2. + FIELD_OFFSET_X;
-	reimu.hitbox.y = FIELD_HEIGHT * 0.9 + FIELD_OFFSET_Y;
+	reimu.core.p.x = FIELD_WIDTH / 2. + FIELD_OFFSET_X;
+	reimu.core.p.y = FIELD_HEIGHT * 0.9 + FIELD_OFFSET_Y;
 	update_player_position(&reimu); // subpixel hitbox -> integer SDL_Rect
 
 }
@@ -110,7 +89,7 @@ void initialize_logic()
 {
 	reimu.invincible = false;
 	reimu.iframes = MAX_IFRAMES;
-	reimu.attack = 0;
+	reimu.power = 0;
 	nth_powerup = 0;
 }
 
@@ -126,7 +105,7 @@ void do_collision()
 	if (!reimu.invincible) {
 		// player -- enemy bullet
 		for (i = 0; i < MAX_BULLETS; i++) {
-			if (circle_in_circle(ball_8x8[i].hitbox, reimu.hitbox)
+			if (circle_in_circle(ball_8x8[i].hitbox, reimu.core)
 					&& ball_8x8[i].active) {
 //				printf("%d: HIT\n", i);
 				reimu.invincible = true;
@@ -137,7 +116,7 @@ void do_collision()
 		// player -- fairy
 		for (i = 0; i < MAX_FAIRIES; i++) {
 			// fairy hits player
-			if (circle_in_circle(fairies[i].hitbox, reimu.hitbox) &&
+			if (circle_in_circle(fairies[i].hitbox, reimu.core) &&
 					fairies[i].active) {
 //				printf("player-fairy HIT  \n");
 				reimu.invincible = true;
@@ -147,10 +126,10 @@ void do_collision()
 
 		// player -- powerup
 		for (i = 0; i < MAX_POWERUPS; i++) {
-			if (rect_in_rect(powerup[i].hitbox, reimu.bigbox)
+			if (circle_in_circle(powerup[i].hitbox, reimu.grazebox)
 					&& powerup[i].active) {
 				powerup[i].active = false;
-				reimu.attack += powerup[i].value;
+				reimu.power += powerup[i].value;
 			}
 		}
 	} else if (reimu.iframes > 0) {	// decrease iframe
@@ -176,7 +155,7 @@ void do_collision()
 				fairies[i].health -= player_bullets[j].power;
 
 				// unload bullet
-				player_bullets[j].hitbox.y = 0;
+				player_bullets[j].hitbox.p.y = 0;
 
 				// fairy dies
 				if (fairies[i].health == 0) {
@@ -184,10 +163,10 @@ void do_collision()
 					player_bullets[j].active = 0;
 					// item drop
 					powerup[nth_powerup].active = true;
-					powerup[nth_powerup].hitbox.x = fairies[i].hitbox.x;
-					powerup[nth_powerup].hitbox.y = fairies[i].hitbox.y;
-					powerup[i].sdl.rect.x = (int)(powerup[i].hitbox.x - powerup[i].sdl.rect.w / 2.);
-					powerup[i].sdl.rect.y = (int)(powerup[i].hitbox.y - powerup[i].sdl.rect.h / 2.);
+					powerup[nth_powerup].hitbox.p.x = fairies[i].hitbox.p.x;
+					powerup[nth_powerup].hitbox.p.y = fairies[i].hitbox.p.y;
+					powerup[i].sdl.rect.x = (int)(powerup[i].hitbox.p.x - powerup[i].sdl.rect.w / 2.);
+					powerup[i].sdl.rect.y = (int)(powerup[i].hitbox.p.y - powerup[i].sdl.rect.h / 2.);
 				}
 
 			}

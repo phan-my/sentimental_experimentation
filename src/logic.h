@@ -18,7 +18,11 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-// macros
+/* MACROS */
+// hitboxes
+#define SQUARE 0  // determines hitbox of entity
+#define CIRCLE 1
+
 // https://en.touhouwiki.net/wiki/User:Arcorann/Character_Speeds#Massive_chart
 #define REIMU_DEFAULT_SPEED 4.5  
 #define REIMU_FOCUS_FACTOR 0.4444444
@@ -43,12 +47,35 @@
 
 /* STRUCTS */ 
 
+/* kinematics */
+
+struct position {
+	double x;
+	double y;
+};
+
+struct velocity {
+	double x;
+	double y;
+};
+
+struct acceleration {
+	double x;
+	double y;
+};
+
+struct kinematics {
+	struct position o; // origin point p_0(x_0, y_0)
+	struct position p; // current position
+	struct velocity v; // current velocity (vector)
+	struct acceleration a; // current acceleration
+};
+
 /* hitbox shapes */
 
 struct circlebox {
 	double r;
-	double x; // hitbox core position
-	double y; // ditto
+	struct position p; // hitbox core position
 };
 
 struct rectbox {
@@ -76,43 +103,58 @@ struct sdl_types {
 
 /* entities */
 
-// has a hitbox; players, enemies, by extension the boss
+// playable character struct: 
 struct player {
-	struct circlebox hitbox;
-	struct rectbox bigbox;
-	struct sdl_types sdl;
-	int health;
-	double attack;
-	double level;
+	char *name;
+	// motion
+	struct kinematics motion;
+	struct circlebox core;     // danmaku tiny hitbox
+	struct circlebox grazebox; // =size of sprite, for grazing
+	struct circlebox itembox;  // aura where items gravitate to in gen 2&3
 	double speed;
-	double diagonal;
+	double focus;
+
+	// render and SDL-movement
+	struct sdl_types sdl;
+
+	// stats
+	int health;
+	double power;
+	int bombs;
+	int shot;
 	bool active;
 	bool invincible; // i-frames
 	int iframes;
 };
 
-struct position {
-	double x;
-	double y;
-};
-
-struct entity {
-	struct position hitbox;
-	struct sdl_types sdl;
-};
-
 struct enemy {
+	int id;
+
+	// motion
 	struct circlebox hitbox;
+	struct kinematics motion;
+
+	// render & SDL-movement
 	struct sdl_types sdl;
+
+	// stats
 	int health;
 	bool active;
+	
+	// misc
 	bool clearable; // 1: automatically unloaded if reaches off-screen
 };
 
-struct ball {
+struct bullet {
+	int id;
 	struct circlebox hitbox;
+	struct kinematics motion;
 	struct sdl_types sdl;
-	int power;
+
+
+	int source; // 0: player bullet; 1: enemy bullet
+
+	double power;
 	bool active;
 
 	// function pointer
@@ -121,8 +163,10 @@ struct ball {
 };
 
 struct item {
-	struct rectbox hitbox;
+	struct kinematics motion;
+	struct circlebox hitbox;
 	struct sdl_types sdl;
+
 	bool active;
 	double value;
 };
@@ -133,9 +177,9 @@ struct overlay {
 
 // globals
 extern struct player reimu;
-extern struct ball player_bullets[MAX_PLAYER_BULLETS];
+extern struct bullet player_bullets[MAX_PLAYER_BULLETS];
 
-extern struct ball ball_8x8[MAX_BULLETS];
+extern struct bullet ball_8x8[MAX_BULLETS];
 extern struct enemy fairies[MAX_FAIRIES];
 
 extern struct overlay main_menu;
@@ -149,9 +193,6 @@ extern int nth_powerup;
 
 // functions
 bool circle_in_circle(struct circlebox dest, struct circlebox src);
-void update_ball_position(struct ball *p);
-void update_player_position(struct player *p);
-void update_enemy_position(struct enemy *p);
 void do_collision();
 void initialize_logic();
 void set_player_position();
