@@ -65,6 +65,18 @@ int do_main_menu_input()
 	}
 }
 
+// update player 
+void do_player_input()
+{
+	// update graze position
+	reimu.grazebox.p.x = reimu.core.p.x - reimu.grazebox.r / 2.;
+	reimu.grazebox.p.y = reimu.core.p.y - reimu.grazebox.r / 2.;
+	
+	// update item collection position
+	reimu.itembox.p.x = reimu.core.p.x - reimu.itembox.r / 2.;
+	reimu.itembox.p.y = reimu.core.p.y - reimu.itembox.r / 2.;
+}
+
 // returns 1 to exit the main loop
 int do_input()
 {
@@ -164,7 +176,7 @@ int do_input()
 
 //			reimu.sdl.rect.x = reimu.core.p.x;
 //			reimu.sdl.rect.y = reimu.core.p.y;
-		update_player_position(&reimu);
+		do_player_input();
 
 		
 		/* shooting */

@@ -114,7 +114,8 @@ void initialize_player()
 				&reimu.sdl.rect.h);
 	reimu.core.r = 2.;
 	// TODO: redraw to deal with grazing
-	reimu.grazebox.r = reimu.sdl.rect.w;
+	reimu.grazebox.r = 4.;
+	reimu.itembox.r = reimu.grazebox.r * 2.;
 	set_player_position(); // positioning
 
 	// player bullets
@@ -206,6 +207,13 @@ void update_enemy_position(struct enemy *p)
 	p -> sdl.rect.y = (int)(p -> hitbox.p.y - p -> sdl.rect.h / 2.);
 }
 
+// update all player values
+void do_player_render()
+{
+	SDL_RenderCopy(rend, reimu.sdl.texture, NULL, &reimu.sdl.rect);
+	update_player_position(&reimu);
+}
+
 // update objects on screen
 void do_screen()
 {
@@ -214,10 +222,7 @@ void do_screen()
 	// clear screen
 	SDL_RenderClear(rend);
 
-	// player
-	SDL_RenderCopy(rend, reimu.sdl.texture, NULL, &reimu.sdl.rect);
-	reimu.grazebox.p.x = reimu.core.p.x - reimu.grazebox.r / 2.;
-	reimu.grazebox.p.y = reimu.core.p.y - reimu.grazebox.r / 2.;
+	do_player_render();
 
 	// bullets
 	for (i = 0; i < MAX_BULLETS; i++)

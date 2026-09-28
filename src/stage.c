@@ -278,6 +278,7 @@ void do_stage()
 	}
 	do_player_bullets();
 
+	// item falls
 	for (i = 0; i < MAX_POWERUPS; i++) {
 		if (powerup[i].active) {
 			powerup[i].hitbox.p.y += 1.;

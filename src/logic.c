@@ -126,7 +126,7 @@ void do_collision()
 
 		// player -- powerup
 		for (i = 0; i < MAX_POWERUPS; i++) {
-			if (circle_in_circle(powerup[i].hitbox, reimu.grazebox)
+			if (circle_in_circle(powerup[i].hitbox, reimu.itembox)
 					&& powerup[i].active) {
 				powerup[i].active = false;
 				reimu.power += powerup[i].value;
