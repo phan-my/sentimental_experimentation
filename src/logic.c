@@ -21,7 +21,9 @@
 
 /* VARIABLES */
 
-struct player reimu;
+struct player player[MAX_PLAYERS];
+int curr_player = 0;
+
 struct bullet player_bullets[MAX_PLAYER_BULLETS];
 
 struct bullet ball_8x8[MAX_BULLETS];
@@ -31,9 +33,11 @@ struct enemy fairies[MAX_FAIRIES];
 struct item powerup[MAX_POWERUPS];
 int nth_powerup;
 
+// overlay
 struct overlay main_menu;
 struct overlay border; // UI
 struct overlay loading;
+
 SDL_Texture *tex; // bullets
 SDL_Texture *player_bullet_texture;
 
@@ -78,19 +82,49 @@ bool rect_in_rect(struct rectbox obj_1, struct rectbox obj_2)
 // sets player at the main start position
 void set_player_position()
 {
-	reimu.core.p.x = FIELD_WIDTH / 2. + FIELD_OFFSET_X;
-	reimu.core.p.y = FIELD_HEIGHT * 0.9 + FIELD_OFFSET_Y;
-	update_player_position(&reimu); // subpixel hitbox -> integer SDL_Rect
+	player[curr_player].core.p.x = FIELD_WIDTH / 2. + FIELD_OFFSET_X;
+	player[curr_player].core.p.y = FIELD_HEIGHT * 0.9 + FIELD_OFFSET_Y;
+	update_player_position(&player[curr_player]); // subpixel hitbox -> integer SDL_Rect
 
 }
 
 // full initialization of structs
 void initialize_logic()
 {
-	reimu.invincible = false;
-	reimu.iframes = MAX_IFRAMES;
-	reimu.power = 0;
+	int i;	
+	
+	// numerical array pointer for power items
 	nth_powerup = 0;
+	
+	// set initial values for each individual player
+	player[0].speed = REIMU_DEFAULT_SPEED;
+	player[0].focus = REIMU_FOCUS_SPEED;
+	player[0].health = 2;
+	int bombs = 2;
+	bool invincible = false;
+	
+	// set initial values common to all players
+	for (i = 0; i < MAX_PLAYERS; i++) {
+		player[i].invincible = false;
+		player[i].iframes = MAX_IFRAMES;
+		player[i].power = 0;
+		player[i].core.r = 2.;
+		// TODO: redraw to deal with grazing
+		player[i].grazebox.r = 4.;
+		player[i].itembox.r = player[i].grazebox.r * 2.;
+	}
+	
+	// player bullet initialization
+	
+	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
+		player_bullets[i].active = false;
+/*
+		player_bullets[i].hitbox.p.x = player[curr_player].core.p.x;
+		player_bullets[i].hitbox.p.y = reimu.core.p.y;
+*/
+		player_bullets[i].hitbox.r = 8.;
+		player_bullets[i].power = 1;
+	}
 }
 
 // main collision detection logic
@@ -102,13 +136,13 @@ void do_collision()
 	
 	// questions/21650246/sdl-2-collision-detetection
 	// player hitting things
-	if (!reimu.invincible) {
+	if (!player[curr_player].invincible) {
 		// player -- enemy bullet
 		for (i = 0; i < MAX_BULLETS; i++) {
-			if (circle_in_circle(ball_8x8[i].hitbox, reimu.core)
+			if (circle_in_circle(ball_8x8[i].hitbox, player[curr_player].core)
 					&& ball_8x8[i].active) {
 //				printf("%d: HIT\n", i);
-				reimu.invincible = true;
+				player[curr_player].invincible = true;
 				set_player_position();
 			}
 		}
@@ -116,27 +150,27 @@ void do_collision()
 		// player -- fairy
 		for (i = 0; i < MAX_FAIRIES; i++) {
 			// fairy hits player
-			if (circle_in_circle(fairies[i].hitbox, reimu.core) &&
+			if (circle_in_circle(fairies[i].hitbox, player[curr_player].core) &&
 					fairies[i].active) {
 //				printf("player-fairy HIT  \n");
-				reimu.invincible = true;
+				player[curr_player].invincible = true;
 				set_player_position();
 			}
 		}
 
 		// player -- powerup
 		for (i = 0; i < MAX_POWERUPS; i++) {
-			if (circle_in_circle(powerup[i].hitbox, reimu.itembox)
+			if (circle_in_circle(powerup[i].hitbox, player[curr_player].itembox)
 					&& powerup[i].active) {
 				powerup[i].active = false;
-				reimu.power += powerup[i].value;
+				player[curr_player].power += powerup[i].value;
 			}
 		}
-	} else if (reimu.iframes > 0) {	// decrease iframe
-		reimu.iframes--;
+	} else if (player[curr_player].iframes > 0) {	// decrease iframe
+		player[curr_player].iframes--;
 	} else { // if iframe is emptied: reset iframe
-		reimu.invincible = false;
-		reimu.iframes = MAX_IFRAMES;
+		player[curr_player].invincible = false;
+		player[curr_player].iframes = MAX_IFRAMES;
 	}
 		
 

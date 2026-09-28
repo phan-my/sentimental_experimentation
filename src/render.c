@@ -107,15 +107,11 @@ void initialize_player()
 {
 	int i;
 	// TODO: player selection in main menu
-	// player
+	// reimu
 	// create object
-	reimu.sdl.texture = create_texture("assets/reimu.png");
-	SDL_QueryTexture(reimu.sdl.texture, NULL, NULL, &reimu.sdl.rect.w,
-				&reimu.sdl.rect.h);
-	reimu.core.r = 2.;
-	// TODO: redraw to deal with grazing
-	reimu.grazebox.r = 4.;
-	reimu.itembox.r = reimu.grazebox.r * 2.;
+	player[0].sdl.texture = create_texture("assets/reimu.png");
+	SDL_QueryTexture(player[0].sdl.texture, NULL, NULL, &player[0].sdl.rect.w,
+				&player[0].sdl.rect.h);
 	set_player_position(); // positioning
 
 	// player bullets
@@ -124,13 +120,6 @@ void initialize_player()
 		SDL_QueryTexture(player_bullets[0].sdl.texture, NULL, NULL,
 				&player_bullets[i].sdl.rect.w,
 				&player_bullets[i].sdl.rect.h);
-		// player bullet go! queue
-		player_bullets[i].active = false;
-
-		player_bullets[i].hitbox.p.x = reimu.core.p.x;
-		player_bullets[i].hitbox.p.y = reimu.core.p.y;
-		player_bullets[i].hitbox.r = 8.;
-		player_bullets[i].power = 1;
 	}
 }
 
@@ -210,8 +199,8 @@ void update_enemy_position(struct enemy *p)
 // update all player values
 void do_player_render()
 {
-	SDL_RenderCopy(rend, reimu.sdl.texture, NULL, &reimu.sdl.rect);
-	update_player_position(&reimu);
+	SDL_RenderCopy(rend, player[curr_player].sdl.texture, NULL, &player[curr_player].sdl.rect);
+	update_player_position(&player[curr_player]);
 }
 
 // update objects on screen

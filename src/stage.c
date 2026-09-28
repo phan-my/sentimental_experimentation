@@ -167,8 +167,8 @@ void do_player_bullets()
 		if (player_bullets[i].hitbox.p.y < 0 ||
 				!player_bullets[i].active) {
 			player_bullets[i].active = 0;
-			player_bullets[i].hitbox.p.x = reimu.core.p.x;
-			player_bullets[i].hitbox.p.y = reimu.core.p.y;
+			player_bullets[i].hitbox.p.x = player[curr_player].core.p.x;
+			player_bullets[i].hitbox.p.y = player[curr_player].core.p.y;
 		}
 	}
 }

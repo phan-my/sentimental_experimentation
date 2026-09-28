@@ -23,8 +23,11 @@
 #define SQUARE 0  // determines hitbox of entity
 #define CIRCLE 1
 
+#define MAX_PLAYERS 2
+
 // https://en.touhouwiki.net/wiki/User:Arcorann/Character_Speeds#Massive_chart
-#define REIMU_DEFAULT_SPEED 4.5  
+#define REIMU_DEFAULT_SPEED 4.5
+#define REIMU_FOCUS_SPEED 2.0
 #define REIMU_FOCUS_FACTOR 0.4444444
 
 #define MARISA_DEFAULT_SPEED 5.0
@@ -176,8 +179,9 @@ struct overlay {
 };
 
 // globals
-extern struct player reimu;
+extern struct player player[MAX_PLAYERS];
 extern struct bullet player_bullets[MAX_PLAYER_BULLETS];
+extern int curr_player;
 
 extern struct bullet ball_8x8[MAX_BULLETS];
 extern struct enemy fairies[MAX_FAIRIES];

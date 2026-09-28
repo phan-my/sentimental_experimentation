@@ -69,12 +69,12 @@ int do_main_menu_input()
 void do_player_input()
 {
 	// update graze position
-	reimu.grazebox.p.x = reimu.core.p.x - reimu.grazebox.r / 2.;
-	reimu.grazebox.p.y = reimu.core.p.y - reimu.grazebox.r / 2.;
+	player[curr_player].grazebox.p.x = player[curr_player].core.p.x - player[curr_player].grazebox.r / 2.;
+	player[curr_player].grazebox.p.y = player[curr_player].core.p.y - player[curr_player].grazebox.r / 2.;
 	
 	// update item collection position
-	reimu.itembox.p.x = reimu.core.p.x - reimu.itembox.r / 2.;
-	reimu.itembox.p.y = reimu.core.p.y - reimu.itembox.r / 2.;
+	player[curr_player].itembox.p.x = player[curr_player].core.p.x - player[curr_player].itembox.r / 2.;
+	player[curr_player].itembox.p.y = player[curr_player].core.p.y - player[curr_player].itembox.r / 2.;
 }
 
 // returns 1 to exit the main loop
@@ -86,12 +86,12 @@ int do_input()
 	const Uint8 *keyboard_states = SDL_GetKeyboardState(NULL);
 
 	// mechanism for player to grind at field border
-	bool in_left	= reimu.sdl.rect.x > FIELD_OFFSET_X;
-	bool in_up = reimu.sdl.rect.y > FIELD_OFFSET_Y;
-	bool in_down = reimu.sdl.rect.y < FIELD_OFFSET_Y + FIELD_HEIGHT
-		- reimu.sdl.rect.h + PLAYER_BOTTOM_MARGIN;
-	bool in_right = reimu.sdl.rect.x < FIELD_OFFSET_X + FIELD_WIDTH
-		- reimu.sdl.rect.w;
+	bool in_left	= player[curr_player].sdl.rect.x > FIELD_OFFSET_X;
+	bool in_up = player[curr_player].sdl.rect.y > FIELD_OFFSET_Y;
+	bool in_down = player[curr_player].sdl.rect.y < FIELD_OFFSET_Y + FIELD_HEIGHT
+		- player[curr_player].sdl.rect.h + PLAYER_BOTTOM_MARGIN;
+	bool in_right = player[curr_player].sdl.rect.x < FIELD_OFFSET_X + FIELD_WIDTH
+		- player[curr_player].sdl.rect.w;
 
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
@@ -136,46 +136,46 @@ int do_input()
 
 		// non-diagonal movement
 		if (keyboard_states[SDL_SCANCODE_LEFT] && in_left)
-			reimu.core.p.x -= factored_speed;
+			player[curr_player].core.p.x -= factored_speed;
 		if (keyboard_states[SDL_SCANCODE_DOWN] && in_down)
-			reimu.core.p.y += factored_speed;
+			player[curr_player].core.p.y += factored_speed;
 		if (keyboard_states[SDL_SCANCODE_UP] && in_up)
-			reimu.core.p.y -= factored_speed;
+			player[curr_player].core.p.y -= factored_speed;
 		if (keyboard_states[SDL_SCANCODE_RIGHT] && in_right)
-			reimu.core.p.x += factored_speed;
+			player[curr_player].core.p.x += factored_speed;
 
 		// diagonal movement
 		if (keyboard_states[SDL_SCANCODE_LEFT] &&
 				keyboard_states[SDL_SCANCODE_DOWN]) {
 			if (in_down)
-				reimu.core.p.y += diagonal;
+				player[curr_player].core.p.y += diagonal;
 			if (in_left)
-				reimu.core.p.x -= diagonal;
+				player[curr_player].core.p.x -= diagonal;
 		}
 		if (keyboard_states[SDL_SCANCODE_LEFT] &&
 				keyboard_states[SDL_SCANCODE_UP]) {
 			if (in_left)
-				reimu.core.p.x -= diagonal;
+				player[curr_player].core.p.x -= diagonal;
 			if (in_up)
-				reimu.core.p.y -= diagonal;
+				player[curr_player].core.p.y -= diagonal;
 		}
 		if (keyboard_states[SDL_SCANCODE_RIGHT] &&
 				keyboard_states[SDL_SCANCODE_DOWN]) {
 			if (in_right)
-				reimu.core.p.x += diagonal;
+				player[curr_player].core.p.x += diagonal;
 			if (in_down)
-				reimu.core.p.y += diagonal;
+				player[curr_player].core.p.y += diagonal;
 		}
 		if (keyboard_states[SDL_SCANCODE_RIGHT] &&
 				keyboard_states[SDL_SCANCODE_UP]) {
 			if (in_right)
-				reimu.core.p.x += diagonal;
+				player[curr_player].core.p.x += diagonal;
 			if (in_up)
-				reimu.core.p.y -= diagonal;
+				player[curr_player].core.p.y -= diagonal;
 		}
 
-//			reimu.sdl.rect.x = reimu.core.p.x;
-//			reimu.sdl.rect.y = reimu.core.p.y;
+//			player[curr_player].sdl.rect.x = player[curr_player].core.p.x;
+//			player[curr_player].sdl.rect.y = player[curr_player].core.p.y;
 		do_player_input();
 
 		
