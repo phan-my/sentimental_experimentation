@@ -112,7 +112,6 @@ void initialize_player()
 	player[0].sdl.texture = create_texture("assets/reimu.png");
 	SDL_QueryTexture(player[0].sdl.texture, NULL, NULL, &player[0].sdl.rect.w,
 				&player[0].sdl.rect.h);
-	set_player_position(); // positioning
 
 	// player bullets
 	player_bullets[0].sdl.texture = create_texture("assets/player_bullet.png");
@@ -183,10 +182,10 @@ void update_bullet_position(struct bullet *p)
 }
 
 // set sdl int position to match the float position for the player
-void update_player_position(struct player *p)
+void update_player_render(struct player *p)
 {
-	p -> sdl.rect.x = (int)(p -> core.p.x - p -> sdl.rect.w / 2.);
-	p -> sdl.rect.y = (int)(p -> core.p.y - p -> sdl.rect.h / 2.);
+	p -> sdl.rect.x = (int)(p -> motion.p.x - p -> sdl.rect.w / 2.);
+	p -> sdl.rect.y = (int)(p -> motion.p.y - p -> sdl.rect.h / 2.);
 }
 
 // set sdl int position to match the float position for an enemy
@@ -196,11 +195,12 @@ void update_enemy_position(struct enemy *p)
 	p -> sdl.rect.y = (int)(p -> hitbox.p.y - p -> sdl.rect.h / 2.);
 }
 
-// update all player values
+// copies motion values into SDL_Rect and renders new sprite position
 void do_player_render()
 {
-	SDL_RenderCopy(rend, player[curr_player].sdl.texture, NULL, &player[curr_player].sdl.rect);
-	update_player_position(&player[curr_player]);
+	update_player_render(&player[curr_player]);
+	SDL_RenderCopy(rend, player[curr_player].sdl.texture, NULL,
+			&player[curr_player].sdl.rect);
 }
 
 // update objects on screen

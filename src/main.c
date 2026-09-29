@@ -49,7 +49,7 @@ int main(int argc, char **argv)
 		case STATE_PLAY:
 			close = do_input();
 			do_stage();
-			do_collision();
+			do_logic();
 			do_screen();
 
 			break;

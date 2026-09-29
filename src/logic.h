@@ -26,8 +26,8 @@
 #define MAX_PLAYERS 2
 
 // https://en.touhouwiki.net/wiki/User:Arcorann/Character_Speeds#Massive_chart
-#define REIMU_DEFAULT_SPEED 4.5
-#define REIMU_FOCUS_SPEED 2.0
+#define REIMU_DEFAULT_SPEED 2.25
+#define REIMU_FOCUS_SPEED 1.0
 #define REIMU_FOCUS_FACTOR 0.4444444
 
 #define MARISA_DEFAULT_SPEED 5.0
@@ -199,6 +199,8 @@ extern int nth_powerup;
 bool circle_in_circle(struct circlebox dest, struct circlebox src);
 void do_collision();
 void initialize_logic();
-void set_player_position();
+void reset_player_position();
+void do_logic();
+void update_player_motion();
 
 #endif /* LOGIC_H */
