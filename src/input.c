@@ -21,16 +21,14 @@
 
 // space between player bullet in ticks
 
-int reload = MAX_RELOAD;
-int nth_player_bullet = 0;
 double factored_speed;
 double diagonal;
 int scanned_key;
 bool key_down = 0;
 
-
 /* FUNCTIONS */
 
+// TODO: implement menu functionality
 int do_main_menu_input()
 {
 	SDL_Event event;
@@ -134,7 +132,7 @@ bool holding_diagonal(Uint8 *states)
 			count++;
 	}
 
-	// return bool value if count equals two
+	// return bool value if count equals two (i.e., moving diagonally)
 	return count == 2 ? true : false;
 }
 
@@ -248,14 +246,10 @@ int do_input()
 		if (reload == 0)
 			player_bullets[nth_player_bullet].active = 1;
 		// cycles through array
-		while (player_bullets[nth_player_bullet].active) {
-			nth_player_bullet++;
-			nth_player_bullet %= MAX_PLAYER_BULLETS;
-		}
+		nth_player_bullet = smart_pointer_cycle(nth_player_bullet,
+				&player_bullets,
+				MAX_PLAYER_BULLETS);
 	}
-	reload--;
-	if (reload < 0)
-		reload = MAX_RELOAD;
 	return 0;
 }
 

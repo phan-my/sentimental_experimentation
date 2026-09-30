@@ -8,6 +8,8 @@
 
 /* INCLUDES */
 #include <math.h>
+#include <stdbool.h>
+#include "logic.h"
 
 /* FUNCTIONS */
 
@@ -28,4 +30,15 @@ double rolling_average(double *points, int num_elements)
 double log_256(double x)
 {
 	return log(x)/log(256);
+}
+
+// cycles smart pointer through array until an inactive element is found
+int smart_pointer_cycle(int pointer, struct bullet *array, int max)
+{
+	while (array[pointer].active) {
+		pointer++;
+		pointer %= max;
+	}
+
+	return pointer;
 }

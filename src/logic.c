@@ -17,6 +17,7 @@
 #include "logic.h"
 #include "render.h"
 #include "random.h"
+#include "input.h"
 
 
 /* VARIABLES */
@@ -25,6 +26,8 @@ struct player player[MAX_PLAYERS];
 int curr_player = 0;
 
 struct bullet player_bullets[MAX_PLAYER_BULLETS];
+int reload = MAX_RELOAD;
+int nth_player_bullet = 0;
 
 struct bullet ball_8x8[MAX_BULLETS];
 struct enemy fairies[MAX_FAIRIES];
@@ -241,6 +244,11 @@ void do_logic()
 {
 	update_player_motion();
 	do_collision();
+
+	// update player bullet reload
+	reload--;
+	if (reload < 0)
+		reload = MAX_RELOAD;
 }
 
 /*

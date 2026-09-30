@@ -13,10 +13,6 @@
 #pragma once
 #include <SDL2/SDL.h>
 
-// variables
-extern int reload;
-extern int nth_player_bullet;
-
 // functions
 int do_input();
 int do_main_menu_input();

@@ -181,6 +181,8 @@ struct overlay {
 // globals
 extern struct player player[MAX_PLAYERS];
 extern struct bullet player_bullets[MAX_PLAYER_BULLETS];
+extern int reload;
+extern int nth_player_bullet;
 extern int curr_player;
 
 extern struct bullet ball_8x8[MAX_BULLETS];
