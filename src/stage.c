@@ -15,6 +15,7 @@
 #include "logic.h"
 #include "render.h"
 #include "random.h"
+#include "danmaku.h"
 
 
 /* GLOBALS */
@@ -73,10 +74,10 @@ void initialize_fairy_single_1()
 	// two columns of fairies
 	for (i = 0; i < num_fairies; i++) {
 		// creates left column and right column
-		fairies[i].hitbox.p.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
+		enemylist[ENEMY_FAIRY][i].hitbox.p.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
 			+ pow(-1, i) * 20;
 		// positions the fairies apart on the y axis
-		fairies[i].hitbox.p.y = FIELD_OFFSET_Y - i * 20;
+		enemylist[ENEMY_FAIRY][i].hitbox.p.y = FIELD_OFFSET_Y - i * 20;
 	}
 }
 
@@ -193,14 +194,14 @@ void do_stage()
 					// TODO: debug as to why stopped fairies appear again next phase
 //					if (fairies[i].hitbox.p.y <= stopping_line)
 					// fairy moves straight down
-					fairies[i].hitbox.p.y += fairy_speed;
+					enemylist[ENEMY_FAIRY][i].hitbox.p.y += fairy_speed;
 				}
 			// activate the fairies
 			} else {
 				for (i = 0; i < 12; i++) {
 					// activate fairies
-					if (!fairies[i].active)
-						fairies[i].active = true;
+					if (!enemylist[ENEMY_FAIRY][i].active)
+						enemylist[ENEMY_FAIRY][i].active = true;
 				}
 				single_activation = false;
 

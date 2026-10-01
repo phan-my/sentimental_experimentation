@@ -36,6 +36,8 @@
 
 #define PLAYER_BOTTOM_MARGIN 16 // extra margins for player at bottom of field
 
+#define MAX_ENEMIES 1
+
 #define MAX_PLAYER_BULLETS 100
 #define MAX_RELOAD 3
 #define PLAYER_BULLET_SPEED 16.
@@ -46,6 +48,9 @@
 #define MAX_POWERUPS 255
 
 #define MAX_IFRAMES 240
+
+// name for enemyID
+#define ENEMY_FAIRY 0
 
 
 /* STRUCTS */ 
@@ -186,7 +191,8 @@ extern int nth_player_bullet;
 extern int curr_player;
 
 extern struct bullet ball_8x8[MAX_BULLETS];
-extern struct enemy fairies[MAX_FAIRIES];
+extern struct enemy fairies;
+extern struct enemy enemylist[MAX_ENEMIES][MAX_FAIRIES];
 
 extern struct overlay main_menu;
 extern struct overlay border; // UI

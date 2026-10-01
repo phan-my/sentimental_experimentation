@@ -30,7 +30,10 @@ int reload = MAX_RELOAD;
 int nth_player_bullet = 0;
 
 struct bullet ball_8x8[MAX_BULLETS];
-struct enemy fairies[MAX_FAIRIES];
+
+// FIXME: segfault
+struct enemy enemylist[MAX_ENEMIES][MAX_FAIRIES];
+struct enemy fairies;
 
 // items
 struct item powerup[MAX_POWERUPS];
@@ -130,12 +133,18 @@ void initialize_logic()
 		player_bullets[i].hitbox.r = 8.;
 		player_bullets[i].power = 1;
 	}
+	
+	// initialzie enemylist with enemyIDs
+	enemylist[ENEMY_FAIRY][0] = fairies;
+
+	for (i = 0; i < MAX_FAIRIES; i++)
+		enemylist[ENEMY_FAIRY][i] = fairies;
 }
 
 // main collision detection logic
 void do_collision()
 {
-	int i, j;
+	int i, j, k;
 
 	// TODO: quadtree hitbox detection: github.com/arpit2297/Collision-Detection-using-Quad-Trees
 	
@@ -154,14 +163,18 @@ void do_collision()
 		}
 	
 		// player -- fairy
-		for (i = 0; i < MAX_FAIRIES; i++) {
-			// fairy hits player
-			if (circle_in_circle(fairies[i].hitbox,
-						player[curr_player].core) &&
-					fairies[i].active) {
-//				printf("player-fairy HIT  \n");
-				player[curr_player].invincible = true;
-				reset_player_position();
+		for (i = 0; i < MAX_ENEMIES; i++) {
+			for (j = 0; j < MAX_FAIRIES; j++) {
+				// fairy hits player
+				if (circle_in_circle(enemylist[i][j].hitbox,
+							player[curr_player].core
+							) &&
+						enemylist[i][j].active) {
+//					printf("player-fairy HIT  \n");
+					player[curr_player].invincible = true;
+					reset_player_position();
+					player[curr_player].health--;
+				}
 			}
 		}
 	} else if (player[curr_player].iframes > 0) {	// decrease iframe
@@ -183,35 +196,33 @@ void do_collision()
 		
 
 	// player bullet hitting things
-	for (i = 0; i < MAX_FAIRIES; i++) {
-
-		// player bullet hits fairy
-		for (j = 0; j < MAX_PLAYER_BULLETS; j++) {
+	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
+		for (j = 0; j < MAX_ENEMIES; j++) {
+			for (k = 0; k < MAX_FAIRIES; k++)
+{
+			// player bullet hits fairy
 			// fairy takes damage
-			if (player_bullets[j].active && fairies[i].active &&
-					circle_in_circle(fairies[i].hitbox,
-						player_bullets[j].hitbox)) {
+			if (player_bullets[i].active && enemylist[j][k].active &&
+					circle_in_circle(enemylist[j][k].hitbox,
+						player_bullets[i].hitbox)) {
 //				printf("PLAYER BULLET HTIS FAIRY\n");
 
 				// damage dealt based on player bullet power
-				fairies[i].health -= player_bullets[j].power;
+				enemylist[j][k].health -= player_bullets[i].power;
 
 				// unload bullet
-				player_bullets[j].hitbox.p.y = 0;
+				player_bullets[i].active = 0;
 
 				// fairy dies
-				if (fairies[i].health == 0) {
-					fairies[i].active = 0;
-					player_bullets[j].active = 0;
+				if (enemylist[j][k].health == 0) {
+					enemylist[j][k].active = 0;
 					// item drop
 					powerup[nth_powerup].active = true;
-					powerup[nth_powerup].hitbox.p.x = fairies[i].hitbox.p.x;
-					powerup[nth_powerup].hitbox.p.y = fairies[i].hitbox.p.y;
-					powerup[i].sdl.rect.x = (int)(powerup[i].hitbox.p.x - powerup[i].sdl.rect.w / 2.);
-					powerup[i].sdl.rect.y = (int)(powerup[i].hitbox.p.y - powerup[i].sdl.rect.h / 2.);
+					powerup[nth_powerup].hitbox.p.x = enemylist[j][k].hitbox.p.x;
+					powerup[nth_powerup].hitbox.p.y = enemylist[j][k].hitbox.p.y;
 				}
-
 			}
+}
 		}
 	}
 }

@@ -136,16 +136,17 @@ void initialize_enemies()
 	}
 
 	// fairies
-	fairies[0].sdl.texture = create_texture("assets/fairy.png");
+	fairies.sdl.texture
+		= create_texture("assets/fairy.png");
 	for (i = 0; i < MAX_FAIRIES; i++) {
-		SDL_QueryTexture(fairies[0].sdl.texture, NULL, NULL,
-				&fairies[i].sdl.rect.w, &fairies[i].sdl.rect.h);
+		SDL_QueryTexture(fairies.sdl.texture, NULL, NULL,
+				&fairies.sdl.rect.w, &fairies.sdl.rect.h);
 		
 		// fairy movement control
-		fairies[i].active = false;
+		fairies.active = false;
 
-		fairies[i].hitbox.r = 8.;
-		fairies[i].health = 2;
+		fairies.hitbox.r = 8.;
+		fairies.health = 2;
 	}
 	
 }
@@ -206,7 +207,7 @@ void do_player_render()
 // update objects on screen
 void do_screen()
 {
-	int i;
+	int i, j;
 
 	// clear screen
 	SDL_RenderClear(rend);
@@ -218,11 +219,15 @@ void do_screen()
 		SDL_RenderCopy(rend, ball_8x8[0].sdl.texture, NULL, &ball_8x8[i].sdl.rect);
 
 	// enemies
-	for (i = 0; i < MAX_FAIRIES; i++) {
-		update_enemy_position(&fairies[i]);
-		if (fairies[i].active) {
-			SDL_RenderCopy(rend, fairies[0].sdl.texture,
-					NULL, &fairies[i].sdl.rect);
+	for (i = 0; i < MAX_ENEMIES; i++) {
+		for (j = 0; j < MAX_FAIRIES; j++) {
+			update_enemy_position(&enemylist[i][j]);
+			if (enemylist[i][j].active) {
+				SDL_RenderCopy(rend,
+						enemylist[i][j].sdl.texture,
+						NULL,
+						&enemylist[i][j].sdl.rect);
+			}
 		}
 	}
 
@@ -238,6 +243,10 @@ void do_screen()
 	// items
 	for (i = 0; i < MAX_POWERUPS; i++) {
 		if (powerup[i].active) {
+			powerup[i].sdl.rect.x = (int)(powerup[i].hitbox.p.x
+					- powerup[i].sdl.rect.w / 2.);
+			powerup[i].sdl.rect.y = (int)(powerup[i].hitbox.p.y
+					- powerup[i].sdl.rect.h / 2.);
 			SDL_RenderCopy(rend, powerup[0].sdl.texture,
 					NULL, &powerup[i].sdl.rect);
 		}
