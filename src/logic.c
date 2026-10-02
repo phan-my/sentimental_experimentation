@@ -18,21 +18,24 @@
 #include "render.h"
 #include "random.h"
 #include "input.h"
+#include "collision.h"
 
 
 /* VARIABLES */
 
 struct player player[MAX_PLAYERS];
 int curr_player = 0;
-
 struct bullet player_bullets[MAX_PLAYER_BULLETS];
 int reload = MAX_RELOAD;
 int nth_player_bullet = 0;
 
-struct bullet ball_8x8[MAX_BULLETS];
+// bullets
+struct bullet bulletlist[MAX_BULLETS][MAX_BULLET_MULTIPLE];
+struct bullet ball_8x8;
+int nth_ball_8x8;
 
-// FIXME: segfault
-struct enemy enemylist[MAX_ENEMIES][MAX_FAIRIES];
+// generic stage enemies
+struct enemy enemylist[MAX_ENEMIES][MAX_ENEMY_MULTIPLE];
 struct enemy fairies;
 
 // items
@@ -44,52 +47,14 @@ struct overlay main_menu;
 struct overlay border; // UI
 struct overlay loading;
 
-SDL_Texture *tex; // bullets
-SDL_Texture *player_bullet_texture;
-
 
 /* FUNCTIONS */
-
-// circle-circle collision
-// TODO: Pythagorean expression optimizable?
-bool circle_in_circle(struct circlebox dest, struct circlebox src)
-{
-	// https://silentmatt.com/rectangle-intersection/
-	// https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
-	double dx = src.p.x + src.r - (dest.p.x + dest.r);
-	double dy = src.p.y + src.r - (dest.p.y + dest.r);
-	double distance = sqrt(dx * dx + dy * dy);
-	return distance < src.r + dest.r;
-}
-
-// checks if position is in rectbox
-bool _in_rect(double x, double y, struct rectbox obj)
-{
-	if (obj.x <= x && x <= obj.x + obj.w
-			&& obj.y <= y && y <= obj.y + obj.h)
-		return true;
-	else
-		return false;
-}
-
-// rectangle-rectangle collision
-bool _rect_in_rect(struct rectbox obj_1, struct rectbox obj_2)
-{
-	bool in_1 = obj_1.x <= obj_2.x + obj_2.w; // obj_2 next of obj_1
-	bool in_2 = obj_1.y <= obj_2.y + obj_2.h; // obj_2 over obj_1
-	bool in_3 = obj_1.x + obj_1.w >= obj_2.x; // obj_1 left of obt_2
-	bool in_4 = obj_1.y + obj_1.h >= obj_2.y; // obj_2 over obj_1
-	if (in_1 && in_2 && in_3 && in_4)
-		return true;
-	else
-		return false;
-}
 
 // sets player at the main start position
 void reset_player_position()
 {
-	player[curr_player].motion.p.x = FIELD_WIDTH / 2. + FIELD_OFFSET_X;
-	player[curr_player].motion.p.y = FIELD_HEIGHT * 0.9 + FIELD_OFFSET_Y;
+	player[curr_player].motion.p.x = PLAYER_ORIGIN_X;
+	player[curr_player].motion.p.y = PLAYER_ORIGIN_Y;
 //	update_player_render(&player[curr_player]); // subpixel hitbox -> integer SDL_Rect
 
 }
@@ -97,7 +62,7 @@ void reset_player_position()
 // full initialization of structs
 void initialize_logic()
 {
-	int i;	
+	int i, j;	
 	
 	// numerical array pointer for power items
 	nth_powerup = 0;
@@ -109,7 +74,7 @@ void initialize_logic()
 		player[i].power = 0.;
 		player[i].core.r = 2.;
 		// TODO: redraw to deal with grazing
-		player[i].grazebox.r = 4.;
+		player[i].grazebox.r = 8.;
 		player[i].itembox.r = player[i].grazebox.r * 2.;
 	}
 
@@ -123,7 +88,6 @@ void initialize_logic()
 	update_player_motion();
 	
 	// player bullet initialization
-	
 	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
 		player_bullets[i].active = false;
 /*
@@ -132,134 +96,141 @@ void initialize_logic()
 */
 		player_bullets[i].hitbox.r = 8.;
 		player_bullets[i].power = 1;
+		player_bullets[i].motion.p.x = player[curr_player].motion.p.x;
+		player_bullets[i].motion.p.y = player[curr_player].motion.p.y;
 	}
 	
 	// initialzie enemylist with enemyIDs
-	enemylist[ENEMY_FAIRY][0] = fairies;
-
-	for (i = 0; i < MAX_FAIRIES; i++)
-		enemylist[ENEMY_FAIRY][i] = fairies;
-}
-
-// main collision detection logic
-void do_collision()
-{
-	int i, j, k;
-
-	// TODO: quadtree hitbox detection: github.com/arpit2297/Collision-Detection-using-Quad-Trees
+	fairies.id = ENEMY_FAIRY;
+	fairies.active = false;
+	fairies.hitbox.r = 8.;
+	fairies.health = 4;
+	enemylist[fairies.id][0] = fairies;
 	
-	// questions/21650246/sdl-2-collision-detetection
-	// player hitting things
-	if (!player[curr_player].invincible) {
-		// player -- enemy bullet
-		for (i = 0; i < MAX_BULLETS; i++) {
-			if (circle_in_circle(ball_8x8[i].hitbox,
-						player[curr_player].core)
-					&& ball_8x8[i].active) {
-//				printf("%d: HIT\n", i);
-				player[curr_player].invincible = true;
-				reset_player_position();
-			}
+	// create multiple of all unique enemies
+	for (i = 0; i < MAX_ENEMIES; i++) {
+		for (j = 0; j < MAX_ENEMY_MULTIPLE; j++) {
+			enemylist[i][j] = enemylist[i][0];
 		}
+	}
 	
-		// player -- fairy
-		for (i = 0; i < MAX_ENEMIES; i++) {
-			for (j = 0; j < MAX_FAIRIES; j++) {
-				// fairy hits player
-				if (circle_in_circle(enemylist[i][j].hitbox,
-							player[curr_player].core
-							) &&
-						enemylist[i][j].active) {
-//					printf("player-fairy HIT  \n");
-					player[curr_player].invincible = true;
-					reset_player_position();
-					player[curr_player].health--;
-				}
-			}
-		}
-	} else if (player[curr_player].iframes > 0) {	// decrease iframe
-		player[curr_player].iframes--;
-	} else { // if iframe is emptied: reset iframe
-		player[curr_player].invincible = false;
-		player[curr_player].iframes = MAX_IFRAMES;
-	}
-
-	// player -- powerup
-	for (i = 0; i < MAX_POWERUPS; i++) {
-		if (circle_in_circle(powerup[i].hitbox,
-					player[curr_player].itembox)
-				&& powerup[i].active) {
-			powerup[i].active = false;
-			player[curr_player].power += powerup[i].value;
+	// initialize bulletlist with bulletIDs
+	ball_8x8.id = BULLET_BALL_8x8;
+	ball_8x8.active = false;
+	ball_8x8.hitbox.r = 3.8;
+	bulletlist[ball_8x8.id][0] = ball_8x8;
+	
+	// create multiple of all unique bullets
+	for (i = 0; i < MAX_BULLETS; i++) {
+		for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
+			bulletlist[i][j] = bulletlist[i][0];
 		}
 	}
-		
+}
 
-	// player bullet hitting things
-	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
-		for (j = 0; j < MAX_ENEMIES; j++) {
-			for (k = 0; k < MAX_FAIRIES; k++)
+// translate velocity into position in struct kinematics
+void update_position_by_velocity(struct kinematics *motion)
 {
-			// player bullet hits fairy
-			// fairy takes damage
-			if (player_bullets[i].active && enemylist[j][k].active &&
-					circle_in_circle(enemylist[j][k].hitbox,
-						player_bullets[i].hitbox)) {
-//				printf("PLAYER BULLET HTIS FAIRY\n");
-
-				// damage dealt based on player bullet power
-				enemylist[j][k].health -= player_bullets[i].power;
-
-				// unload bullet
-				player_bullets[i].active = 0;
-
-				// fairy dies
-				if (enemylist[j][k].health == 0) {
-					enemylist[j][k].active = 0;
-					// item drop
-					powerup[nth_powerup].active = true;
-					powerup[nth_powerup].hitbox.p.x = enemylist[j][k].hitbox.p.x;
-					powerup[nth_powerup].hitbox.p.y = enemylist[j][k].hitbox.p.y;
-				}
-			}
-}
-		}
-	}
+	// increment pointer to p.x by v.x
+	motion -> p.x += motion -> v.x;
+	motion -> p.y += motion -> v.y;
 }
 
-void update_player_position()
-{
-	player[curr_player].motion.p.x += player[curr_player].motion.v.x;
-	player[curr_player].motion.p.y += player[curr_player].motion.v.y;
-}
-
+// update all positional values of the player
 void update_player_motion()
 {
-	update_player_position();
-	// core hitbox
+	// v -> p
+	update_position_by_velocity(&player[curr_player].motion);
+
+	// p -> core hitbox
 	player[curr_player].core.p.x = player[curr_player].motion.p.x;
 	player[curr_player].core.p.y = player[curr_player].motion.p.y;
 
-	// graze hitbox
+	// p -> graze hitbox
 	player[curr_player].grazebox.p.x = player[curr_player].motion.p.x;
 	player[curr_player].grazebox.p.y = player[curr_player].motion.p.y;
 	
-	// item collection htibox
+	// p -> item collection htibox
 	player[curr_player].itembox.p.x = player[curr_player].motion.p.x;
 	player[curr_player].itembox.p.y = player[curr_player].motion.p.y;
+}
 
+// update all positional values of all active enemies
+void update_enemy_motion()
+{
+	int i, j;
+	
+	// loop through and update all enemies
+	for (i = 0; i < MAX_ENEMIES; i++) {
+		for (j = 0; j < MAX_ENEMY_MULTIPLE; j++) {
+			// v -> p
+			update_position_by_velocity(&enemylist[i][j].motion);
+			
+			// p -> core hitbox
+			enemylist[i][j].hitbox.p.x = enemylist[i][j].motion.p.x;
+			enemylist[i][j].hitbox.p.y = enemylist[i][j].motion.p.y;
+		}
+	}
+}
+
+// update all positional values of all active enemies
+void update_bullet_motion()
+{
+	int i, j;
+	
+	// update all enemy bullets
+	for (i = 0; i < MAX_BULLETS; i++) {
+		for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
+			// v -> p
+			update_position_by_velocity(&bulletlist[i][j].motion);
+			
+			// p -> core hitbox
+			bulletlist[i][j].hitbox.p.x = bulletlist[i][j].motion.p.x;
+			bulletlist[i][j].hitbox.p.y = bulletlist[i][j].motion.p.y;
+		}
+	}
+	
+	// update all player bullets
+	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
+		// v -> p
+		update_position_by_velocity(&player_bullets[i].motion);
+		
+		// p -> core hitbox
+		player_bullets[i].hitbox.p.x = player_bullets[i].motion.p.x;
+		player_bullets[i].hitbox.p.y = player_bullets[i].motion.p.y;
+	}
 }
 
 // all operations
 void do_logic()
 {
-	update_player_motion();
-	do_collision();
+	int i;
 
 	// update player bullet reload
 	reload--;
 	if (reload < 0)
 		reload = MAX_RELOAD;
+	
+	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
+		if (player_bullets[i].active) {
+			player_bullets[i].motion.v.x = 0.;
+			player_bullets[i].motion.v.y = -PLAYER_BULLET_SPEED;
+		} else {
+			player_bullets[i].motion.v.x = 0.;
+			player_bullets[i].motion.v.y = 0.;
+			
+			// set player bullet at player's position
+			player_bullets[i].motion.p.x = player[curr_player].motion.p.x;
+			player_bullets[i].motion.p.y = player[curr_player].motion.p.y;
+			
+		}
+	}
+	
+	// update all positional values of entities
+	update_player_motion();
+	update_bullet_motion();
+	update_enemy_motion();
+	do_collision(); // and check and do collision between them
 }
 
 /*

@@ -128,27 +128,20 @@ void initialize_enemies()
 	int i;
 
 	// "snowball" bullets
-	ball_8x8[0].sdl.texture = create_texture("assets/bullet_snow.png");
+	ball_8x8.sdl.texture = create_texture("assets/bullet_snow.png");
 	for (i = 0; i < MAX_BULLETS; i++) {
-		SDL_QueryTexture(ball_8x8[0].sdl.texture, NULL, NULL, &ball_8x8[i].sdl.rect.w,
-				&ball_8x8[i].sdl.rect.h);
-		ball_8x8[i].active = false;
+		SDL_QueryTexture(ball_8x8.sdl.texture, NULL, NULL,
+				&ball_8x8.sdl.rect.w,
+				&ball_8x8.sdl.rect.h);
 	}
 
 	// fairies
 	fairies.sdl.texture
 		= create_texture("assets/fairy.png");
-	for (i = 0; i < MAX_FAIRIES; i++) {
+	for (i = 0; i < MAX_ENEMY_MULTIPLE; i++) {
 		SDL_QueryTexture(fairies.sdl.texture, NULL, NULL,
 				&fairies.sdl.rect.w, &fairies.sdl.rect.h);
-		
-		// fairy movement control
-		fairies.active = false;
-
-		fairies.hitbox.r = 8.;
-		fairies.health = 2;
 	}
-	
 }
 
 // load items
@@ -176,10 +169,10 @@ void initialize_textures(void)
 }
 
 // set sdl int position to match the float position for a bullet
-void update_bullet_position(struct bullet *p)
+void update_bullet_render(struct bullet *p)
 {
-	p -> sdl.rect.x = (int)(p -> hitbox.p.x - p -> sdl.rect.w / 2.);
-	p -> sdl.rect.y = (int)(p -> hitbox.p.y - p -> sdl.rect.h / 2.);
+	p -> sdl.rect.x = (int)(p -> motion.p.x - p -> sdl.rect.w / 2.);
+	p -> sdl.rect.y = (int)(p -> motion.p.y - p -> sdl.rect.h / 2.);
 }
 
 // set sdl int position to match the float position for the player
@@ -190,10 +183,10 @@ void update_player_render(struct player *p)
 }
 
 // set sdl int position to match the float position for an enemy
-void update_enemy_position(struct enemy *p)
+void update_enemy_render(struct enemy *p)
 {
-	p -> sdl.rect.x = (int)(p -> hitbox.p.x - p -> sdl.rect.w / 2.);
-	p -> sdl.rect.y = (int)(p -> hitbox.p.y - p -> sdl.rect.h / 2.);
+	p -> sdl.rect.x = (int)(p -> motion.p.x - p -> sdl.rect.w / 2.);
+	p -> sdl.rect.y = (int)(p -> motion.p.y - p -> sdl.rect.h / 2.);
 }
 
 // copies motion values into SDL_Rect and renders new sprite position
@@ -215,14 +208,20 @@ void do_screen()
 	do_player_render();
 
 	// bullets
-	for (i = 0; i < MAX_BULLETS; i++)
-		SDL_RenderCopy(rend, ball_8x8[0].sdl.texture, NULL, &ball_8x8[i].sdl.rect);
+	for (i = 0; i < MAX_BULLETS; i++) {
+		for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
+			if (bulletlist[i][j].active) {
+				update_bullet_render(&bulletlist[i][j]);
+				SDL_RenderCopy(rend, bulletlist[i][j].sdl.texture, NULL, &bulletlist[i][j].sdl.rect);
+			}
+		}
+	}
 
 	// enemies
 	for (i = 0; i < MAX_ENEMIES; i++) {
-		for (j = 0; j < MAX_FAIRIES; j++) {
-			update_enemy_position(&enemylist[i][j]);
+		for (j = 0; j < MAX_ENEMY_MULTIPLE; j++) {
 			if (enemylist[i][j].active) {
+				update_enemy_render(&enemylist[i][j]);
 				SDL_RenderCopy(rend,
 						enemylist[i][j].sdl.texture,
 						NULL,
@@ -234,6 +233,7 @@ void do_screen()
 	// player bullets
 	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
 		if (player_bullets[i].active) {
+			update_bullet_render(&player_bullets[i]);
 			SDL_RenderCopy(rend, player_bullets[0].sdl.texture,
 					NULL,
 					&player_bullets[i].sdl.rect);

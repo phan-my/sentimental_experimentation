@@ -37,9 +37,9 @@ void initialize_screen(void);
 void initialize_textures(void);
 void terminate_screen(void);
 SDL_Texture *create_texture(char *sprite);
-void update_bullet_position(struct bullet *p);
+void update_bullet_render(struct bullet *p);
 void update_player_render(struct player *p);
-void update_enemy_position(struct enemy *p);
+void update_enemy_render(struct enemy *p);
 void do_screen();
 void do_main_menu_screen();
 

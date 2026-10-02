@@ -19,14 +19,14 @@
 
 
 /* GLOBALS */
-double stages[MAX_STAGES][CHECKPOINTS_STAGE_1] = {{1, 14.5, 42, 70.5}};
+double stages[MAX_STAGES][CHECKPOINTS_STAGE_1] = {{1, 4.5, 42, 70.5}};
 int current_stage = 1;
 
 // stage variables
-double moving = 1;
-double speed[MAX_BULLETS];
+int moving = 1;
+double speed[MAX_BULLET_MULTIPLE];
 double cap_speed;
-double angles[MAX_BULLETS];
+double angles[MAX_BULLET_MULTIPLE];
 
 int stopping_line = FIELD_OFFSET_Y + 200;
 double fairy_speed = 2.;
@@ -67,17 +67,17 @@ for (i = 0; i < MAX_BULLETS; i++) {
 void initialize_fairy_single_1()
 {
 	int i;
-	double fairy_speed = 1.;
+	double fairy_speed = 2.;
 
 	int num_fairies = 12;
 	
 	// two columns of fairies
 	for (i = 0; i < num_fairies; i++) {
 		// creates left column and right column
-		enemylist[ENEMY_FAIRY][i].hitbox.p.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
+		enemylist[ENEMY_FAIRY][i].motion.p.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
 			+ pow(-1, i) * 20;
 		// positions the fairies apart on the y axis
-		enemylist[ENEMY_FAIRY][i].hitbox.p.y = FIELD_OFFSET_Y - i * 20;
+		enemylist[ENEMY_FAIRY][i].motion.p.y = FIELD_OFFSET_Y - i * 20;
 	}
 }
 
@@ -88,13 +88,10 @@ void initialize_stage()
 	switch (current_stage) {
 	case 1:
 		// "snowball" bullets
-		for (i = 0; i < MAX_BULLETS; i++) {
-	//		ball_8x8[i].w /= scale;
-	//		ball_8x8[i].h /= scale;
-			ball_8x8[i].hitbox.p.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-			ball_8x8[i].hitbox.p.y = FIELD_HEIGHT * (1. / 4)
+		for (i = 0; i < MAX_BULLET_MULTIPLE; i++) {
+			bulletlist[BULLET_BALL_8x8][i].motion.p.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+			bulletlist[BULLET_BALL_8x8][i].motion.p.y = FIELD_HEIGHT * (1. / 4)
 				+ FIELD_OFFSET_Y;
-			ball_8x8[i].hitbox.r = 3.8;
 		}
 
 		initialize_fairy_single_1();
@@ -116,7 +113,7 @@ void initialize_stage()
 		/* jellyfish */
 
 		// set bullet speeds
-		for (i = 0; i < MAX_BULLETS; i++) {
+		for (i = 0; i < MAX_BULLET_MULTIPLE; i++) {
 			if (i % 40 < 20)
 				cap_speed = 2.;
 			else
@@ -130,7 +127,7 @@ void initialize_stage()
 		}
 
 		// create double version of dest for subpixel precision
-		for (i = 0; i < MAX_BULLETS; i++) {
+		for (i = 0; i < MAX_BULLET_MULTIPLE; i++) {
 			if (i % 2)
 				angles[i] = i * GOLDEN_RATIO;
 			else
@@ -160,9 +157,7 @@ void do_player_bullets()
 	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
 		// move activated bullet by specified speed
 		if (player_bullets[i].active) {
-			player_bullets[i].hitbox.p.y -=
-				PLAYER_BULLET_SPEED;
-			update_bullet_position(&player_bullets[i]);
+			player_bullets[i].motion.v.y = PLAYER_BULLET_SPEED;
 		}
 		// reset bullets if they fall out of bounds
 		if (player_bullets[i].hitbox.p.y < 0 ||
@@ -194,7 +189,8 @@ void do_stage()
 					// TODO: debug as to why stopped fairies appear again next phase
 //					if (fairies[i].hitbox.p.y <= stopping_line)
 					// fairy moves straight down
-					enemylist[ENEMY_FAIRY][i].hitbox.p.y += fairy_speed;
+					enemylist[ENEMY_FAIRY][i].motion.v.x = 0.;
+					enemylist[ENEMY_FAIRY][i].motion.v.y = fairy_speed;
 				}
 			// activate the fairies
 			} else {
@@ -204,7 +200,6 @@ void do_stage()
 						enemylist[ENEMY_FAIRY][i].active = true;
 				}
 				single_activation = false;
-
 			}
 		}
 		
@@ -255,13 +250,13 @@ void do_stage()
 		// Jellyfish
 		// speed[i] = (double)i / 100;
 		for (i = 0; i < moving; i++) {
-			ball_8x8[i].active = true;
-			ball_8x8[i].hitbox.p.x += speed[i] * cos(angles[i]);
-			ball_8x8[i].hitbox.p.y += speed[i] * sin(angles[i]);
-			update_bullet_position(&ball_8x8[i]);
+			bulletlist[BULLET_BALL_8x8][i].active = true;
+			bulletlist[BULLET_BALL_8x8][i].motion.v.x = speed[i] * cos(angles[i]);
+			bulletlist[BULLET_BALL_8x8][i].motion.v.y = speed[i] * sin(angles[i]);
 		}
-		if (moving < MAX_BULLETS)
-			moving += 2;
+		if (moving < MAX_BULLET_MULTIPLE) {
+			moving += 3;
+		}
 }
 
 		/* timing */

@@ -25,6 +25,10 @@
 
 #define MAX_PLAYERS 2
 
+// player spawn position
+#define PLAYER_ORIGIN_X FIELD_WIDTH / 2. + FIELD_OFFSET_X
+#define PLAYER_ORIGIN_Y FIELD_HEIGHT * 0.9 + FIELD_OFFSET_Y
+
 // https://en.touhouwiki.net/wiki/User:Arcorann/Character_Speeds#Massive_chart
 #define REIMU_DEFAULT_SPEED 2.25
 #define REIMU_FOCUS_SPEED 1.0
@@ -42,8 +46,12 @@
 #define MAX_RELOAD 3
 #define PLAYER_BULLET_SPEED 16.
 
-#define MAX_BULLETS 1000
-#define MAX_FAIRIES 255
+#define MAX_ENEMY_MULTIPLE 1024
+
+// for bulletlist
+#define MAX_BULLETS 1
+#define MAX_BULLET_MULTIPLE 1000
+#define BULLET_BALL_8x8 0
 
 #define MAX_POWERUPS 255
 
@@ -79,13 +87,25 @@ struct kinematics {
 	struct acceleration a; // current acceleration
 };
 
+/* colors */
+
+// colors in RGB
+struct color {
+	int r;
+	int g;
+	int b;
+	int alpha;
+};
+
 /* hitbox shapes */
 
+// circle-shaped hitbox
 struct circlebox {
-	double r;
+	double r; // radius of hitbox
 	struct position p; // hitbox core position
 };
 
+// unused: all hitboxes are circles, for now
 struct rectbox {
 	double w;
 	double h;
@@ -93,7 +113,7 @@ struct rectbox {
 	double y;
 };
 
-// experimental
+// unused: ellipse hitbox
 struct _ellipsebox {
 	double eccentricity;
 	double major;
@@ -103,6 +123,7 @@ struct _ellipsebox {
 
 /* SDL structs */
 
+// an entity's types necessary to perform render
 struct sdl_types {
 	SDL_Surface *surface; // image loads into a surface
 	SDL_Texture *texture;
@@ -135,6 +156,7 @@ struct player {
 	int iframes;
 };
 
+// generic stage enemy
 struct enemy {
 	int id;
 
@@ -159,7 +181,6 @@ struct bullet {
 	struct kinematics motion;
 	struct sdl_types sdl;
 
-
 	int source; // 0: player bullet; 1: enemy bullet
 
 	double power;
@@ -170,6 +191,7 @@ struct bullet {
 	int (*trail)(double, double);
 };
 
+// collectible items such as powerups, bombs, score
 struct item {
 	struct kinematics motion;
 	struct circlebox hitbox;
@@ -190,9 +212,11 @@ extern int reload;
 extern int nth_player_bullet;
 extern int curr_player;
 
-extern struct bullet ball_8x8[MAX_BULLETS];
+extern struct bullet bulletlist[MAX_BULLETS][MAX_BULLET_MULTIPLE];
+extern struct bullet ball_8x8;
+
+extern struct enemy enemylist[MAX_ENEMIES][MAX_ENEMY_MULTIPLE];
 extern struct enemy fairies;
-extern struct enemy enemylist[MAX_ENEMIES][MAX_FAIRIES];
 
 extern struct overlay main_menu;
 extern struct overlay border; // UI
@@ -204,11 +228,10 @@ extern struct item powerup[MAX_POWERUPS];
 extern int nth_powerup;
 
 // functions
-bool circle_in_circle(struct circlebox dest, struct circlebox src);
-void do_collision();
 void initialize_logic();
 void reset_player_position();
-void do_logic();
 void update_player_motion();
+void update_enemy_motion();
+void do_logic();
 
 #endif /* LOGIC_H */

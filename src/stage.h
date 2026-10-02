@@ -20,10 +20,10 @@
 
 // globals
 extern int current_stage;
-extern double moving;
-extern double speed[MAX_BULLETS];
+extern int moving;
+extern double speed[MAX_BULLET_MULTIPLE];
 extern double cap_speed;
-extern double angles[MAX_BULLETS];
+extern double angles[MAX_BULLET_MULTIPLE];
 extern int stopping_line;
 extern double fairy_speed;
 
