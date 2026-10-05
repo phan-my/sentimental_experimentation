@@ -19,7 +19,8 @@
 
 
 /* GLOBALS */
-double stages[MAX_STAGES][CHECKPOINTS_STAGE_1] = {{1, 4.5, 42, 70.5}};
+double stages_s[MAX_STAGES][CHECKPOINTS_STAGE_1] = {{1, 4.5, 42, 70.5}};
+int stages[MAX_STAGES][CHECKPOINTS_STAGE_1] = {{60, 270, 2520, 4230}};
 int current_stage = 1;
 
 // stage variables
@@ -35,6 +36,7 @@ double fairy_speed = 2.;
 struct timespec stage_start;
 struct timespec stage_now;
 uint64_t stage_progress;
+int stage_progress_frames = 0;
 double stage_progress_seconds;
 bool single_activation; // controls start of fairy spawning
 
@@ -182,7 +184,7 @@ void do_stage()
 	switch (current_stage) {
 	case 1:
 		// fairy movement
-		if (stage_progress_seconds > stages[current_stage - 1][0]) {
+		if (stage_progress_frames > stages[current_stage - 1][0]) {
 			// update the fairies' position according to specification
 			if (!single_activation) {
 				for (i = 0; i < 12; i++) {
@@ -245,8 +247,9 @@ void do_stage()
 		*/
 
 
-		if (stage_progress_seconds > stages[current_stage - 1][1])
+		if (stage_progress_frames == stages[current_stage - 1][1])
 {
+/*
 		// Jellyfish
 		// speed[i] = (double)i / 100;
 		for (i = 0; i < moving; i++) {
@@ -257,6 +260,33 @@ void do_stage()
 		if (moving < MAX_BULLET_MULTIPLE) {
 			moving += 3;
 		}
+*/
+		struct position spawner;
+		spawner.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+		spawner.y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
+/*
+		nth_ball_8x8 = launch_ring(bulletlist[BULLET_BALL_8x8], nth_ball_8x8, MAX_BULLETS,
+				spawner, 8, 2., 0);
+*/
+
+		double delta_angle = 2. * M_PI / 8.; // difference in angle between bullets
+
+		int n = 8;
+		for (i = 0; i < n; i++) {
+			// cycle through next inactive element of bullet array
+			nth_ball_8x8 = cycle_bullet_smart_pointer(nth_ball_8x8, &bulletlist[BULLET_BALL_8x8], MAX_BULLET_MULTIPLE);
+
+			// set positions 
+//			bulletlist[BULLET_BALL_8x8][nth_ball_8x8].motion.o.x = spawner.x;
+//			bulletlist[BULLET_BALL_8x8][nth_ball_8x8].motion.o.y = spawner.y;
+			bulletlist[BULLET_BALL_8x8][nth_ball_8x8].motion.p.x = spawner.x;
+			bulletlist[BULLET_BALL_8x8][nth_ball_8x8].motion.p.y = spawner.y;
+			
+			// launch each bullet
+			launch_straight(&bulletlist[BULLET_BALL_8x8][nth_ball_8x8], 2., delta_angle * i);
+		}
+		nth_ball_8x8 = cycle_bullet_smart_pointer(nth_ball_8x8, &bulletlist[BULLET_BALL_8x8], MAX_BULLET_MULTIPLE);
+
 }
 
 		/* timing */
@@ -264,6 +294,8 @@ void do_stage()
 		stage_progress = (stage_now.tv_sec - stage_start.tv_sec)
 			* 1000000. + (stage_now.tv_nsec - stage_start.tv_nsec) 
 			/ 1000.;
+		stage_progress_frames++;
+		printf("%d\n", stage_progress_frames);
 		stage_progress_seconds = stage_progress / 1000000.;
 //		printf("%d time\n", stage_progress);
 		
@@ -281,9 +313,7 @@ void do_stage()
 			powerup[i].sdl.rect.x = (int)(powerup[i].hitbox.p.x - powerup[i].sdl.rect.w / 2.);
 			powerup[i].sdl.rect.y = (int)(powerup[i].hitbox.p.y - powerup[i].sdl.rect.h / 2.);
 		}
-		
 	}
-
 }
 
 

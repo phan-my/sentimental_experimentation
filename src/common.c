@@ -33,7 +33,10 @@ double log_256(double x)
 }
 
 // cycles smart pointer through array until an inactive element is found
-int smart_pointer_cycle(int pointer, struct bullet *array, int max)
+// pointer: the smart pointer as an integer value (nth element in array)
+// array: array that pointer points to
+// max: the maximum number of elements in the arrays
+int cycle_bullet_smart_pointer(int pointer, struct bullet *array, int max)
 {
 	while (array[pointer].active) {
 		pointer++;
@@ -42,3 +45,17 @@ int smart_pointer_cycle(int pointer, struct bullet *array, int max)
 
 	return pointer;
 }
+
+// cycles smart pointer through array until an inactive element is found
+// pointer: the smart pointer as an integer value (nth element in array)
+// array: array that pointer points to
+// max: the maximum number of elements in the arrays
+int cycle_item_smart_pointer(int pointer, struct item *array, int max)
+{
+	while (array[pointer].active) {
+		pointer++;
+		pointer %= max;
+	}
+	return pointer;
+}
+

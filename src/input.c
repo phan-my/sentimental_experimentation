@@ -246,7 +246,7 @@ int do_input()
 		if (reload == 0)
 			player_bullets[nth_player_bullet].active = 1;
 		// cycles through array
-		nth_player_bullet = smart_pointer_cycle(nth_player_bullet,
+		nth_player_bullet = cycle_bullet_smart_pointer(nth_player_bullet,
 				&player_bullets,
 				MAX_PLAYER_BULLETS);
 	}

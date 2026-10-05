@@ -6,5 +6,12 @@
  * See LICENCE for further information.
  */
 
+#ifndef DANMAKU_H
+#define DANMAKU_H
+#include "logic.h"
 
+void launch_straight(struct bullet *bullet, double speed, double radians);
+//int launch_ring(struct bullet *bullets, int nth_bullet, int max,
+//		struct position spawner, int n, double speed, double angle);
 
+#endif /* DANMAKU_H */

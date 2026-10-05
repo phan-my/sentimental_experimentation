@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include "collision.h"
 #include "logic.h"
+#include "common.h"
 
 
 // circle-circle collision
@@ -136,11 +137,15 @@ void do_collision()
 
 				// fairy dies
 				if (enemylist[j][k].health == 0) {
+					nth_powerup = cycle_item_smart_pointer(nth_powerup, &powerup, MAX_POWERUPS);
 					enemylist[j][k].active = 0;
 					// item drop
 					powerup[nth_powerup].active = true;
+//					powerup[nth_powerup].hitbox.o.x = enemylist[j][k].hitbox.p.x;
+//					powerup[nth_powerup].hitbox.o.y = enemylist[j][k].hitbox.p.y;
 					powerup[nth_powerup].hitbox.p.x = enemylist[j][k].hitbox.p.x;
 					powerup[nth_powerup].hitbox.p.y = enemylist[j][k].hitbox.p.y;
+					nth_powerup = cycle_item_smart_pointer(nth_powerup, &powerup, MAX_POWERUPS);
 				}
 			}
 }

@@ -18,6 +18,7 @@
 // functions
 double rolling_average(double *points, int num_elements);
 double log_256(double x);
-int smart_pointer_cycle();
+int cycle_bullet_smart_pointer();
+int cycle_item_smart_pointer();
 
 #endif /* COMMON_H */

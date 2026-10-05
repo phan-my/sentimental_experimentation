@@ -19,6 +19,7 @@
 #include "random.h"
 #include "input.h"
 #include "collision.h"
+#include "common.h"
 
 
 /* VARIABLES */
@@ -32,7 +33,7 @@ int nth_player_bullet = 0;
 // bullets
 struct bullet bulletlist[MAX_BULLETS][MAX_BULLET_MULTIPLE];
 struct bullet ball_8x8;
-int nth_ball_8x8;
+int nth_ball_8x8 = 0;
 
 // generic stage enemies
 struct enemy enemylist[MAX_ENEMIES][MAX_ENEMY_MULTIPLE];
@@ -185,8 +186,10 @@ void update_bullet_motion()
 			update_position_by_velocity(&bulletlist[i][j].motion);
 			
 			// p -> core hitbox
-			bulletlist[i][j].hitbox.p.x = bulletlist[i][j].motion.p.x;
-			bulletlist[i][j].hitbox.p.y = bulletlist[i][j].motion.p.y;
+			bulletlist[i][j].hitbox.p.x
+				= bulletlist[i][j].motion.p.x;
+			bulletlist[i][j].hitbox.p.y
+				= bulletlist[i][j].motion.p.y;
 		}
 	}
 	
@@ -220,11 +223,15 @@ void do_logic()
 			player_bullets[i].motion.v.y = 0.;
 			
 			// set player bullet at player's position
-			player_bullets[i].motion.p.x = player[curr_player].motion.p.x;
-			player_bullets[i].motion.p.y = player[curr_player].motion.p.y;
+			player_bullets[i].motion.p.x
+				= player[curr_player].motion.p.x;
+			player_bullets[i].motion.p.y
+				= player[curr_player].motion.p.y;
 			
 		}
 	}
+	
+	nth_powerup = cycle_item_smart_pointer(nth_powerup, &powerup, MAX_POWERUPS);
 	
 	// update all positional values of entities
 	update_player_motion();

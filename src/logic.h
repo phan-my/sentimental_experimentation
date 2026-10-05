@@ -214,6 +214,7 @@ extern int curr_player;
 
 extern struct bullet bulletlist[MAX_BULLETS][MAX_BULLET_MULTIPLE];
 extern struct bullet ball_8x8;
+extern int nth_ball_8x8;
 
 extern struct enemy enemylist[MAX_ENEMIES][MAX_ENEMY_MULTIPLE];
 extern struct enemy fairies;
