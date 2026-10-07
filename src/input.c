@@ -139,6 +139,8 @@ bool holding_diagonal(Uint8 *states)
 // returns 1 to exit the main loop
 int do_input()
 {
+	int i;
+	
 	// questions/1252976
 	// github: mikeanthonywild/sdl-shoot-em-up
 	SDL_Event event;
@@ -242,13 +244,18 @@ int do_input()
 
 	// https://www.parallelrealities.co.uk/tutorials/shooter/shooter5.php
 	if (keyboard_states[SDL_SCANCODE_Z]) {
-		// activate one bullet
-		if (reload == 0)
-			player_bullets[nth_player_bullet].active = 1;
-		// cycles through array
-		nth_player_bullet = cycle_bullet_smart_pointer(nth_player_bullet,
-				&player_bullets,
-				MAX_PLAYER_BULLETS);
+		// two columns of bullets
+		for (i = 0; i < 2; i++) {
+			// cycles through array
+			nth_player_bullet = cycle_bullet_smart_pointer(nth_player_bullet,
+					&player_bullets,
+					MAX_PLAYER_BULLETS);
+			// activate one bullet
+			if (reload == 0)
+				if (!player_bullets[nth_player_bullet].active)
+					player_bullets[nth_player_bullet].active = 1;
+			printf("     %d %d %lf\n", nth_player_bullet, player_bullets[nth_player_bullet].active, player_bullets[nth_player_bullet].motion.p.y);
+		}
 	}
 	return 0;
 }

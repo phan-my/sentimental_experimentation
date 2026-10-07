@@ -10,6 +10,7 @@
 #define COMMON_H
 
 #pragma once
+#include "logic.h"
 
 // macros
 #define INVERSE_SQRT_2 0.7071067811865475244008444
@@ -18,7 +19,7 @@
 // functions
 double rolling_average(double *points, int num_elements);
 double log_256(double x);
-int cycle_bullet_smart_pointer();
+int cycle_bullet_smart_pointer(int pointer, struct bullet (*array)[MAX_BULLET_MULTIPLE], int max);
 int cycle_item_smart_pointer();
 
 #endif /* COMMON_H */

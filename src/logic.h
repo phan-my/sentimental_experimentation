@@ -42,7 +42,7 @@
 
 #define MAX_ENEMIES 1
 
-#define MAX_PLAYER_BULLETS 100
+#define MAX_PLAYER_BULLETS MAX_BULLET_MULTIPLE
 #define MAX_RELOAD 3
 #define PLAYER_BULLET_SPEED 16.
 
@@ -50,7 +50,7 @@
 
 // for bulletlist
 #define MAX_BULLETS 1
-#define MAX_BULLET_MULTIPLE 1000
+#define MAX_BULLET_MULTIPLE 2048
 #define BULLET_BALL_8x8 0
 
 #define MAX_POWERUPS 255
@@ -85,6 +85,7 @@ struct kinematics {
 	struct position p; // current position
 	struct velocity v; // current velocity (vector)
 	struct acceleration a; // current acceleration
+	int time_0; // exact time of spawn in frames
 };
 
 /* colors */
@@ -106,6 +107,7 @@ struct circlebox {
 };
 
 // unused: all hitboxes are circles, for now
+// values for rectangular hitbox
 struct rectbox {
 	double w;
 	double h;

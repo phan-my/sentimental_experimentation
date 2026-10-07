@@ -36,11 +36,17 @@ double log_256(double x)
 // pointer: the smart pointer as an integer value (nth element in array)
 // array: array that pointer points to
 // max: the maximum number of elements in the arrays
-int cycle_bullet_smart_pointer(int pointer, struct bullet *array, int max)
+int cycle_bullet_smart_pointer(int pointer, struct bullet (*array)[MAX_BULLET_MULTIPLE], int max)
 {
-	while (array[pointer].active) {
+	int i;
+	while ((*array)[pointer].active) {
 		pointer++;
 		pointer %= max;
+		
+		// failsafe: if all elements are loaded, then break
+		i++;
+		if (i > max)
+			break;	
 	}
 
 	return pointer;
@@ -52,6 +58,7 @@ int cycle_bullet_smart_pointer(int pointer, struct bullet *array, int max)
 // max: the maximum number of elements in the arrays
 int cycle_item_smart_pointer(int pointer, struct item *array, int max)
 {
+	int i;
 	while (array[pointer].active) {
 		pointer++;
 		pointer %= max;

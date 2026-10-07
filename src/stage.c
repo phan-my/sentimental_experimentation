@@ -19,7 +19,7 @@
 
 
 /* GLOBALS */
-double stages_s[MAX_STAGES][CHECKPOINTS_STAGE_1] = {{1, 4.5, 42, 70.5}};
+// double stages_s[MAX_STAGES][CHECKPOINTS_STAGE_1] = {{1, 4.5, 42, 70.5}};
 int stages[MAX_STAGES][CHECKPOINTS_STAGE_1] = {{60, 270, 2520, 4230}};
 int current_stage = 1;
 
@@ -52,19 +52,6 @@ int hour, minute, second;
 
 /* FUNCTIONS */
 
-/* initialization */
-/*
-// "snowball" bullets
-for (i = 0; i < MAX_BULLETS; i++) {
-//		ball_8x8[i].w /= scale;
-//		ball_8x8[i].h /= scale;
-        ball_8x8[i].hitbox.p.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-        ball_8x8[i].hitbox.p.y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
-        ball_8x8[i].hitbox.r = 3.8;
-        update_ball_position(&ball_8x8[i]);
-}
-*/
-
 // fly in sine waves down, sparsely
 void initialize_fairy_single_1()
 {
@@ -87,6 +74,9 @@ void initialize_fairy_single_1()
 void initialize_stage()
 {
 	int i;
+	
+	stage_progress = 0;
+	
 	switch (current_stage) {
 	case 1:
 		// "snowball" bullets
@@ -151,26 +141,6 @@ void initialize_stage()
 
 /* main loop */
 
-// complete template for player bullets
-void do_player_bullets()
-{
-	int i;
-	// update player bullets
-	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
-		// move activated bullet by specified speed
-		if (player_bullets[i].active) {
-			player_bullets[i].motion.v.y = PLAYER_BULLET_SPEED;
-		}
-		// reset bullets if they fall out of bounds
-		if (player_bullets[i].hitbox.p.y < 0 ||
-				!player_bullets[i].active) {
-			player_bullets[i].active = 0;
-			player_bullets[i].hitbox.p.x = player[curr_player].core.p.x;
-			player_bullets[i].hitbox.p.y = player[curr_player].core.p.y;
-		}
-	}
-}
-
 // invoked in the main loop
 void do_stage()
 {
@@ -204,69 +174,16 @@ void do_stage()
 				single_activation = false;
 			}
 		}
-		
-		/* BULLET MOVEMENTS */
-		/*
-		// sine movement
-		double period = 300;
-		double amplitude = 100;
-		for (i = 0; i < MAX_BULLETS; i++) {
-			d_ball_8x8[i][D_RECT_Y] += amplitude * 2 * PI / period *
-				cos(2 * PI * ball_8x8[i].x / period);
-			ball_8x8[i].y = (int)d_ball_8x8[i][D_RECT_Y];
-			ball_8x8[i].x = (int)(d_ball_8x8[i][D_RECT_X] += speed[i]);
-		}
-		*/
-
-		/* spiral TRAIL movement
-		r = a * phi;
-		for (i = 0; i < MAX_BULLETS; i++) {
-			ball_8x8[i].y = (d_ball_8x8[i][D_RECT_Y] = speed[i] * r * cos(phi) + SCREEN_HEIGHT / 2);
-			ball_8x8[i].x = (d_ball_8x8[i][D_RECT_X] = speed[i] * r * sin(phi) + SCREEN_WIDTH / 2);
-		}
-		phi += 0.05;
-		*/
-
-		/*
-		// sunflower spirals
-		for (i = 0; i < moving; i++) {
-			double p = 1.;
-			d_ball_8x8[i][D_RECT_X] += 3. * cos(angles[i] / p);
-			d_ball_8x8[i][D_RECT_Y] += 3. * sin(angles[i] / p);
-			ball_8x8[i].x = d_ball_8x8[i][D_RECT_X];
-			ball_8x8[i].y = d_ball_8x8[i][D_RECT_Y];
-		}
-
-		if (moving < MAX_BULLETS - 60) {
-			moving += 5 * GOLDEN_RATIO;
-//			printf("%lf\n", moving);
-		} else {
-			printf("Recycle your bullets!\n");
-			break;
-		}
-		*/
 
 
 		if (stage_progress_frames == stages[current_stage - 1][1])
 {
-/*
-		// Jellyfish
-		// speed[i] = (double)i / 100;
-		for (i = 0; i < moving; i++) {
-			bulletlist[BULLET_BALL_8x8][i].active = true;
-			bulletlist[BULLET_BALL_8x8][i].motion.v.x = speed[i] * cos(angles[i]);
-			bulletlist[BULLET_BALL_8x8][i].motion.v.y = speed[i] * sin(angles[i]);
-		}
-		if (moving < MAX_BULLET_MULTIPLE) {
-			moving += 3;
-		}
-*/
 		// ring
 		struct position spawner;
 		spawner.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
 		spawner.y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
 
-		nth_ball_8x8 = launch_ring(&(bulletlist[BULLET_BALL_8x8]), nth_ball_8x8, MAX_BULLET_MULTIPLE,
+		nth_ball_8x8 = launch_ring(&(bulletlist[BULLET_BALL_8x8]), nth_ball_8x8,
 				spawner, 8, 2., M_PI / 3.);
 }
 
@@ -276,7 +193,7 @@ void do_stage()
 			* 1000000. + (stage_now.tv_nsec - stage_start.tv_nsec) 
 			/ 1000.;
 		stage_progress_frames++;
-		printf("%d\n", stage_progress_frames);
+//		printf("%d\n", stage_progress_frames);
 		stage_progress_seconds = stage_progress / 1000000.;
 //		printf("%d time\n", stage_progress);
 		
@@ -285,7 +202,6 @@ void do_stage()
 	default:
 		break;
 	}
-	do_player_bullets();
 
 	// item falls
 	for (i = 0; i < MAX_POWERUPS; i++) {

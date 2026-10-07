@@ -192,15 +192,45 @@ void update_bullet_motion()
 				= bulletlist[i][j].motion.p.y;
 		}
 	}
+}
+
+// complete template for player bullets
+void do_player_bullets()
+{
+	int i;
 	
-	// update all player bullets
+	// update player bullets
 	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
-		// v -> p
-		update_position_by_velocity(&player_bullets[i].motion);
+		// continue setting specified speed to active bullet 
+		if (player_bullets[i].active) {
+			player_bullets[i].motion.v.y = -PLAYER_BULLET_SPEED;
+			// v -> p
+			update_position_by_velocity(&player_bullets[i].motion);
 		
-		// p -> core hitbox
-		player_bullets[i].hitbox.p.x = player_bullets[i].motion.p.x;
-		player_bullets[i].hitbox.p.y = player_bullets[i].motion.p.y;
+			// p -> core hitbox
+			player_bullets[i].hitbox.p.x = player_bullets[i].motion.p.x;
+			player_bullets[i].hitbox.p.y = player_bullets[i].motion.p.y;
+		
+			// reset bullets if they fall out of bounds
+			if (player_bullets[i].motion.p.y < 0)
+				player_bullets[i].active = 0;
+		// case bullet is inactive
+		} else {
+			player_bullets[i].motion.v.x = 0.;
+			player_bullets[i].motion.v.y = 0.;
+			
+			// set player bullet at player's position
+			// creates two columns of player bullets 
+			if (i % 2)
+				player_bullets[i].motion.p.x
+					= player[curr_player].motion.p.x + 8;
+			else
+				player_bullets[i].motion.p.x
+					= player[curr_player].motion.p.x - 8;			
+			player_bullets[i].motion.p.y
+				= player[curr_player].motion.p.y;
+			
+		}
 	}
 }
 
@@ -214,29 +244,13 @@ void do_logic()
 	if (reload < 0)
 		reload = MAX_RELOAD;
 	
-	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
-		if (player_bullets[i].active) {
-			player_bullets[i].motion.v.x = 0.;
-			player_bullets[i].motion.v.y = -PLAYER_BULLET_SPEED;
-		} else {
-			player_bullets[i].motion.v.x = 0.;
-			player_bullets[i].motion.v.y = 0.;
-			
-			// set player bullet at player's position
-			player_bullets[i].motion.p.x
-				= player[curr_player].motion.p.x;
-			player_bullets[i].motion.p.y
-				= player[curr_player].motion.p.y;
-			
-		}
-	}
-	
 	nth_powerup = cycle_item_smart_pointer(nth_powerup, &powerup, MAX_POWERUPS);
 	
 	// update all positional values of entities
 	update_player_motion();
 	update_bullet_motion();
 	update_enemy_motion();
+	do_player_bullets();
 	do_collision(); // and check and do collision between them
 }
 
