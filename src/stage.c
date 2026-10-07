@@ -261,32 +261,13 @@ void do_stage()
 			moving += 3;
 		}
 */
+		// ring
 		struct position spawner;
 		spawner.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
 		spawner.y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
-/*
-		nth_ball_8x8 = launch_ring(bulletlist[BULLET_BALL_8x8], nth_ball_8x8, MAX_BULLETS,
-				spawner, 8, 2., 0);
-*/
 
-		double delta_angle = 2. * M_PI / 8.; // difference in angle between bullets
-
-		int n = 8;
-		for (i = 0; i < n; i++) {
-			// cycle through next inactive element of bullet array
-			nth_ball_8x8 = cycle_bullet_smart_pointer(nth_ball_8x8, &bulletlist[BULLET_BALL_8x8], MAX_BULLET_MULTIPLE);
-
-			// set positions 
-//			bulletlist[BULLET_BALL_8x8][nth_ball_8x8].motion.o.x = spawner.x;
-//			bulletlist[BULLET_BALL_8x8][nth_ball_8x8].motion.o.y = spawner.y;
-			bulletlist[BULLET_BALL_8x8][nth_ball_8x8].motion.p.x = spawner.x;
-			bulletlist[BULLET_BALL_8x8][nth_ball_8x8].motion.p.y = spawner.y;
-			
-			// launch each bullet
-			launch_straight(&bulletlist[BULLET_BALL_8x8][nth_ball_8x8], 2., delta_angle * i);
-		}
-		nth_ball_8x8 = cycle_bullet_smart_pointer(nth_ball_8x8, &bulletlist[BULLET_BALL_8x8], MAX_BULLET_MULTIPLE);
-
+		nth_ball_8x8 = launch_ring(&(bulletlist[BULLET_BALL_8x8]), nth_ball_8x8, MAX_BULLET_MULTIPLE,
+				spawner, 8, 2., M_PI / 3.);
 }
 
 		/* timing */
