@@ -16,6 +16,7 @@
 #include "render.h"
 #include "random.h"
 #include "danmaku.h"
+#include "random.h"
 
 
 /* GLOBALS */
@@ -176,15 +177,19 @@ void do_stage()
 		}
 
 
-		if (stage_progress_frames == stages[current_stage - 1][1])
+		if (stage_progress_frames >= stages[current_stage - 1][1] &&
+				stage_progress_frames <= stages[current_stage - 1][2])
 {
-		// ring
-		struct position spawner;
-		spawner.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-		spawner.y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
+		if (stage_progress_frames % 3 == 0) {
+			// ring
+			double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+			double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
 
-		nth_ball_8x8 = launch_ring(&(bulletlist[BULLET_BALL_8x8]), nth_ball_8x8,
-				spawner, 8, 2., M_PI / 3.);
+			nth_ball_8x8 =
+				launch_ring(&(bulletlist[BULLET_BALL_8x8]),
+						nth_ball_8x8, x, y, 8, 2.,
+						uniform() * 2 * M_PI);
+		}
 }
 
 		/* timing */

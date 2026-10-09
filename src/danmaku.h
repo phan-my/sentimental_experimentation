@@ -12,6 +12,7 @@
 
 void launch_straight(struct bullet *bullet, double speed, double radians);
 int launch_ring(struct bullet (*bullets)[MAX_BULLET_MULTIPLE], int nth_bullet,
-		struct position spawner, int n, double speed, double angle);
+		double xcoord, double ycoord, int n, double speed,
+		double angle);
 
 #endif /* DANMAKU_H */

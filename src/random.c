@@ -36,3 +36,35 @@ int randint(int min, int max)
 	} while(r > difference);
 	return r + min;
 }
+
+// generates a double in (0.0, 1.0)
+// THIS FUNCTION IS NOT CRYPTOGRAPHICALLY-SECURE
+double uniform()
+{
+	int i;
+	union udouble f;
+	f.d = 0.0d;
+	bool mantissa[TSF_DOUBLE];
+
+	// note: this will result in range [1.0, 2.0)
+	bool BIASED_EXPONENT[BE_DOUBLE] = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+
+	// add sign (trivial)
+	f.u <<= 1;
+	f.u += 0;
+
+	// add biased exponent
+	for (i = 0; i < BE_DOUBLE; i++) {
+		f.u <<= 1;
+		f.u += BIASED_EXPONENT[i];
+	}
+
+	// generate random mantissa
+	for (i = 0; i < TSF_DOUBLE; i++) {
+		f.u <<= 1;
+		f.u += randint(0, 1);
+	}
+
+	// cut the 1 before binary point
+	return f.d - 1.0;
+}

@@ -24,36 +24,43 @@ void launch_straight(struct bullet *bullet, double speed, double radians)
 	bullet -> active = true;
 }
 
-// TODO: use **bullets instead of (*bullets)[1000]
-// creates a ring at specified spawner
-// (*bullet[MAX_BULLET_MULTIPLE]): the array of bullet to use
+// creates an n-ring of bullets at specified spawner and speed
+// returns value of smart pointer nth_bullet
+// (*bullets)[MAX_BULLET_MULTIPLE]: the array of bullet to use
 // nth_bullet: smart pointer for the bullet array
-// max: the maximum number of elements in the arrays
-// spawner: origin position of the ring group
-// n: bullets to launch
-// speed: scalar speed of each bullet in pixels per second at 60 fps 
+// xcoord: origin position on x-axis of the ring group
+// ycoord: origin position on y-axis of the ring group
+// n: number of bullets in the ring
+// speed: scalar speed of each bullet in px/fr
 // angle: the radians counterclockwise from the +x-axis that the ring aims at
+// TODO: use **bullets instead of (*bullets)[MAX_BULLET_MULTIPLE]
 int launch_ring(struct bullet (*bullets)[MAX_BULLET_MULTIPLE], int nth_bullet,
-		struct position spawner, int n, double speed, double angle)
+		double xcoord, double ycoord, int n, double speed, double angle)
 {
 	int i;
-	double delta_angle = 2. * M_PI / n; // difference in angle between bullets
-
+	double delta_angle = 2. * M_PI / n; // angle difference between bullets
+	
+	// begin loop to launch n bullets
 	for (i = 0; i < n; i++) {
-		// cycle through next inactive element of bullet array
-		nth_bullet = cycle_bullet_smart_pointer(nth_bullet, &(*bullets), MAX_BULLET_MULTIPLE);
+		// cycles pointer to next inactive element of bullet array
+		nth_bullet = cycle_bullet_smart_pointer(nth_bullet,
+				&(*bullets), MAX_BULLET_MULTIPLE);
 
 		// set positions 
-		(*bullets)[nth_bullet].motion.o.x = spawner.x;
-		(*bullets)[nth_bullet].motion.o.y = spawner.y;
-		(*bullets)[nth_bullet].motion.p.x = spawner.x;
-		(*bullets)[nth_bullet].motion.p.y = spawner.y;
+		(*bullets)[nth_bullet].motion.o.x = xcoord; // spawner
+		(*bullets)[nth_bullet].motion.o.y = ycoord;
+
+		(*bullets)[nth_bullet].motion.p.x = xcoord; // curr position
+		(*bullets)[nth_bullet].motion.p.y = ycoord;
 
 
-		// launch each bullet
-		launch_straight(&(*bullets)[nth_bullet], speed, angle + delta_angle * i);
+		// launch each individual bullet
+		launch_straight(&(*bullets)[nth_bullet], speed,
+				angle + delta_angle * i);
 	}
-	return cycle_bullet_smart_pointer(nth_bullet, bullets, MAX_BULLET_MULTIPLE);
+	// returns value of the smart pointer
+	return cycle_bullet_smart_pointer(nth_bullet, bullets,
+			MAX_BULLET_MULTIPLE);
 }
 
 /* initialization */

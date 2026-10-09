@@ -254,7 +254,7 @@ int do_input()
 			if (reload == 0)
 				if (!player_bullets[nth_player_bullet].active)
 					player_bullets[nth_player_bullet].active = 1;
-			printf("     %d %d %lf\n", nth_player_bullet, player_bullets[nth_player_bullet].active, player_bullets[nth_player_bullet].motion.p.y);
+//			printf("     %d %d %lf\n", nth_player_bullet, player_bullets[nth_player_bullet].active, player_bullets[nth_player_bullet].motion.p.y);
 		}
 	}
 	return 0;
