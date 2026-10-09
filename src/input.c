@@ -237,7 +237,7 @@ int do_input()
 
 //	player[curr_player].sdl.rect.x = player[curr_player].motion.p.x;
 //	player[curr_player].sdl.rect.y = player[curr_player].motion.p.y;
-	update_player_motion();
+//	update_player_motion();
 
 		
 	/* shooting */

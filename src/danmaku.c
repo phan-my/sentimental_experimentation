@@ -13,7 +13,31 @@
 #include "common.h"
 #include "danmaku.h"
 
-// passing struct bullet by reference
+// returns the measure angle between two points in radians
+// x_1: x-position of the first point
+// y_1: y-position of the first point
+// x_2: x-position of the second point
+// y_2: y-position of the second point
+double measure_angle(double x_1, double y_1, double x_2, double y_2)
+{
+	// calculate the difference between point 2 and point 1
+	return atan2(y_2 - y_1, x_2 - x_1);
+}
+
+// returns the measure angle between a point and the position of the player
+// xcoord: x-position of the point
+// ycoord: y-position of the point
+double angle_to_player(double xcoord, double ycoord)
+{
+	return measure_angle(xcoord, ycoord,
+			player[curr_player].motion.p.x,
+			player[curr_player].motion.p.y);
+}
+
+// sets velocities of a single bullet based on given angle
+// *bullet: passing struct bullet by reference
+// speed: scalar speed of the bullet in px/fr
+// radians: measure angle between positive x-axis and direction of velocity
 void launch_straight(struct bullet *bullet, double speed, double radians)
 {
 	// set bullet speed, with individual v_x and v_y vectors
@@ -24,15 +48,15 @@ void launch_straight(struct bullet *bullet, double speed, double radians)
 	bullet -> active = true;
 }
 
-// creates an n-ring of bullets at specified spawner and speed
+// creates an n-ring of bullets at specified spawner with angle and speed
 // returns value of smart pointer nth_bullet
-// (*bullets)[MAX_BULLET_MULTIPLE]: the array of bullet to use
+// (*bullets)[MAX_BULLET_MULTIPLE]: the array of bullets parsed by reference
 // nth_bullet: smart pointer for the bullet array
 // xcoord: origin position on x-axis of the ring group
 // ycoord: origin position on y-axis of the ring group
 // n: number of bullets in the ring
 // speed: scalar speed of each bullet in px/fr
-// angle: the radians counterclockwise from the +x-axis that the ring aims at
+// angle: the radians clockwise from the x-axis that the 0th bullet aims at
 // TODO: use **bullets instead of (*bullets)[MAX_BULLET_MULTIPLE]
 int launch_ring(struct bullet (*bullets)[MAX_BULLET_MULTIPLE], int nth_bullet,
 		double xcoord, double ycoord, int n, double speed, double angle)
@@ -63,18 +87,28 @@ int launch_ring(struct bullet (*bullets)[MAX_BULLET_MULTIPLE], int nth_bullet,
 			MAX_BULLET_MULTIPLE);
 }
 
-/* initialization */
-/*
-// "snowball" bullets
-for (i = 0; i < MAX_BULLETS; i++) {
-//		ball_8x8[i].w /= scale;
-//		ball_8x8[i].h /= scale;
-        ball_8x8[i].hitbox.p.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-        ball_8x8[i].hitbox.p.y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
-        ball_8x8[i].hitbox.r = 3.8;
-        update_ball_position(&ball_8x8[i]);
+// creates an n-ring of bullets at specified spawner with speed, seed bullet
+// aims at the player
+// returns value of smart pointer nth_bullet
+// (*bullets)[MAX_BULLET_MULTIPLE]: the array of bullet to use
+// nth_bullet: smart pointer for the bullet array
+// xcoord: origin position on x-axis of the ring group
+// ycoord: origin position on y-axis of the ring group
+// n: number of bullets in the ring
+// speed: scalar speed of each bullet in px/fr
+int launch_aimed_ring(struct bullet (*bullets)[MAX_BULLET_MULTIPLE],
+		int nth_bullet, double xcoord, double ycoord, int n,
+		double speed)
+{
+	nth_bullet = launch_ring(bullets, nth_bullet, xcoord, ycoord, n, speed,
+			angle_to_player(xcoord, ycoord));
+	printf("     %d %d \n", nth_bullet, (*bullets)[nth_bullet].active);
+	// returns value of the smart pointer
+	return cycle_bullet_smart_pointer(nth_bullet, bullets,
+			MAX_BULLET_MULTIPLE);
 }
-*/
+
+
 
 /* BULLET MOVEMENTS */
 		/*

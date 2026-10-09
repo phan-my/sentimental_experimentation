@@ -38,17 +38,22 @@ double log_256(double x)
 // max: the maximum number of elements in the arrays
 int cycle_bullet_smart_pointer(int pointer, struct bullet (*array)[MAX_BULLET_MULTIPLE], int max)
 {
-	int i;
+	int count = 0;
+
+	// main cycle
 	while ((*array)[pointer].active) {
-		pointer++;
-		pointer %= max;
+		// cycles through array
+		pointer++; // increment pointer
+		pointer %= max; // if pointer > arraysize, then modulo
 		
 		// failsafe: if all elements are loaded, then break
-		i++;
-		if (i > max)
-			break;	
+		count++;
+		if (count > max) {
+			printf("BULLET LIST OVERFLOW, UNLOADING SOME BULLETS\n");
+			(*array)[pointer].active = false;
+			break;
+		}
 	}
-
 	return pointer;
 }
 

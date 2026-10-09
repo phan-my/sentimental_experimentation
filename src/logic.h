@@ -30,8 +30,8 @@
 #define PLAYER_ORIGIN_Y FIELD_HEIGHT * 0.9 + FIELD_OFFSET_Y
 
 // https://en.touhouwiki.net/wiki/User:Arcorann/Character_Speeds#Massive_chart
-#define REIMU_DEFAULT_SPEED 2.25
-#define REIMU_FOCUS_SPEED 1.0
+#define REIMU_DEFAULT_SPEED 4.5
+#define REIMU_FOCUS_SPEED 2.0
 #define REIMU_FOCUS_FACTOR 0.4444444
 
 #define MARISA_DEFAULT_SPEED 5.0

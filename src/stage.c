@@ -180,15 +180,20 @@ void do_stage()
 		if (stage_progress_frames >= stages[current_stage - 1][1] &&
 				stage_progress_frames <= stages[current_stage - 1][2])
 {
-		if (stage_progress_frames % 3 == 0) {
+		if (stage_progress_frames % 20 == 0) {
 			// ring
 			double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
 			double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
 
 			nth_ball_8x8 =
-				launch_ring(&(bulletlist[BULLET_BALL_8x8]),
-						nth_ball_8x8, x, y, 8, 2.,
-						uniform() * 2 * M_PI);
+				launch_aimed_ring(&(bulletlist[BULLET_BALL_8x8]),
+						nth_ball_8x8, x, y, 18, 2.4);
+			nth_ball_8x8 =
+				launch_aimed_ring(&(bulletlist[BULLET_BALL_8x8]),
+						nth_ball_8x8, x+60, y, 17, 3.);
+			nth_ball_8x8 =
+				launch_aimed_ring(&(bulletlist[BULLET_BALL_8x8]),
+						nth_ball_8x8, x-60, y, 17, 3.);
 		}
 }
 

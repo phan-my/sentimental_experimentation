@@ -174,6 +174,28 @@ void update_enemy_motion()
 	}
 }
 
+bool in_unload_zone(struct kinematics entity)
+{
+	if ((0 <= entity.p.x && entity.p.x <= FIELD_RIGHT) ||
+			(0 <= entity.p.y &&
+			 entity.p.y <= + FIELD_BOTTOM + FIELD_OFFSET_Y))
+		return false;
+	else
+		return true;
+}
+
+void unload_offscreen_bullets()
+{
+	int i, j;
+
+	for (i = 0; i < MAX_BULLETS; i++) {
+		for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
+			if (in_unload_zone(bulletlist[i][j].motion))
+				bulletlist[i][j].active = false;
+		}
+	}
+}
+
 // update all positional values of all active enemies
 void update_bullet_motion()
 {
@@ -192,6 +214,8 @@ void update_bullet_motion()
 				= bulletlist[i][j].motion.p.y;
 		}
 	}
+
+	unload_offscreen_bullets();
 }
 
 // complete template for player bullets

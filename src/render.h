@@ -27,6 +27,11 @@
 #define FIELD_OFFSET_X 32
 #define FIELD_OFFSET_Y 16
 
+#define FIELD_RIGHT FIELD_OFFSET_X + FIELD_WIDTH
+#define FIELD_BOTTOM FIELD_OFFSET_Y + FIELD_HEIGHT
+#define FIELD_TOP FIELD_OFFSET_Y
+#define FIELD_LEFT FIELD_OFFSET_X
+
 // globals
 extern SDL_Window *screen;
 extern SDL_Renderer *rend;
