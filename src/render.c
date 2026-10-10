@@ -120,18 +120,21 @@ void initialize_player_render()
 	}
 }
 
+// player bullets
 void initialize_shot_render()
 {
 	int i, j;
-	// player bullets
-	shot_reimu.sdl.texture = create_texture("assets/player_bullet.png");
-	for (i = 0; i < MAX_SHOTS; i++) {
-		for (j = 0; j < MAX_SHOT_MULTIPLE; j++) {
-			SDL_QueryTexture(shot_reimu.sdl.texture, NULL, NULL,
-					&shot_reimu.sdl.rect.w,
-					&shot_reimu.sdl.rect.h);
-		}
-	}
+	// reimu's basic shot
+	shot_reimu.sdl.texture = create_texture("assets/shot_reimu.png");
+	SDL_QueryTexture(shot_reimu.sdl.texture, NULL, NULL,
+			&shot_reimu.sdl.rect.w,
+			&shot_reimu.sdl.rect.h);
+	
+	// marisa's basic shot
+	shot_marisa.sdl.texture = create_texture("assets/shot_marisa.png");
+	SDL_QueryTexture(shot_marisa.sdl.texture, NULL, NULL,
+			&shot_marisa.sdl.rect.w,
+			&shot_marisa.sdl.rect.h);
 }
 
 // loads sprites to texture of bullets

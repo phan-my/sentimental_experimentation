@@ -245,14 +245,33 @@ int do_input()
 
 	// https://www.parallelrealities.co.uk/tutorials/shooter/shooter5.php
 	if (keyboard_states[SDL_SCANCODE_Z]) {
-		// two columns of reimu shot
-		for (i = 0; i < 2; i++) {
-			// cycles through array
-			nth_shot_reimu = cycle_bullet_smart_pointer(nth_shot_reimu,
-					&shotlist[SHOT_REIMU]);
-			// activate one bullet
-			if (reload == 0)
-				shotlist[SHOT_REIMU][nth_shot_reimu].active = 1;
+		switch (curr_player) {
+		case PLAYER_REIMU:
+			// two columns of reimu shot
+			for (i = 0; i < 2; i++) {
+				// cycles through array
+				nth_shot_reimu = cycle_bullet_smart_pointer(
+						nth_shot_reimu,
+						&shotlist[SHOT_REIMU]);
+				// activate one bullet
+				if (reload == 0)
+					shotlist[SHOT_REIMU][nth_shot_reimu].active = 1;
+			}
+			break;
+		case PLAYER_MARISA:
+			// two columns of marisa shot
+			for (i = 0; i < 2; i++) {
+				// cycles through array
+				nth_shot_marisa = cycle_bullet_smart_pointer(
+						nth_shot_marisa,
+						&shotlist[SHOT_MARISA]);
+				// activate one bullet
+				if (reload == 0)
+					shotlist[SHOT_MARISA][nth_shot_marisa].active = 1;
+			}
+			break;
+		default:
+			break;
 		}
 	}
 	return 0;

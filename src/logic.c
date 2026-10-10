@@ -28,7 +28,7 @@
 
 // player
 struct player player[MAX_PLAYERS];
-int curr_player = 0;
+int curr_player = 1;
 
 // shot
 struct bullet shotlist[MAX_SHOTS][MAX_SHOT_MULTIPLE];
@@ -36,6 +36,8 @@ struct bullet shot_reimu;
 int nth_shot_reimu = 0;
 struct bullet shot_reimu_a;
 int nth_shot_reimu_a = 0;
+struct bullet shot_marisa;
+int nth_shot_marisa = 0;
 int reload = MAX_RELOAD;
 
 // bullets
@@ -85,11 +87,16 @@ void initialize_logic()
 	shot_reimu.motion.hb.r = 8.;
 	shot_reimu.power = 1;
 	shotlist[shot_reimu.id][0] = shot_reimu;
+
+	shot_marisa.id = SHOT_MARISA;
+	shot_marisa.active = false;
+	shot_marisa.motion.hb.r = 8.;
+	shot_marisa.power = 1;
+	shotlist[shot_marisa.id][0] = shot_marisa;
+
 	for (i = 0; i < MAX_SHOTS; i++) {
 		for (j = 0; j < MAX_SHOT_MULTIPLE; j++) {
 			shotlist[i][j] = shotlist[i][0];
-//			shotlist[i][j].motion.hb.p.x = player[curr_player].motion.hb.p.x;
-//			shotlist[i][j].motion.hb.p.y = player[curr_player].motion.hb.p.y;
 		}
 	}
 
@@ -231,7 +238,9 @@ void do_player_bullets()
 	for (i = 0; i < MAX_SHOTS; i++) {
 		for (j = 0; j < MAX_SHOT_MULTIPLE; j++) {
 			switch (i) {
+			// basic player shot
 			case SHOT_REIMU:
+			case SHOT_MARISA:
 				// continue setting specified speed to active bullet 
 				if (shotlist[i][j].active) {
 					shotlist[i][j].motion.v.y = -PLAYER_BULLET_SPEED;

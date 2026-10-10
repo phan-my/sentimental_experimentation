@@ -33,10 +33,10 @@
 #define MAX_ENEMIES 1
 
 // player's shot
-#define MAX_SHOTS 1
+// #define MAX_SHOTS 2
 #define MAX_SHOT_MULTIPLE 2048
-#define SHOT_REIMU 0
-#define SHOT_REIMU_A 1
+// #define SHOT_REIMU 0
+// #define SHOT_REIMU_A 1
 #define MAX_RELOAD 3
 #define PLAYER_BULLET_SPEED 16.
 
@@ -205,9 +205,11 @@ extern struct player player[MAX_PLAYERS];
 extern int curr_player;
 
 extern struct bullet shotlist[MAX_SHOTS][MAX_SHOT_MULTIPLE];
-extern int reload;
 extern struct bullet shot_reimu;
 extern int nth_shot_reimu;
+extern struct bullet shot_marisa;
+extern int nth_shot_marisa;
+extern int reload;
 
 extern struct bullet bulletlist[MAX_BULLETS][MAX_BULLET_MULTIPLE];
 extern struct bullet ball_8x8;
