@@ -21,27 +21,35 @@
 #include "collision.h"
 #include "common.h"
 #include "player.h"
+#include "shot.h"
 
 
 /* VARIABLES */
 
+// player
 struct player player[MAX_PLAYERS];
-int curr_player = 1;
-struct bullet player_bullets[MAX_PLAYER_BULLETS];
+int curr_player = 0;
+
+// shot
+struct bullet shotlist[MAX_SHOTS][MAX_SHOT_MULTIPLE];
+struct bullet shot_reimu;
+int nth_shot_reimu = 0;
+struct bullet shot_reimu_a;
+int nth_shot_reimu_a = 0;
 int reload = MAX_RELOAD;
-int nth_player_bullet = 0;
 
 // bullets
 struct bullet bulletlist[MAX_BULLETS][MAX_BULLET_MULTIPLE];
 struct bullet ball_8x8;
 int nth_ball_8x8 = 0;
 
-// generic stage enemies
+// enemies
 struct enemy enemylist[MAX_ENEMIES][MAX_ENEMY_MULTIPLE];
 struct enemy fairies;
 
 // items
-struct item powerup[MAX_POWERUPS];
+struct item itemlist[MAX_ITEMS][MAX_ITEM_MULTIPLE];
+struct item powerup;
 int nth_powerup = 0;
 
 // overlay
@@ -66,26 +74,25 @@ void initialize_logic()
 {
 	int i, j;	
 	
-	// numerical array pointer for power items
-	nth_powerup = 0;
-	
 	initialize_players();
 	
 	reset_player_position();
 	update_player_motion();
 	
 	// player bullet initialization
-	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
-		player_bullets[i].active = false;
-/*
-		player_bullets[i].hitbox.p.x = player[curr_player].core.p.x;
-		player_bullets[i].hitbox.p.y = reimu.core.p.y;
-*/
-		player_bullets[i].motion.hb.r = 8.;
-		player_bullets[i].power = 1;
-		player_bullets[i].motion.hb.p.x = player[curr_player].motion.hb.p.x;
-		player_bullets[i].motion.hb.p.y = player[curr_player].motion.hb.p.y;
+	shot_reimu.id = SHOT_REIMU;
+	shot_reimu.active = false;
+	shot_reimu.motion.hb.r = 8.;
+	shot_reimu.power = 1;
+	shotlist[shot_reimu.id][0] = shot_reimu;
+	for (i = 0; i < MAX_SHOTS; i++) {
+		for (j = 0; j < MAX_SHOT_MULTIPLE; j++) {
+			shotlist[i][j] = shotlist[i][0];
+//			shotlist[i][j].motion.hb.p.x = player[curr_player].motion.hb.p.x;
+//			shotlist[i][j].motion.hb.p.y = player[curr_player].motion.hb.p.y;
+		}
 	}
+
 	
 	// initialzie enemylist with enemyIDs
 	fairies.id = ENEMY_FAIRY;
@@ -113,6 +120,17 @@ void initialize_logic()
 			bulletlist[i][j] = bulletlist[i][0];
 		}
 	}
+	
+	// initialize items
+	powerup.id = ITEM_POWERUP;
+	powerup.active = false;
+	powerup.motion.hb.r = powerup.sdl.rect.w;
+	powerup.value = 1.;
+	itemlist[powerup.id][0] = powerup;
+	
+	for (i = 0; i < MAX_ITEMS; i++)
+		for (j = 0; j < MAX_ITEM_MULTIPLE; j++) 
+			itemlist[i][j] = itemlist[powerup.id][0];
 }
 
 // translate velocity into position in struct kinematics
@@ -207,40 +225,58 @@ void update_bullet_motion()
 // complete template for player bullets
 void do_player_bullets()
 {
-	int i;
+	int i, j;
 	
 	// update player bullets
-	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
-		// continue setting specified speed to active bullet 
-		if (player_bullets[i].active) {
-			player_bullets[i].motion.v.y = -PLAYER_BULLET_SPEED;
-			// v -> p
-			update_position_by_velocity(&player_bullets[i].motion);
+	for (i = 0; i < MAX_SHOTS; i++) {
+		for (j = 0; j < MAX_SHOT_MULTIPLE; j++) {
+			switch (i) {
+			case SHOT_REIMU:
+				// continue setting specified speed to active bullet 
+				if (shotlist[i][j].active) {
+					shotlist[i][j].motion.v.y = -PLAYER_BULLET_SPEED;
+					// v -> p
+					update_position_by_velocity(&shotlist[i][j].motion);		
+					// reset bullets if they fall out of bounds
+					if (shotlist[i][j].motion.hb.p.y < 0)
+						shotlist[i][j].active = 0;
+				// case bullet is inactive
+				} else {
+					shotlist[i][j].motion.v.x = 0.;
+					shotlist[i][j].motion.v.y = 0.;
+				
+					// set player bullet at player's position
+					// creates two columns of player bullets 
+					if (j % 2)
+						shotlist[i][j].motion.hb.p.x
+							= player[curr_player].motion.hb.p.x + 8;
+					else
+						shotlist[i][j].motion.hb.p.x
+							= player[curr_player].motion.hb.p.x - 8;			
+					shotlist[i][j].motion.hb.p.y
+						= player[curr_player].motion.hb.p.y;
+				}
+				break;
+			default:
+				break;
+			}
+		}
+	}
+}
 
-/*
-			// p -> core hitbox
-			player_bullets[i].hitbox.p.x = player_bullets[i].motion.hb.p.x;
-			player_bullets[i].hitbox.p.y = player_bullets[i].motion.hb.p.y;
-*/		
-			// reset bullets if they fall out of bounds
-			if (player_bullets[i].motion.hb.p.y < 0)
-				player_bullets[i].active = 0;
-		// case bullet is inactive
-		} else {
-			player_bullets[i].motion.v.x = 0.;
-			player_bullets[i].motion.v.y = 0.;
-			
-			// set player bullet at player's position
-			// creates two columns of player bullets 
-			if (i % 2)
-				player_bullets[i].motion.hb.p.x
-					= player[curr_player].motion.hb.p.x + 8;
-			else
-				player_bullets[i].motion.hb.p.x
-					= player[curr_player].motion.hb.p.x - 8;			
-			player_bullets[i].motion.hb.p.y
-				= player[curr_player].motion.hb.p.y;
-			
+void do_items()
+{
+	int i, j;
+	// item falls
+	for (i = 0; i < MAX_ITEMS; i++) {
+		for (j = 0; j < MAX_ITEM_MULTIPLE; j++) {
+			if (itemlist[i][j].active) {
+				// TODO: use motion.v
+				itemlist[i][j].motion.hb.p.y += 1.;
+				// TODO: move to render.c
+				itemlist[i][j].sdl.rect.x = (int)(itemlist[i][j].motion.hb.p.x - itemlist[i][j].sdl.rect.w / 2.);
+				itemlist[i][j].sdl.rect.y = (int)(itemlist[i][j].motion.hb.p.y - itemlist[i][j].sdl.rect.h / 2.);
+			}
 		}
 	}
 }
@@ -255,13 +291,14 @@ void do_logic()
 	if (reload < 0)
 		reload = MAX_RELOAD;
 	
-	nth_powerup = cycle_item_smart_pointer(nth_powerup, &powerup);
+	nth_powerup = cycle_item_smart_pointer(nth_powerup, &itemlist[ITEM_POWERUP]);
 	
 	// update all positional values of entities
 	update_player_motion();
 	update_bullet_motion();
 	update_enemy_motion();
 	do_player_bullets();
+	do_items();
 	do_collision(); // and check and do collision between them
 }
 

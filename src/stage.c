@@ -146,10 +146,7 @@ void do_stage()
 {
 	int i;
 
-	// update array pointers
-	while (powerup[nth_powerup].active) {
-		nth_powerup++;
-	}
+	nth_powerup = cycle_item_smart_pointer(nth_powerup, &itemlist[ITEM_POWERUP]);
 
 	switch (current_stage) {
 	case 1:
@@ -210,17 +207,6 @@ void do_stage()
 	// universal things in every stage
 	default:
 		break;
-	}
-
-	// item falls
-	for (i = 0; i < MAX_POWERUPS; i++) {
-		if (powerup[i].active) {
-			// TODO: use motion.v
-			powerup[i].motion.hb.p.y += 1.;
-			// TODO: move to render.c
-			powerup[i].sdl.rect.x = (int)(powerup[i].motion.hb.p.x - powerup[i].sdl.rect.w / 2.);
-			powerup[i].sdl.rect.y = (int)(powerup[i].motion.hb.p.y - powerup[i].sdl.rect.h / 2.);
-		}
 	}
 }
 

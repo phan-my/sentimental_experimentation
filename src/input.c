@@ -1,5 +1,5 @@
 /*
- * common.c includes misc functions not classified in any other include file.
+ * input.c includes functions for handling user keyboard input.
  * Copyright (c) 2026 phan-my <manhhung.phan at proton.me>.
  *
  * This software is licenced under the terms of BSD-2-Clause.
@@ -16,6 +16,7 @@
 #include "common.h"
 #include "render.h"
 #include "menu.h"
+#include "shot.h"
 
 /* VARIABLES */
 
@@ -244,16 +245,14 @@ int do_input()
 
 	// https://www.parallelrealities.co.uk/tutorials/shooter/shooter5.php
 	if (keyboard_states[SDL_SCANCODE_Z]) {
-		// two columns of bullets
+		// two columns of reimu shot
 		for (i = 0; i < 2; i++) {
 			// cycles through array
-			nth_player_bullet = cycle_bullet_smart_pointer(nth_player_bullet,
-					&player_bullets);
+			nth_shot_reimu = cycle_bullet_smart_pointer(nth_shot_reimu,
+					&shotlist[SHOT_REIMU]);
 			// activate one bullet
 			if (reload == 0)
-				if (!player_bullets[nth_player_bullet].active)
-					player_bullets[nth_player_bullet].active = 1;
-//			printf("     %d %d %lf\n", nth_player_bullet, player_bullets[nth_player_bullet].active, player_bullets[nth_player_bullet].motion.hb.p.y);
+				shotlist[SHOT_REIMU][nth_shot_reimu].active = 1;
 		}
 	}
 	return 0;

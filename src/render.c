@@ -15,6 +15,7 @@
 #include "render.h"
 #include "logic.h"
 #include "player.h"
+#include "shot.h"
 
 
 /* VARIABLES */
@@ -106,7 +107,7 @@ void initialize_overlays()
 // initialize chosen player
 void initialize_player_render()
 {
-	int i;
+	int i, j;
 	// TODO: player selection in main menu
 	// reimu
 	player[PLAYER_REIMU].sdl.texture = create_texture("assets/reimu.png");
@@ -117,18 +118,24 @@ void initialize_player_render()
 				&player[i].sdl.rect.w,
 				&player[i].sdl.rect.h);
 	}
+}
 
+void initialize_shot_render()
+{
+	int i, j;
 	// player bullets
-	player_bullets[0].sdl.texture = create_texture("assets/player_bullet.png");
-	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
-		SDL_QueryTexture(player_bullets[0].sdl.texture, NULL, NULL,
-				&player_bullets[i].sdl.rect.w,
-				&player_bullets[i].sdl.rect.h);
+	shot_reimu.sdl.texture = create_texture("assets/player_bullet.png");
+	for (i = 0; i < MAX_SHOTS; i++) {
+		for (j = 0; j < MAX_SHOT_MULTIPLE; j++) {
+			SDL_QueryTexture(shot_reimu.sdl.texture, NULL, NULL,
+					&shot_reimu.sdl.rect.w,
+					&shot_reimu.sdl.rect.h);
+		}
 	}
 }
 
-// load sprites of stage enemies, bullets, and bosses
-void initialize_enemies()
+// loads sprites to texture of bullets
+void initialize_bullet_render()
 {
 	int i;
 
@@ -139,6 +146,12 @@ void initialize_enemies()
 				&ball_8x8.sdl.rect.w,
 				&ball_8x8.sdl.rect.h);
 	}
+}
+
+// load sprites of stage enemies, bullets, and bosses
+void initialize_enemy_render()
+{
+	int i;
 
 	// fairies
 	fairies.sdl.texture
@@ -154,13 +167,10 @@ void initialize_items()
 {
 	int i;
 
-	powerup[0].sdl.texture = create_texture("assets/power_small.png");
-	for (i = 0; i < MAX_POWERUPS; i++) {
-		SDL_QueryTexture(powerup[0].sdl.texture, NULL, NULL, &powerup[i].sdl.rect.w,
-				&powerup[i].sdl.rect.h);
-		powerup[i].motion.hb.r = powerup[i].sdl.rect.w;
-		powerup[i].active = false;
-		powerup[i].value = 1;
+	powerup.sdl.texture = create_texture("assets/power_small.png");
+	for (i = 0; i < MAX_ITEM_MULTIPLE; i++) {
+		SDL_QueryTexture(powerup.sdl.texture, NULL, NULL, &powerup.sdl.rect.w,
+				&powerup.sdl.rect.h);
 	}
 }
 
@@ -169,8 +179,10 @@ void initialize_textures(void)
 {
 	initialize_overlays();
 	initialize_player_render();
-	initialize_enemies();
+	initialize_bullet_render();
+	initialize_enemy_render();
 	initialize_items();
+	initialize_shot_render();
 }
 
 // set sdl int position to match the float position for a bullet
@@ -236,24 +248,28 @@ void do_screen()
 	}
 
 	// player bullets
-	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
-		if (player_bullets[i].active) {
-			update_bullet_render(&player_bullets[i]);
-			SDL_RenderCopy(rend, player_bullets[0].sdl.texture,
-					NULL,
-					&player_bullets[i].sdl.rect);
+	for (i = 0; i < MAX_SHOTS; i++) {
+		for (j = 0; j < MAX_SHOT_MULTIPLE; j++) {
+			if (shotlist[i][j].active) {
+				update_bullet_render(&shotlist[i][j]);
+				SDL_RenderCopy(rend, shotlist[i][j].sdl.texture,
+						NULL,
+						&shotlist[i][j].sdl.rect);
+			}
 		}
 	}
 
 	// items
-	for (i = 0; i < MAX_POWERUPS; i++) {
-		if (powerup[i].active) {
-			powerup[i].sdl.rect.x = (int)(powerup[i].motion.hb.p.x
-					- powerup[i].sdl.rect.w / 2.);
-			powerup[i].sdl.rect.y = (int)(powerup[i].motion.hb.p.y
-					- powerup[i].sdl.rect.h / 2.);
-			SDL_RenderCopy(rend, powerup[0].sdl.texture,
-					NULL, &powerup[i].sdl.rect);
+	for (i = 0; i < MAX_ITEMS; i++) {
+		for (j = 0; j < MAX_ITEM_MULTIPLE; j++) {
+			if (itemlist[i][j].active) {
+				itemlist[i][j].sdl.rect.x = (int)(itemlist[i][j].motion.hb.p.x
+						- itemlist[i][j].sdl.rect.w / 2.);
+				itemlist[i][j].sdl.rect.y = (int)(itemlist[i][j].motion.hb.p.y
+						- itemlist[i][j].sdl.rect.h / 2.);
+				SDL_RenderCopy(rend, itemlist[i][j].sdl.texture,
+						NULL, &itemlist[i][j].sdl.rect);
+			}
 		}
 	}
 	// overlays

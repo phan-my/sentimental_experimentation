@@ -18,19 +18,25 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "player.h"
+#include "shot.h"
 
 /* MACROS */
-// hitboxes
+// UNUSED: hitboxes
 #define SQUARE 0  // determines hitbox of entity
 #define CIRCLE 1
 
+// player
 #define MAX_PLAYERS 2
-
 #define PLAYER_BOTTOM_MARGIN 16 // extra margins for player at bottom of field
 
+// enemies
 #define MAX_ENEMIES 1
 
-#define MAX_PLAYER_BULLETS MAX_BULLET_MULTIPLE
+// player's shot
+#define MAX_SHOTS 1
+#define MAX_SHOT_MULTIPLE 2048
+#define SHOT_REIMU 0
+#define SHOT_REIMU_A 1
 #define MAX_RELOAD 3
 #define PLAYER_BULLET_SPEED 16.
 
@@ -41,12 +47,14 @@
 #define MAX_BULLET_MULTIPLE 2048
 #define BULLET_BALL_8x8 0
 
-#define MAX_POWERUPS MAX_ITEM_MULTIPLE
-
 // name for enemyID
 #define ENEMY_FAIRY 0
 
+// item
+#define MAX_ITEMS 1
 #define MAX_ITEM_MULTIPLE 1024
+#define ITEM_POWERUP 0
+
 
 /* STRUCTS */ 
 
@@ -180,6 +188,7 @@ struct bullet {
 
 // collectible items such as powerups, bombs, score
 struct item {
+	int id;
 	struct kinematics motion;
 	struct sdl_types sdl;
 
@@ -194,9 +203,11 @@ struct overlay {
 // globals
 extern struct player player[MAX_PLAYERS];
 extern int curr_player;
-extern struct bullet player_bullets[MAX_PLAYER_BULLETS];
+
+extern struct bullet shotlist[MAX_SHOTS][MAX_SHOT_MULTIPLE];
 extern int reload;
-extern int nth_player_bullet;
+extern struct bullet shot_reimu;
+extern int nth_shot_reimu;
 
 extern struct bullet bulletlist[MAX_BULLETS][MAX_BULLET_MULTIPLE];
 extern struct bullet ball_8x8;
@@ -211,7 +222,8 @@ extern struct overlay loading;
 extern SDL_Texture *tex; // bullets
 extern SDL_Texture *player_bullet_texture;
 
-extern struct item powerup[MAX_POWERUPS];
+extern struct item itemlist[MAX_ITEMS][MAX_ITEM_MULTIPLE];
+extern struct item powerup;
 extern int nth_powerup;
 
 // functions

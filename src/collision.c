@@ -12,6 +12,7 @@
 #include "collision.h"
 #include "logic.h"
 #include "common.h"
+#include "shot.h"
 
 
 // returns Boolean value if two circle hitboxes overlap
@@ -103,7 +104,7 @@ void player_bullet_collision()
 // TODO: quadtree hitbox detection: github.com/arpit2297/Collision-Detection-using-Quad-Trees
 void do_collision()
 {
-	int i, j, k;
+	int i, j, k, l;
 
 	/* player hitting harmful*/
 	
@@ -126,49 +127,62 @@ void do_collision()
 	/* player collects items */
 
 	// player -- powerup
-	for (i = 0; i < MAX_POWERUPS; i++) {
-		if (circle_in_circle(powerup[i].motion.hb,
-					player[curr_player].itembox)
-				&& powerup[i].active) {
-			powerup[i].active = false;
-			player[curr_player].power += powerup[i].value;
-		}
-	}
-
-
-	// player bullet hitting enemies
-	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
-		for (j = 0; j < MAX_ENEMIES; j++) {
-			for (k = 0; k < MAX_ENEMY_MULTIPLE; k++)
-{
-			// player bullet hits fairy
-			// fairy takes damage
-			if (player_bullets[i].active && enemylist[j][k].active
-					&&
-					circle_in_circle(enemylist[j][k].motion.hb,
-						player_bullets[i].motion.hb)) {
-//				printf("PLAYER BULLET HTIS FAIRY\n");
-
-				// damage dealt based on player bullet power
-				enemylist[j][k].health -= player_bullets[i].power;
-
-				// unload bullet
-				player_bullets[i].active = false;
-
-				// fairy dies
-				if (enemylist[j][k].health == 0) {
-					nth_powerup = cycle_item_smart_pointer(nth_powerup, &powerup);
-					enemylist[j][k].active = 0;
-					// item drop
-					powerup[nth_powerup].active = true;
-//					powerup[nth_powerup].motion.o.x = enemylist[j][k].motion.hb.p.x;
-//					powerup[nth_powerup].motion.o.y = enemylist[j][k].motion.hb.p.y;
-					powerup[nth_powerup].motion.hb.p.x = enemylist[j][k].motion.hb.p.x;
-					powerup[nth_powerup].motion.hb.p.y = enemylist[j][k].motion.hb.p.y;
-					nth_powerup = cycle_item_smart_pointer(nth_powerup, &powerup);
+	for (i = 0; i < MAX_ITEMS; i++) {
+		for (j = 0; j < MAX_ITEM_MULTIPLE; j++) {
+			if (circle_in_circle(itemlist[i][j].motion.hb,
+						player[curr_player].itembox)
+					&& itemlist[i][j].active) {
+				itemlist[i][j].active = false;
+				switch (i) {
+				case ITEM_POWERUP:
+					player[curr_player].power += itemlist[i][j].value;
+					printf("%lf\n", player[curr_player].power);
+					break;
+				default:
+					break;
 				}
 			}
-}
 		}
 	}
+
+
+	// TODO: optimize nested for loop
+	// player bullet hitting enemies
+	for (i = 0; i < MAX_SHOTS; i++) {
+	for (j = 0; j < MAX_SHOT_MULTIPLE; j++) {
+	for (k = 0; k < MAX_ENEMIES; k++) {
+	for (l = 0; l < MAX_ENEMY_MULTIPLE; l++) {
+		// player bullet hits fairy
+		// fairy takes damage
+		if (shotlist[i][j].active && enemylist[k][l].active
+				&&
+				circle_in_circle(enemylist[k][l].motion.hb,
+					shotlist[i][j].motion.hb)) {
+//				printf("PLAYER BULLET HTIS FAIRY\n");
+
+			// damage dealt based on player bullet power
+			enemylist[k][l].health -= shotlist[i][j].power;
+
+			// unload bullet
+			shotlist[i][j].active = false;
+
+			// TODO: make it so only red fairies drop powerups
+			// fairy dies
+			if (enemylist[k][l].health == 0) {
+				nth_powerup = cycle_item_smart_pointer(nth_powerup, &itemlist[ITEM_POWERUP]);
+				enemylist[k][l].active = 0;
+				// item drop
+				itemlist[ITEM_POWERUP][nth_powerup].active = true;
+				itemlist[ITEM_POWERUP][nth_powerup].motion.o.x = enemylist[k][l].motion.hb.p.x;
+				itemlist[ITEM_POWERUP][nth_powerup].motion.o.y = enemylist[k][l].motion.hb.p.y;
+				itemlist[ITEM_POWERUP][nth_powerup].motion.hb.p.x = enemylist[k][l].motion.hb.p.x;
+				itemlist[ITEM_POWERUP][nth_powerup].motion.hb.p.y = enemylist[k][l].motion.hb.p.y;
+				nth_powerup = cycle_item_smart_pointer(nth_powerup, &itemlist[ITEM_POWERUP]);
+			}
+		}
+	}
+	}
+	}
+	}
 }
+

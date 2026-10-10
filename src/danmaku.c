@@ -101,7 +101,6 @@ int launch_aimed_ring(struct bullet (*bullets)[MAX_BULLET_MULTIPLE],
 {
 	nth_bullet = launch_ring(bullets, nth_bullet, xcoord, ycoord, n, speed,
 			angle_to_player(xcoord, ycoord));
-	printf("     %d %d \n", nth_bullet, (*bullets)[nth_bullet].active);
 	// returns value of the smart pointer
 	return cycle_bullet_smart_pointer(nth_bullet, bullets);
 }
