@@ -20,12 +20,13 @@
 #include "input.h"
 #include "collision.h"
 #include "common.h"
+#include "player.h"
 
 
 /* VARIABLES */
 
 struct player player[MAX_PLAYERS];
-int curr_player = 0;
+int curr_player = 1;
 struct bullet player_bullets[MAX_PLAYER_BULLETS];
 int reload = MAX_RELOAD;
 int nth_player_bullet = 0;
@@ -68,22 +69,7 @@ void initialize_logic()
 	// numerical array pointer for power items
 	nth_powerup = 0;
 	
-	// set initial values common to all players
-	for (i = 0; i < MAX_PLAYERS; i++) {
-		player[i].invincible = false;
-		player[i].iframes = MAX_IFRAMES;
-		player[i].power = 0.;
-		player[i].motion.hb.r = 2.;
-		// TODO: redraw to deal with grazing
-		player[i].grazebox.r = 8.;
-		player[i].itembox.r = player[i].grazebox.r * 2.;
-	}
-
-	// set initial values for each individual player
-	player[0].speed = REIMU_DEFAULT_SPEED;
-	player[0].focus = REIMU_FOCUS_SPEED;
-	player[0].health = 2;
-	player[0].bombs = 2;
+	initialize_players();
 	
 	reset_player_position();
 	update_player_motion();
@@ -104,7 +90,7 @@ void initialize_logic()
 	// initialzie enemylist with enemyIDs
 	fairies.id = ENEMY_FAIRY;
 	fairies.active = false;
-	fairies.motion.hb.r = 8.;
+	fairies.motion.hb.r = 10.;
 	fairies.health = 4;
 	enemylist[fairies.id][0] = fairies;
 	

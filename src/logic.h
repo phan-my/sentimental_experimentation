@@ -17,6 +17,7 @@
 #include <math.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include "player.h"
 
 /* MACROS */
 // hitboxes
@@ -24,19 +25,6 @@
 #define CIRCLE 1
 
 #define MAX_PLAYERS 2
-
-// player spawn position
-#define PLAYER_ORIGIN_X FIELD_WIDTH / 2. + FIELD_OFFSET_X
-#define PLAYER_ORIGIN_Y FIELD_HEIGHT * 0.9 + FIELD_OFFSET_Y
-
-// https://en.touhouwiki.net/wiki/User:Arcorann/Character_Speeds#Massive_chart
-#define REIMU_DEFAULT_SPEED 4.5
-#define REIMU_FOCUS_SPEED 2.0
-#define REIMU_FOCUS_FACTOR 0.4444444
-
-#define MARISA_DEFAULT_SPEED 5.0
-#define MARISA_FOCUS_FACTOR 0.4
-
 
 #define PLAYER_BOTTOM_MARGIN 16 // extra margins for player at bottom of field
 
@@ -54,8 +42,6 @@
 #define BULLET_BALL_8x8 0
 
 #define MAX_POWERUPS MAX_ITEM_MULTIPLE
-
-#define MAX_IFRAMES 240
 
 // name for enemyID
 #define ENEMY_FAIRY 0
@@ -207,10 +193,10 @@ struct overlay {
 
 // globals
 extern struct player player[MAX_PLAYERS];
+extern int curr_player;
 extern struct bullet player_bullets[MAX_PLAYER_BULLETS];
 extern int reload;
 extern int nth_player_bullet;
-extern int curr_player;
 
 extern struct bullet bulletlist[MAX_BULLETS][MAX_BULLET_MULTIPLE];
 extern struct bullet ball_8x8;

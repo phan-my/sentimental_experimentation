@@ -14,7 +14,9 @@
 #include "common.h"
 
 
-// circle-circle collision
+// returns Boolean value if two circle hitboxes overlap
+// dest: second circle hitbox (circlebox)
+// src: first circle hitbox
 // TODO: Pythagorean expression optimizable?
 bool circle_in_circle(struct circlebox dest, struct circlebox src)
 {
@@ -26,7 +28,10 @@ bool circle_in_circle(struct circlebox dest, struct circlebox src)
 	return distance < src.r + dest.r;
 }
 
-// checks if position is in rectbox
+// UNUSED: returns Boolean value if a point lies within a rectangle
+// x: x-position of the point
+// y: y-position of the point
+// obj: the rectangular region
 bool _in_rect(double x, double y, struct rectbox obj)
 {
 	if (obj.x <= x && x <= obj.x + obj.w
@@ -36,7 +41,9 @@ bool _in_rect(double x, double y, struct rectbox obj)
 		return false;
 }
 
-// rectangle-rectangle collision
+// UNUSED: returns Boolean value if two rectangular hitboxes overlap
+// obj_1: 1st rectangular hitbox
+// obj_2: 2nd rectangular hitbox
 bool _rect_in_rect(struct rectbox obj_1, struct rectbox obj_2)
 {
 	bool in_1 = obj_1.x <= obj_2.x + obj_2.w; // obj_2 next of obj_1
@@ -49,7 +56,8 @@ bool _rect_in_rect(struct rectbox obj_1, struct rectbox obj_2)
 		return false;
 }
 
-// player hits enemies
+// if player hits an enemy, then kill both, deplete player health, & reset
+// position
 void player_enemy_collision()
 {
 	int i, j;
@@ -57,14 +65,34 @@ void player_enemy_collision()
 	// loop through entire enemylist
 	for (i = 0; i < MAX_ENEMIES; i++) {
 		for (j = 0; j < MAX_ENEMY_MULTIPLE; j++) {
-			// 
+			// checks collision
 			if (circle_in_circle(enemylist[i][j].motion.hb,
-						player[curr_player].motion.hb) &&
-					enemylist[i][j].active) {
-//				printf("player-fairy HIT  \n");
+						player[curr_player].motion.hb)
+					&& enemylist[i][j].active) {
 				enemylist[i][j].active = false; // kill enemy
-				player[curr_player].invincible = true; // iframe
 				player[curr_player].health--; // decrease HP
+				player[curr_player].invincible = true; // iframe
+				reset_player_position(); // put player at origin
+			}
+		}
+	}
+}
+
+// if player hits an bullet, then kill both, deplete player health, & reset
+// position
+void player_bullet_collision()
+{
+	int i, j;
+	// loop through entire bulletlist
+	for (i = 0; i < MAX_BULLETS; i++) {
+		for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
+			// check player-bullet collision
+			if (circle_in_circle(bulletlist[i][j].motion.hb,
+						player[curr_player].motion.hb)
+					&& bulletlist[i][j].active) {
+				bulletlist[i][j].active = false; // kill bullet
+				player[curr_player].health--; // decrease HP
+				player[curr_player].invincible = true; // iframe
 				reset_player_position(); // put player at origin
 			}
 		}
@@ -77,33 +105,25 @@ void do_collision()
 {
 	int i, j, k;
 
-	/* player hitting things */
+	/* player hitting harmful*/
 	
 	// if not invincible, do collision
 	// questions/21650246/sdl-2-collision-detetection
 	if (!player[curr_player].invincible) {
-		// player -- enemy bullet
-		for (i = 0; i < MAX_BULLETS; i++) {
-			for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
-				if (circle_in_circle(bulletlist[i][j].motion.hb,
-							player[curr_player].motion.hb)
-						&& bulletlist[i][j].active) {
-//					printf("%d: HIT\n", i);
-					bulletlist[i][j].active = false;
-					player[curr_player].invincible = true;
-					reset_player_position();
-				}
-			}
-		}
-
+		// player -- bullets
+		player_bullet_collision();
 		// player -- enemies
 		player_enemy_collision();
+	// if player is invincible
 	} else if (player[curr_player].iframes > 0) {	// decrease iframe
 		player[curr_player].iframes--;
-	} else { // if iframe is emptied: reset iframe
+	// if iframe is emptied: reset iframe
+	} else {
 		player[curr_player].invincible = false;
 		player[curr_player].iframes = MAX_IFRAMES;
 	}
+
+	/* player collects items */
 
 	// player -- powerup
 	for (i = 0; i < MAX_POWERUPS; i++) {
@@ -116,7 +136,7 @@ void do_collision()
 	}
 
 
-	// player bullet hitting things
+	// player bullet hitting enemies
 	for (i = 0; i < MAX_PLAYER_BULLETS; i++) {
 		for (j = 0; j < MAX_ENEMIES; j++) {
 			for (k = 0; k < MAX_ENEMY_MULTIPLE; k++)

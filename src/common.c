@@ -35,8 +35,8 @@ double log_256(double x)
 	return log(x)/log(256);
 }
 
-// cycles smart pointer through array until an inactive element is found
-// returns the smart pointer value that points at inactive element
+// cycles smart pointer through array until an inactive bullet is found
+// returns the smart pointer value that points at the closest inactive bullet
 // pointer: the smart pointer as an integer value (nth element in array)
 // array: array that pointer points to
 int cycle_bullet_smart_pointer(int pointer,
@@ -61,10 +61,10 @@ int cycle_bullet_smart_pointer(int pointer,
 	return pointer;
 }
 
-// cycles smart pointer through array until an inactive element is found
+// cycles smart pointer through array until an inactive item is found
+// returns the smart pointer value that points at the closest inactive item
 // pointer: the smart pointer as an integer value (nth element in array)
 // array: array that pointer points to
-// max: the maximum number of elements in the arrays
 int cycle_item_smart_pointer(int pointer,
 		struct item (*array)[MAX_ITEM_MULTIPLE])
 {

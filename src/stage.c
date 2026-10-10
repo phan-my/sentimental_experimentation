@@ -25,7 +25,6 @@ int stages[MAX_STAGES][CHECKPOINTS_STAGE_1] = {{60, 270, 2520, 4230}};
 int current_stage = 1;
 
 // stage variables
-int moving = 1;
 double speed[MAX_BULLET_MULTIPLE];
 double cap_speed;
 double angles[MAX_BULLET_MULTIPLE];

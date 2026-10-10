@@ -14,6 +14,7 @@
 
 #include "render.h"
 #include "logic.h"
+#include "player.h"
 
 
 /* VARIABLES */
@@ -103,15 +104,19 @@ void initialize_overlays()
 }
 
 // initialize chosen player
-void initialize_player()
+void initialize_player_render()
 {
 	int i;
 	// TODO: player selection in main menu
 	// reimu
-	// create object
-	player[0].sdl.texture = create_texture("assets/reimu.png");
-	SDL_QueryTexture(player[0].sdl.texture, NULL, NULL, &player[0].sdl.rect.w,
-				&player[0].sdl.rect.h);
+	player[PLAYER_REIMU].sdl.texture = create_texture("assets/reimu.png");
+	player[PLAYER_MARISA].sdl.texture = create_texture("assets/marisa.png");
+
+	for (i = 0; i < MAX_PLAYERS; i++) {
+		SDL_QueryTexture(player[i].sdl.texture, NULL, NULL,
+				&player[i].sdl.rect.w,
+				&player[i].sdl.rect.h);
+	}
 
 	// player bullets
 	player_bullets[0].sdl.texture = create_texture("assets/player_bullet.png");
@@ -163,7 +168,7 @@ void initialize_items()
 void initialize_textures(void)
 {
 	initialize_overlays();
-	initialize_player();
+	initialize_player_render();
 	initialize_enemies();
 	initialize_items();
 }
