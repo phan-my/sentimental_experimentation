@@ -58,8 +58,8 @@ void player_enemy_collision()
 	for (i = 0; i < MAX_ENEMIES; i++) {
 		for (j = 0; j < MAX_ENEMY_MULTIPLE; j++) {
 			// 
-			if (circle_in_circle(enemylist[i][j].hitbox,
-						player[curr_player].core) &&
+			if (circle_in_circle(enemylist[i][j].motion.hb,
+						player[curr_player].motion.hb) &&
 					enemylist[i][j].active) {
 //				printf("player-fairy HIT  \n");
 				enemylist[i][j].active = false; // kill enemy
@@ -85,8 +85,8 @@ void do_collision()
 		// player -- enemy bullet
 		for (i = 0; i < MAX_BULLETS; i++) {
 			for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
-				if (circle_in_circle(bulletlist[i][j].hitbox,
-							player[curr_player].core)
+				if (circle_in_circle(bulletlist[i][j].motion.hb,
+							player[curr_player].motion.hb)
 						&& bulletlist[i][j].active) {
 //					printf("%d: HIT\n", i);
 					bulletlist[i][j].active = false;
@@ -107,7 +107,7 @@ void do_collision()
 
 	// player -- powerup
 	for (i = 0; i < MAX_POWERUPS; i++) {
-		if (circle_in_circle(powerup[i].hitbox,
+		if (circle_in_circle(powerup[i].motion.hb,
 					player[curr_player].itembox)
 				&& powerup[i].active) {
 			powerup[i].active = false;
@@ -125,8 +125,8 @@ void do_collision()
 			// fairy takes damage
 			if (player_bullets[i].active && enemylist[j][k].active
 					&&
-					circle_in_circle(enemylist[j][k].hitbox,
-						player_bullets[i].hitbox)) {
+					circle_in_circle(enemylist[j][k].motion.hb,
+						player_bullets[i].motion.hb)) {
 //				printf("PLAYER BULLET HTIS FAIRY\n");
 
 				// damage dealt based on player bullet power
@@ -141,10 +141,10 @@ void do_collision()
 					enemylist[j][k].active = 0;
 					// item drop
 					powerup[nth_powerup].active = true;
-//					powerup[nth_powerup].hitbox.o.x = enemylist[j][k].hitbox.p.x;
-//					powerup[nth_powerup].hitbox.o.y = enemylist[j][k].hitbox.p.y;
-					powerup[nth_powerup].hitbox.p.x = enemylist[j][k].hitbox.p.x;
-					powerup[nth_powerup].hitbox.p.y = enemylist[j][k].hitbox.p.y;
+//					powerup[nth_powerup].motion.o.x = enemylist[j][k].motion.hb.p.x;
+//					powerup[nth_powerup].motion.o.y = enemylist[j][k].motion.hb.p.y;
+					powerup[nth_powerup].motion.hb.p.x = enemylist[j][k].motion.hb.p.x;
+					powerup[nth_powerup].motion.hb.p.y = enemylist[j][k].motion.hb.p.y;
 					nth_powerup = cycle_item_smart_pointer(nth_powerup, &powerup, MAX_POWERUPS);
 				}
 			}

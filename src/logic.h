@@ -80,25 +80,8 @@ struct acceleration {
 	double y;
 };
 
-struct kinematics {
-	struct position o; // origin point p_0(x_0, y_0)
-	struct position p; // current position
-	struct velocity v; // current velocity (vector)
-	struct acceleration a; // current acceleration
-	int time_0; // exact time of spawn in frames
-};
-
-/* colors */
-
-// colors in RGB
-struct color {
-	int r;
-	int g;
-	int b;
-	int alpha;
-};
-
 /* hitbox shapes */
+
 
 // circle-shaped hitbox
 struct circlebox {
@@ -123,6 +106,24 @@ struct _ellipsebox {
 	double angle; // in radians
 };
 
+struct kinematics {
+	struct position o; // origin point p_0(x_0, y_0)
+	struct circlebox hb;
+	struct velocity v; // current velocity (vector)
+	struct acceleration a; // current acceleration
+	int time_0; // exact time of spawn in frames
+};
+
+/* colors */
+
+// colors in RGB
+struct color {
+	int r;
+	int g;
+	int b;
+	int alpha;
+};
+
 /* SDL structs */
 
 // an entity's types necessary to perform render
@@ -139,7 +140,6 @@ struct player {
 	char *name;
 	// motion
 	struct kinematics motion;
-	struct circlebox core;     // danmaku tiny hitbox
 	struct circlebox grazebox; // =size of sprite, for grazing
 	struct circlebox itembox;  // aura where items gravitate to in gen 2&3
 	double speed;
@@ -163,7 +163,6 @@ struct enemy {
 	int id;
 
 	// motion
-	struct circlebox hitbox;
 	struct kinematics motion;
 
 	// render & SDL-movement
@@ -179,7 +178,6 @@ struct enemy {
 
 struct bullet {
 	int id;
-	struct circlebox hitbox;
 	struct kinematics motion;
 	struct sdl_types sdl;
 
@@ -196,7 +194,6 @@ struct bullet {
 // collectible items such as powerups, bombs, score
 struct item {
 	struct kinematics motion;
-	struct circlebox hitbox;
 	struct sdl_types sdl;
 
 	bool active;

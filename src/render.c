@@ -153,7 +153,7 @@ void initialize_items()
 	for (i = 0; i < MAX_POWERUPS; i++) {
 		SDL_QueryTexture(powerup[0].sdl.texture, NULL, NULL, &powerup[i].sdl.rect.w,
 				&powerup[i].sdl.rect.h);
-		powerup[i].hitbox.r = powerup[i].sdl.rect.w;
+		powerup[i].motion.hb.r = powerup[i].sdl.rect.w;
 		powerup[i].active = false;
 		powerup[i].value = 1;
 	}
@@ -171,22 +171,22 @@ void initialize_textures(void)
 // set sdl int position to match the float position for a bullet
 void update_bullet_render(struct bullet *p)
 {
-	p -> sdl.rect.x = (int)(p -> motion.p.x - p -> sdl.rect.w / 2.);
-	p -> sdl.rect.y = (int)(p -> motion.p.y - p -> sdl.rect.h / 2.);
+	p -> sdl.rect.x = (int)(p -> motion.hb.p.x - p -> sdl.rect.w / 2.);
+	p -> sdl.rect.y = (int)(p -> motion.hb.p.y - p -> sdl.rect.h / 2.);
 }
 
 // set sdl int position to match the float position for the player
 void update_player_render(struct player *p)
 {
-	p -> sdl.rect.x = (int)(p -> motion.p.x - p -> sdl.rect.w / 2.);
-	p -> sdl.rect.y = (int)(p -> motion.p.y - p -> sdl.rect.h / 2.);
+	p -> sdl.rect.x = (int)(p -> motion.hb.p.x - p -> sdl.rect.w / 2.);
+	p -> sdl.rect.y = (int)(p -> motion.hb.p.y - p -> sdl.rect.h / 2.);
 }
 
 // set sdl int position to match the float position for an enemy
 void update_enemy_render(struct enemy *p)
 {
-	p -> sdl.rect.x = (int)(p -> motion.p.x - p -> sdl.rect.w / 2.);
-	p -> sdl.rect.y = (int)(p -> motion.p.y - p -> sdl.rect.h / 2.);
+	p -> sdl.rect.x = (int)(p -> motion.hb.p.x - p -> sdl.rect.w / 2.);
+	p -> sdl.rect.y = (int)(p -> motion.hb.p.y - p -> sdl.rect.h / 2.);
 }
 
 // copies motion values into SDL_Rect and renders new sprite position
@@ -243,9 +243,9 @@ void do_screen()
 	// items
 	for (i = 0; i < MAX_POWERUPS; i++) {
 		if (powerup[i].active) {
-			powerup[i].sdl.rect.x = (int)(powerup[i].hitbox.p.x
+			powerup[i].sdl.rect.x = (int)(powerup[i].motion.hb.p.x
 					- powerup[i].sdl.rect.w / 2.);
-			powerup[i].sdl.rect.y = (int)(powerup[i].hitbox.p.y
+			powerup[i].sdl.rect.y = (int)(powerup[i].motion.hb.p.y
 					- powerup[i].sdl.rect.h / 2.);
 			SDL_RenderCopy(rend, powerup[0].sdl.texture,
 					NULL, &powerup[i].sdl.rect);

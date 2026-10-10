@@ -30,8 +30,8 @@ double measure_angle(double x_1, double y_1, double x_2, double y_2)
 double angle_to_player(double xcoord, double ycoord)
 {
 	return measure_angle(xcoord, ycoord,
-			player[curr_player].motion.p.x,
-			player[curr_player].motion.p.y);
+			player[curr_player].motion.hb.p.x,
+			player[curr_player].motion.hb.p.y);
 }
 
 // sets velocities of a single bullet based on given angle
@@ -74,8 +74,8 @@ int launch_ring(struct bullet (*bullets)[MAX_BULLET_MULTIPLE], int nth_bullet,
 		(*bullets)[nth_bullet].motion.o.x = xcoord; // spawner
 		(*bullets)[nth_bullet].motion.o.y = ycoord;
 
-		(*bullets)[nth_bullet].motion.p.x = xcoord; // curr position
-		(*bullets)[nth_bullet].motion.p.y = ycoord;
+		(*bullets)[nth_bullet].motion.hb.p.x = xcoord; // curr position
+		(*bullets)[nth_bullet].motion.hb.p.y = ycoord;
 
 
 		// launch each individual bullet

@@ -68,18 +68,18 @@ void _do_player_input()
 {
 	// update graze position
 	player[curr_player].grazebox.p.x =
-		player[curr_player].core.p.x
+		player[curr_player].motion.hb.p.x
 		- player[curr_player].grazebox.r / 2.;
 	player[curr_player].grazebox.p.y =
-		player[curr_player].core.p.y
+		player[curr_player].motion.hb.p.y
 		- player[curr_player].grazebox.r / 2.;
 	
 	// update item collection position
 	player[curr_player].itembox.p.x =
-		player[curr_player].core.p.x
+		player[curr_player].motion.hb.p.x
 		- player[curr_player].itembox.r / 2.;
 	player[curr_player].itembox.p.y =
-		player[curr_player].core.p.y
+		player[curr_player].motion.hb.p.y
 		- player[curr_player].itembox.r / 2.;
 }
 
@@ -235,8 +235,8 @@ int do_input()
 			player[curr_player].motion.v.y = -diagonal;
 	}
 
-//	player[curr_player].sdl.rect.x = player[curr_player].motion.p.x;
-//	player[curr_player].sdl.rect.y = player[curr_player].motion.p.y;
+//	player[curr_player].sdl.rect.x = player[curr_player].motion.hb.p.x;
+//	player[curr_player].sdl.rect.y = player[curr_player].motion.hb.p.y;
 //	update_player_motion();
 
 		
@@ -254,7 +254,7 @@ int do_input()
 			if (reload == 0)
 				if (!player_bullets[nth_player_bullet].active)
 					player_bullets[nth_player_bullet].active = 1;
-//			printf("     %d %d %lf\n", nth_player_bullet, player_bullets[nth_player_bullet].active, player_bullets[nth_player_bullet].motion.p.y);
+//			printf("     %d %d %lf\n", nth_player_bullet, player_bullets[nth_player_bullet].active, player_bullets[nth_player_bullet].motion.hb.p.y);
 		}
 	}
 	return 0;

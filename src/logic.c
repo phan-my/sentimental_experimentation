@@ -54,8 +54,8 @@ struct overlay loading;
 // sets player at the main start position
 void reset_player_position()
 {
-	player[curr_player].motion.p.x = PLAYER_ORIGIN_X;
-	player[curr_player].motion.p.y = PLAYER_ORIGIN_Y;
+	player[curr_player].motion.hb.p.x = PLAYER_ORIGIN_X;
+	player[curr_player].motion.hb.p.y = PLAYER_ORIGIN_Y;
 //	update_player_render(&player[curr_player]); // subpixel hitbox -> integer SDL_Rect
 
 }
@@ -73,7 +73,7 @@ void initialize_logic()
 		player[i].invincible = false;
 		player[i].iframes = MAX_IFRAMES;
 		player[i].power = 0.;
-		player[i].core.r = 2.;
+		player[i].motion.hb.r = 2.;
 		// TODO: redraw to deal with grazing
 		player[i].grazebox.r = 8.;
 		player[i].itembox.r = player[i].grazebox.r * 2.;
@@ -95,16 +95,16 @@ void initialize_logic()
 		player_bullets[i].hitbox.p.x = player[curr_player].core.p.x;
 		player_bullets[i].hitbox.p.y = reimu.core.p.y;
 */
-		player_bullets[i].hitbox.r = 8.;
+		player_bullets[i].motion.hb.r = 8.;
 		player_bullets[i].power = 1;
-		player_bullets[i].motion.p.x = player[curr_player].motion.p.x;
-		player_bullets[i].motion.p.y = player[curr_player].motion.p.y;
+		player_bullets[i].motion.hb.p.x = player[curr_player].motion.hb.p.x;
+		player_bullets[i].motion.hb.p.y = player[curr_player].motion.hb.p.y;
 	}
 	
 	// initialzie enemylist with enemyIDs
 	fairies.id = ENEMY_FAIRY;
 	fairies.active = false;
-	fairies.hitbox.r = 8.;
+	fairies.motion.hb.r = 8.;
 	fairies.health = 4;
 	enemylist[fairies.id][0] = fairies;
 	
@@ -118,7 +118,7 @@ void initialize_logic()
 	// initialize bulletlist with bulletIDs
 	ball_8x8.id = BULLET_BALL_8x8;
 	ball_8x8.active = false;
-	ball_8x8.hitbox.r = 3.8;
+	ball_8x8.motion.hb.r = 3.8;
 	bulletlist[ball_8x8.id][0] = ball_8x8;
 	
 	// create multiple of all unique bullets
@@ -133,8 +133,8 @@ void initialize_logic()
 void update_position_by_velocity(struct kinematics *motion)
 {
 	// increment pointer to p.x by v.x
-	motion -> p.x += motion -> v.x;
-	motion -> p.y += motion -> v.y;
+	motion -> hb.p.x += motion -> v.x;
+	motion -> hb.p.y += motion -> v.y;
 }
 
 // update all positional values of the player
@@ -142,18 +142,14 @@ void update_player_motion()
 {
 	// v -> p
 	update_position_by_velocity(&player[curr_player].motion);
-
-	// p -> core hitbox
-	player[curr_player].core.p.x = player[curr_player].motion.p.x;
-	player[curr_player].core.p.y = player[curr_player].motion.p.y;
-
+	
 	// p -> graze hitbox
-	player[curr_player].grazebox.p.x = player[curr_player].motion.p.x;
-	player[curr_player].grazebox.p.y = player[curr_player].motion.p.y;
+	player[curr_player].grazebox.p.x = player[curr_player].motion.hb.p.x;
+	player[curr_player].grazebox.p.y = player[curr_player].motion.hb.p.y;
 	
 	// p -> item collection htibox
-	player[curr_player].itembox.p.x = player[curr_player].motion.p.x;
-	player[curr_player].itembox.p.y = player[curr_player].motion.p.y;
+	player[curr_player].itembox.p.x = player[curr_player].motion.hb.p.x;
+	player[curr_player].itembox.p.y = player[curr_player].motion.hb.p.y;
 }
 
 // update all positional values of all active enemies
@@ -166,19 +162,21 @@ void update_enemy_motion()
 		for (j = 0; j < MAX_ENEMY_MULTIPLE; j++) {
 			// v -> p
 			update_position_by_velocity(&enemylist[i][j].motion);
-			
+
+/*
 			// p -> core hitbox
-			enemylist[i][j].hitbox.p.x = enemylist[i][j].motion.p.x;
-			enemylist[i][j].hitbox.p.y = enemylist[i][j].motion.p.y;
+			enemylist[i][j].hitbox.p.x = enemylist[i][j].motion.hb.p.x;
+			enemylist[i][j].hitbox.p.y = enemylist[i][j].motion.hb.p.y;
+*/
 		}
 	}
 }
 
 bool in_unload_zone(struct kinematics entity)
 {
-	if ((0 <= entity.p.x && entity.p.x <= FIELD_RIGHT) ||
-			(0 <= entity.p.y &&
-			 entity.p.y <= + FIELD_BOTTOM + FIELD_OFFSET_Y))
+	if ((0 <= entity.hb.p.x && entity.hb.p.x <= FIELD_RIGHT) ||
+			(0 <= entity.hb.p.y &&
+			 entity.hb.p.y <= + FIELD_BOTTOM + FIELD_OFFSET_Y))
 		return false;
 	else
 		return true;
@@ -206,12 +204,14 @@ void update_bullet_motion()
 		for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
 			// v -> p
 			update_position_by_velocity(&bulletlist[i][j].motion);
-			
+
+/*
 			// p -> core hitbox
 			bulletlist[i][j].hitbox.p.x
-				= bulletlist[i][j].motion.p.x;
+				= bulletlist[i][j].motion.hb.p.x;
 			bulletlist[i][j].hitbox.p.y
-				= bulletlist[i][j].motion.p.y;
+				= bulletlist[i][j].motion.hb.p.y;
+*/
 		}
 	}
 
@@ -230,13 +230,14 @@ void do_player_bullets()
 			player_bullets[i].motion.v.y = -PLAYER_BULLET_SPEED;
 			// v -> p
 			update_position_by_velocity(&player_bullets[i].motion);
-		
+
+/*
 			// p -> core hitbox
-			player_bullets[i].hitbox.p.x = player_bullets[i].motion.p.x;
-			player_bullets[i].hitbox.p.y = player_bullets[i].motion.p.y;
-		
+			player_bullets[i].hitbox.p.x = player_bullets[i].motion.hb.p.x;
+			player_bullets[i].hitbox.p.y = player_bullets[i].motion.hb.p.y;
+*/		
 			// reset bullets if they fall out of bounds
-			if (player_bullets[i].motion.p.y < 0)
+			if (player_bullets[i].motion.hb.p.y < 0)
 				player_bullets[i].active = 0;
 		// case bullet is inactive
 		} else {
@@ -246,13 +247,13 @@ void do_player_bullets()
 			// set player bullet at player's position
 			// creates two columns of player bullets 
 			if (i % 2)
-				player_bullets[i].motion.p.x
-					= player[curr_player].motion.p.x + 8;
+				player_bullets[i].motion.hb.p.x
+					= player[curr_player].motion.hb.p.x + 8;
 			else
-				player_bullets[i].motion.p.x
-					= player[curr_player].motion.p.x - 8;			
-			player_bullets[i].motion.p.y
-				= player[curr_player].motion.p.y;
+				player_bullets[i].motion.hb.p.x
+					= player[curr_player].motion.hb.p.x - 8;			
+			player_bullets[i].motion.hb.p.y
+				= player[curr_player].motion.hb.p.y;
 			
 		}
 	}

@@ -64,10 +64,10 @@ void initialize_fairy_single_1()
 	// two columns of fairies
 	for (i = 0; i < num_fairies; i++) {
 		// creates left column and right column
-		enemylist[ENEMY_FAIRY][i].motion.p.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
+		enemylist[ENEMY_FAIRY][i].motion.hb.p.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
 			+ pow(-1, i) * 20;
 		// positions the fairies apart on the y axis
-		enemylist[ENEMY_FAIRY][i].motion.p.y = FIELD_OFFSET_Y - i * 20;
+		enemylist[ENEMY_FAIRY][i].motion.hb.p.y = FIELD_OFFSET_Y - i * 20;
 	}
 }
 
@@ -82,8 +82,8 @@ void initialize_stage()
 	case 1:
 		// "snowball" bullets
 		for (i = 0; i < MAX_BULLET_MULTIPLE; i++) {
-			bulletlist[BULLET_BALL_8x8][i].motion.p.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-			bulletlist[BULLET_BALL_8x8][i].motion.p.y = FIELD_HEIGHT * (1. / 4)
+			bulletlist[BULLET_BALL_8x8][i].motion.hb.p.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+			bulletlist[BULLET_BALL_8x8][i].motion.hb.p.y = FIELD_HEIGHT * (1. / 4)
 				+ FIELD_OFFSET_Y;
 		}
 
@@ -216,9 +216,11 @@ void do_stage()
 	// item falls
 	for (i = 0; i < MAX_POWERUPS; i++) {
 		if (powerup[i].active) {
-			powerup[i].hitbox.p.y += 1.;
-			powerup[i].sdl.rect.x = (int)(powerup[i].hitbox.p.x - powerup[i].sdl.rect.w / 2.);
-			powerup[i].sdl.rect.y = (int)(powerup[i].hitbox.p.y - powerup[i].sdl.rect.h / 2.);
+			// TODO: use motion.v
+			powerup[i].motion.hb.p.y += 1.;
+			// TODO: move to render.c
+			powerup[i].sdl.rect.x = (int)(powerup[i].motion.hb.p.x - powerup[i].sdl.rect.w / 2.);
+			powerup[i].sdl.rect.y = (int)(powerup[i].motion.hb.p.y - powerup[i].sdl.rect.h / 2.);
 		}
 	}
 }
