@@ -13,7 +13,9 @@
 
 /* FUNCTIONS */
 
-// simple moving average (SMA)
+// returns the simple moving average with in an array
+// *points: array of recorded double floats
+// num_elements: number of elements in *points
 double rolling_average(double *points, int num_elements)
 {
 	int k = 60;
@@ -26,17 +28,19 @@ double rolling_average(double *points, int num_elements)
 	return (1. / k) * sum;
 }
 
-// returns 
+// returns the base-256 logarithm of a number
+// x: anti-logarithm
 double log_256(double x)
 {
 	return log(x)/log(256);
 }
 
 // cycles smart pointer through array until an inactive element is found
+// returns the smart pointer value that points at inactive element
 // pointer: the smart pointer as an integer value (nth element in array)
 // array: array that pointer points to
-// max: the maximum number of elements in the arrays
-int cycle_bullet_smart_pointer(int pointer, struct bullet (*array)[MAX_BULLET_MULTIPLE], int max)
+int cycle_bullet_smart_pointer(int pointer,
+		struct bullet (*array)[MAX_BULLET_MULTIPLE])
 {
 	int count = 0;
 
@@ -44,13 +48,13 @@ int cycle_bullet_smart_pointer(int pointer, struct bullet (*array)[MAX_BULLET_MU
 	while ((*array)[pointer].active) {
 		// cycles through array
 		pointer++; // increment pointer
-		pointer %= max; // if pointer > arraysize, then modulo
+		pointer %= MAX_BULLET_MULTIPLE; // if pointer > max, then modulo
 		
 		// failsafe: if all elements are loaded, then break
 		count++;
-		if (count > max) {
-			printf("BULLET LIST OVERFLOW, UNLOADING SOME BULLETS\n");
-			(*array)[pointer].active = false;
+		if (count > MAX_BULLET_MULTIPLE) {
+			printf("BULLETLIST OVERFLOW, UNLOADING SOME BULLETS\n");
+			(*array)[pointer].active = false; // unload bullet
 			break;
 		}
 	}
@@ -61,12 +65,21 @@ int cycle_bullet_smart_pointer(int pointer, struct bullet (*array)[MAX_BULLET_MU
 // pointer: the smart pointer as an integer value (nth element in array)
 // array: array that pointer points to
 // max: the maximum number of elements in the arrays
-int cycle_item_smart_pointer(int pointer, struct item *array, int max)
+int cycle_item_smart_pointer(int pointer,
+		struct item (*array)[MAX_ITEM_MULTIPLE])
 {
-	int i;
-	while (array[pointer].active) {
+	int count = 0;
+	while ((*array)[pointer].active) {
 		pointer++;
-		pointer %= max;
+		pointer %= MAX_ITEM_MULTIPLE;
+
+		// failsafe: if all elements are loaded, then break
+		count++;
+		if (count > MAX_BULLET_MULTIPLE) {
+			printf("ITEM LIST OVERFLOW, UNLOADING SOME BULLETS\n");
+			(*array)[pointer].active = false; // unload bullet
+			break;
+		}
 	}
 	return pointer;
 }

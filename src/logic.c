@@ -41,7 +41,7 @@ struct enemy fairies;
 
 // items
 struct item powerup[MAX_POWERUPS];
-int nth_powerup;
+int nth_powerup = 0;
 
 // overlay
 struct overlay main_menu;
@@ -269,7 +269,7 @@ void do_logic()
 	if (reload < 0)
 		reload = MAX_RELOAD;
 	
-	nth_powerup = cycle_item_smart_pointer(nth_powerup, &powerup, MAX_POWERUPS);
+	nth_powerup = cycle_item_smart_pointer(nth_powerup, &powerup);
 	
 	// update all positional values of entities
 	update_player_motion();

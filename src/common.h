@@ -19,7 +19,7 @@
 // functions
 double rolling_average(double *points, int num_elements);
 double log_256(double x);
-int cycle_bullet_smart_pointer(int pointer, struct bullet (*array)[MAX_BULLET_MULTIPLE], int max);
-int cycle_item_smart_pointer();
+int cycle_bullet_smart_pointer(int pointer, struct bullet (*array)[MAX_BULLET_MULTIPLE]);
+int cycle_item_smart_pointer(int pointer, struct item (*array)[MAX_ITEM_MULTIPLE]);
 
 #endif /* COMMON_H */

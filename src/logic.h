@@ -53,13 +53,14 @@
 #define MAX_BULLET_MULTIPLE 2048
 #define BULLET_BALL_8x8 0
 
-#define MAX_POWERUPS 255
+#define MAX_POWERUPS MAX_ITEM_MULTIPLE
 
 #define MAX_IFRAMES 240
 
 // name for enemyID
 #define ENEMY_FAIRY 0
 
+#define MAX_ITEM_MULTIPLE 1024
 
 /* STRUCTS */ 
 

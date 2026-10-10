@@ -68,7 +68,7 @@ int launch_ring(struct bullet (*bullets)[MAX_BULLET_MULTIPLE], int nth_bullet,
 	for (i = 0; i < n; i++) {
 		// cycles pointer to next inactive element of bullet array
 		nth_bullet = cycle_bullet_smart_pointer(nth_bullet,
-				&(*bullets), MAX_BULLET_MULTIPLE);
+				&(*bullets));
 
 		// set positions 
 		(*bullets)[nth_bullet].motion.o.x = xcoord; // spawner
@@ -83,8 +83,7 @@ int launch_ring(struct bullet (*bullets)[MAX_BULLET_MULTIPLE], int nth_bullet,
 				angle + delta_angle * i);
 	}
 	// returns value of the smart pointer
-	return cycle_bullet_smart_pointer(nth_bullet, bullets,
-			MAX_BULLET_MULTIPLE);
+	return cycle_bullet_smart_pointer(nth_bullet, bullets);
 }
 
 // creates an n-ring of bullets at specified spawner with speed, seed bullet
@@ -104,13 +103,12 @@ int launch_aimed_ring(struct bullet (*bullets)[MAX_BULLET_MULTIPLE],
 			angle_to_player(xcoord, ycoord));
 	printf("     %d %d \n", nth_bullet, (*bullets)[nth_bullet].active);
 	// returns value of the smart pointer
-	return cycle_bullet_smart_pointer(nth_bullet, bullets,
-			MAX_BULLET_MULTIPLE);
+	return cycle_bullet_smart_pointer(nth_bullet, bullets);
 }
 
 
 
-/* BULLET MOVEMENTS */
+/* unused functions */
 		/*
 		// sine movement
 		double period = 300;

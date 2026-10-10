@@ -137,7 +137,7 @@ void do_collision()
 
 				// fairy dies
 				if (enemylist[j][k].health == 0) {
-					nth_powerup = cycle_item_smart_pointer(nth_powerup, &powerup, MAX_POWERUPS);
+					nth_powerup = cycle_item_smart_pointer(nth_powerup, &powerup);
 					enemylist[j][k].active = 0;
 					// item drop
 					powerup[nth_powerup].active = true;
@@ -145,7 +145,7 @@ void do_collision()
 //					powerup[nth_powerup].motion.o.y = enemylist[j][k].motion.hb.p.y;
 					powerup[nth_powerup].motion.hb.p.x = enemylist[j][k].motion.hb.p.x;
 					powerup[nth_powerup].motion.hb.p.y = enemylist[j][k].motion.hb.p.y;
-					nth_powerup = cycle_item_smart_pointer(nth_powerup, &powerup, MAX_POWERUPS);
+					nth_powerup = cycle_item_smart_pointer(nth_powerup, &powerup);
 				}
 			}
 }

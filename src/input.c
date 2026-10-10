@@ -248,8 +248,7 @@ int do_input()
 		for (i = 0; i < 2; i++) {
 			// cycles through array
 			nth_player_bullet = cycle_bullet_smart_pointer(nth_player_bullet,
-					&player_bullets,
-					MAX_PLAYER_BULLETS);
+					&player_bullets);
 			// activate one bullet
 			if (reload == 0)
 				if (!player_bullets[nth_player_bullet].active)
