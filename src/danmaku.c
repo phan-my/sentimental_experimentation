@@ -108,6 +108,54 @@ int launch_aimed_ring(struct bullet (*bullets)[MAX_BULLET_MULTIPLE],
 
 
 /* unused functions */
+/*
+		// "snowball" bullets
+		for (i = 0; i < MAX_BULLET_MULTIPLE; i++) {
+			bulletlist[BULLET_BALL_8x8][i].motion.hb.p.x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+			bulletlist[BULLET_BALL_8x8][i].motion.hb.p.y = FIELD_HEIGHT * (1. / 4)
+				+ FIELD_OFFSET_Y;
+		}
+
+*/
+
+		// NORMAL (SPIRAL SPEEDS
+		// set bullet speeds
+		/*
+		// variables for bullet movement
+		double r;
+		double phi = 0.;
+		double a = 1;
+		double speed[MAX_BULLETS];
+		for (i = 0; i < MAX_BULLETS; i++)
+			speed[i] = (double) i / 50;
+		*/
+
+
+		/* jellyfish */
+/*
+
+		// set bullet speeds
+		for (i = 0; i < MAX_BULLET_MULTIPLE; i++) {
+			if (i % 40 < 20)
+				cap_speed = 2.;
+			else
+				cap_speed = 3.;
+			if (i % 2)
+				speed[i] = (double) 1. + i / 50. / 6.;
+			else
+				speed[i] = (double) 1. + i / 67. / 6.;
+			if (speed[i] > cap_speed)
+				speed[i] = cap_speed;
+		}
+
+		// create double version of dest for subpixel precision
+		for (i = 0; i < MAX_BULLET_MULTIPLE; i++) {
+			if (i % 2)
+				angles[i] = i * GOLDEN_RATIO;
+			else
+				angles[i] = i * 1.3 * GOLDEN_RATIO;
+		}
+*/
 		/*
 		// sine movement
 		double period = 300;

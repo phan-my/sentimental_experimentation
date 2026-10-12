@@ -36,7 +36,6 @@ int main(int argc, char **argv)
 			do_main_menu_screen();
 			break;
 		case STATE_LOADING:
-			initialize_stage();
 			initialize_sounds();
 			state_menu = STATE_PLAY;
 
