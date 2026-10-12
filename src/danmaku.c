@@ -105,6 +105,49 @@ int launch_aimed_ring(struct bullet (*bullets)[MAX_BULLET_MULTIPLE],
 	return cycle_bullet_smart_pointer(nth_bullet, bullets);
 }
 
+// creates an n-spread of bullets at specified spawner with angle and speed
+// returns value of smart pointer nth_bullet
+// (*bullets)[MAX_BULLET_MULTIPLE]: the array of bullets parsed by reference
+// nth_bullet: smart pointer for the bullet array
+// xcoord: origin position on x-axis of the spread group
+// ycoord: origin position on y-axis of the spread group
+// n: number of bullets in spread
+// speed: scalar speed of each bullet in px/fr
+// seed_angle: radians clockwise from the x-axis that spread center targets
+// arc: arc angle in radians of spread; 
+// TODO: use **bullets instead of (*bullets)[MAX_BULLET_MULTIPLE]
+int launch_spread(struct bullet (*bullets)[MAX_BULLET_MULTIPLE], int nth_bullet,
+		double xcoord, double ycoord, int n, double speed,
+		double seed_angle, double arc)
+{
+	int i;
+	double start_angle = seed_angle - arc / 2.; // "earliest" bullet clockw.
+	double delta_angle = arc / n; // angle difference between bullets
+	
+	// begin loop to launch n bullets
+	for (i = 0; i < n; i++) {
+		// cycles pointer to next inactive element of bullet array
+		nth_bullet = cycle_bullet_smart_pointer(nth_bullet,
+				&(*bullets));
+
+		// set positions 
+		(*bullets)[nth_bullet].motion.o.x = xcoord; // spawner
+		(*bullets)[nth_bullet].motion.o.y = ycoord;
+
+		(*bullets)[nth_bullet].motion.hb.p.x = xcoord; // curr position
+		(*bullets)[nth_bullet].motion.hb.p.y = ycoord;
+
+
+		// launch each individual bullet
+		launch_straight(&(*bullets)[nth_bullet], speed,
+				start_angle + delta_angle * i);
+	}
+	// returns value of the smart pointer
+	return cycle_bullet_smart_pointer(nth_bullet, bullets);
+}
+
+
+
 
 
 /* unused functions */

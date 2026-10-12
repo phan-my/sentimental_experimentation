@@ -21,7 +21,7 @@
 
 /* GLOBALS */
 // double stages_s[MAX_STAGES][CHECKPOINTS_STAGE_1] = {{1, 4.5, 42, 70.5}};
-int stages[MAX_STAGES][CHECKPOINTS_STAGE_1] = {{60, 270, 2520, 4230}};
+int stages[MAX_STAGES][CHECKPOINTS_STAGE_1] = {{60, 270, 520, 4230}};
 int current_stage = 1;
 
 // stage variables
@@ -114,7 +114,8 @@ void do_stage()
 
 
 		if (stage_progress_frames >= stages[current_stage - 1][1] &&
-				stage_progress_frames <= stages[current_stage - 1][2])
+				stage_progress_frames
+				<= stages[current_stage - 1][2])
 {
 		if (stage_progress_frames % 20 == 0) {
 			// ring
@@ -130,6 +131,23 @@ void do_stage()
 			nth_ball_8x8 =
 				launch_aimed_ring(&(bulletlist[BULLET_BALL_8x8]),
 						nth_ball_8x8, x-60, y, 17, 3.);
+		}
+}
+
+
+		if (stage_progress_frames >= stages[current_stage - 1][2] &&
+				stage_progress_frames
+				<= stages[current_stage - 1][3])
+{
+		if (stage_progress_frames % 20 == 0) {
+			// spread
+			double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+			double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
+			
+			nth_ball_8x8 =
+				launch_spread(&(bulletlist[BULLET_BALL_8x8]),
+						nth_ball_8x8, x, y, 17, 3.,
+						M_PI / 2., M_PI / 2.);
 		}
 }
 
