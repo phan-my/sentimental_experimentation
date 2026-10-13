@@ -62,6 +62,36 @@ struct overlay loading;
 
 /* FUNCTIONS */
 
+// modifies values of struct position
+// *p: positional structure by reference
+// xcoord: x-position of position
+// ycoord: y-position of position
+void set_position(struct position *p, double xcoord, double ycoord)
+{
+	p -> x = xcoord;
+	p -> y = ycoord;
+}
+
+// modifies values of struct velocity by reference
+// *p: velocity structure by reference
+// xvec: x-vector of velocity
+// yvec: y-vector of velocity
+void set_velocity(struct velocity *v, double xvec, double yvec)
+{
+	v -> x = xvec;
+	v -> y = yvec;
+}
+
+// modifies values of struct velocity by reference
+// *p: velocity structure by reference
+// xvec: x-vector of velocity
+// yvec: y-vector of velocity
+void set_acceleration(struct acceleration *a, double xvec, double yvec)
+{
+	a -> x = xvec;
+	a -> y = yvec;
+}
+
 // sets player at the main start position
 void reset_player_position()
 {
@@ -146,6 +176,14 @@ void update_position_by_velocity(struct kinematics *motion)
 	// increment pointer to p.x by v.x
 	motion -> hb.p.x += motion -> v.x;
 	motion -> hb.p.y += motion -> v.y;
+}
+
+// translate velocity into position in struct kinematics
+void update_velocity_by_acceleration(struct kinematics *motion)
+{
+	// increment pointer to p.x by v.x
+	motion -> v.x += motion -> a.x;
+	motion -> v.y += motion -> a.y;
 }
 
 // update all positional values of the player

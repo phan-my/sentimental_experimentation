@@ -145,9 +145,9 @@ void do_stage()
 			double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
 			
 			nth_ball_8x8 =
-				launch_spread(&(bulletlist[BULLET_BALL_8x8]),
-						nth_ball_8x8, x, y, 17, 3.,
-						M_PI / 2., M_PI / 2.);
+				launch_aimed_spread(&(bulletlist[BULLET_BALL_8x8]),
+						nth_ball_8x8, x, y, 17, 2.4,
+						M_PI / 2.);
 		}
 }
 

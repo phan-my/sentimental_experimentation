@@ -229,8 +229,11 @@ extern struct item powerup;
 extern int nth_powerup;
 
 // functions
-void initialize_logic();
+void set_position(struct position *p, double xcoord, double ycoord);
+void set_velocity(struct velocity *v, double xvec, double yvec);
+void set_acceleration(struct acceleration *a, double xvec, double yvec);
 void reset_player_position();
+void initialize_logic();
 void update_player_motion();
 void update_enemy_motion();
 void do_logic();

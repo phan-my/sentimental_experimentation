@@ -20,5 +20,8 @@ int launch_aimed_ring(struct bullet (*bullets)[MAX_BULLET_MULTIPLE],
 int launch_spread(struct bullet (*bullets)[MAX_BULLET_MULTIPLE], int nth_bullet,
 		double xcoord, double ycoord, int n, double speed,
 		double seed_angle, double arc);
+int launch_aimed_spread(struct bullet (*bullets)[MAX_BULLET_MULTIPLE], int nth_bullet,
+		double xcoord, double ycoord, int n, double speed,
+		double arc);
 
 #endif /* DANMAKU_H */
