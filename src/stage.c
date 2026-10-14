@@ -21,7 +21,7 @@
 
 /* GLOBALS */
 // double stages_s[MAX_STAGES][CHECKPOINTS_STAGE_1] = {{1, 4.5, 42, 70.5}};
-int stages[MAX_STAGES][CHECKPOINTS_STAGE_1] = {{60, 270, 520, 4230}};
+int stages[MAX_STAGES][CHECKPOINTS_STAGE_1] = {{60, 270, 520, 830}};
 int current_stage = 1;
 
 // stage variables
@@ -147,6 +147,20 @@ void do_stage()
 			nth_ball_8x8 =
 				launch_aimed_spread(&(bulletlist[BULLET_BALL_8x8]),
 						nth_ball_8x8, x, y, 17, 2.4,
+						M_PI / 2.);
+		}
+}
+
+		if (stage_progress_frames >= stages[current_stage - 1][3])
+{
+		if (stage_progress_frames % 500 == 0) {
+			// stack
+			double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+			double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
+			
+			nth_ball_8x8 =
+				launch_stack(&(bulletlist[BULLET_BALL_8x8]),
+						nth_ball_8x8, x, y, 6, 2.4, 5.,
 						M_PI / 2.);
 		}
 }

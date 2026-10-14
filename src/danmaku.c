@@ -41,12 +41,48 @@ double angle_to_player(double xcoord, double ycoord)
 void launch_straight(struct bullet *bullet, double speed, double radians)
 {
 	// set bullet speed, with individual v_x and v_y vectors
-	set_velocity(&(*bullet).motion.v, speed * cos(radians), speed * sin(radians));
+	set_velocity(&(*bullet).motion.v, speed * cos(radians),
+			speed * sin(radians));
 	// constant motion, no acceleration
 	set_acceleration(&(*bullet).motion.a, 0, 0);
 	
 	// activate bullet
 	bullet -> active = true;
+}
+
+// sets velocities of stack of n bullets based on given angle and positon
+int launch_stack(struct bullet (*bullets)[MAX_BULLET_MULTIPLE], int nth_bullet,
+		double xcoord, double ycoord, int n, double min_speed,
+		double max_speed, double angle)
+{
+	int i = 0;
+	double delta_speed = (max_speed - min_speed) / (n - 1);
+
+	// cycle smart pointer through bullet array
+	nth_bullet = cycle_bullet_smart_pointer(nth_bullet,
+			&(*bullets));
+	
+	// repeat n times for n-bullet stack
+	while (i < n) {
+		// set spawner position of the bullets
+		(*bullets)[nth_bullet].motion.o.x = xcoord; // spawner
+		(*bullets)[nth_bullet].motion.o.y = ycoord;
+
+		(*bullets)[nth_bullet].motion.hb.p.x = xcoord; // curr position
+		(*bullets)[nth_bullet].motion.hb.p.y = ycoord;
+
+		// launch individual bullets in stack
+		launch_straight(&(*bullets)[nth_bullet],
+				min_speed + i * delta_speed, angle);
+
+		// cycle smart pointer to next inactive bullet
+		nth_bullet = cycle_bullet_smart_pointer(nth_bullet,
+				&(*bullets));
+		i++; // loop
+	}
+
+	// return updated smart pointer
+	return nth_bullet = cycle_bullet_smart_pointer(nth_bullet, &(*bullets));
 }
 
 // creates an n-ring of bullets at specified spawner with angle and speed
