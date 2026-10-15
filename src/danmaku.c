@@ -85,6 +85,17 @@ int launch_stack(struct bullet (*bullets)[MAX_BULLET_MULTIPLE], int nth_bullet,
 	return nth_bullet = cycle_bullet_smart_pointer(nth_bullet, &(*bullets));
 }
 
+int launch_aimed_stack(struct bullet (*bullets)[MAX_BULLET_MULTIPLE],
+		int nth_bullet, double xcoord, double ycoord, int n,
+		double min_speed, double max_speed)
+{
+	nth_bullet = launch_stack(bullets, nth_bullet, xcoord, ycoord, n,
+			min_speed, max_speed, angle_to_player(xcoord, ycoord));
+	// returns value of the smart pointer
+	return cycle_bullet_smart_pointer(nth_bullet, bullets);
+}
+
+
 // creates an n-ring of bullets at specified spawner with angle and speed
 // returns value of smart pointer nth_bullet
 // (*bullets)[MAX_BULLET_MULTIPLE]: the array of bullets parsed by reference
