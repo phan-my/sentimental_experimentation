@@ -88,26 +88,26 @@ void pattern_two_fairy_columns()
 		// TODO: make this work for nonlinear movements (pointer to function?)
 		// two columns of fairies
 		for (i = 0; i < num_fairies; i++) {
-			if (!enemylist[ENEMY_FAIRY][i].active) {
+			if (!enemylist[ENEMY_FAIRY_BLUE][i].active) {
 				// creates left column and right column
-				enemylist[ENEMY_FAIRY][i].motion.hb.p.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
+				enemylist[ENEMY_FAIRY_BLUE][i].motion.hb.p.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
 					+ pow(-1, i) * 20;
 				// positions the fairies apart on the y axis
-				enemylist[ENEMY_FAIRY][i].motion.hb.p.y = FIELD_OFFSET_Y - i * 20;
+				enemylist[ENEMY_FAIRY_BLUE][i].motion.hb.p.y = FIELD_OFFSET_Y - i * 20;
 
 				// spawner
 
-				enemylist[ENEMY_FAIRY][i].motion.o.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
+				enemylist[ENEMY_FAIRY_BLUE][i].motion.o.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
 					+ pow(-1, i) * 20;
 				// positions the fairies apart on the y axis
-				enemylist[ENEMY_FAIRY][i].motion.o.y = FIELD_OFFSET_Y - i * 20;
+				enemylist[ENEMY_FAIRY_BLUE][i].motion.o.y = FIELD_OFFSET_Y - i * 20;
 
 				// TODO: debug as to why stopped fairies appear again next phase
 //				if (fairies[i].hitbox.p.y <= stopping_line)
 				// fairy moves straight down
-				enemylist[ENEMY_FAIRY][i].motion.v.x = 0.;
-				enemylist[ENEMY_FAIRY][i].motion.v.y = fairy_speed;
-				enemylist[ENEMY_FAIRY][i].active = true;
+				enemylist[ENEMY_FAIRY_BLUE][i].motion.v.x = 0.;
+				enemylist[ENEMY_FAIRY_BLUE][i].motion.v.y = fairy_speed;
+				enemylist[ENEMY_FAIRY_BLUE][i].active = true;
 			}
 		}
 	}

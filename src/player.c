@@ -25,6 +25,7 @@ void initialize_players()
 		player[i].invincible = false;
 		player[i].iframes = MAX_IFRAMES;
 		player[i].power = 0.;
+		player[i].score = 0;
 		player[i].motion.hb.r = 2.;
 		// TODO: redraw to deal with grazing
 		player[i].grazebox.r = 8.;

@@ -166,13 +166,17 @@ void initialize_enemy_render()
 {
 	int i;
 
-	// fairies
-	fairies.sdl.texture
+	// red fairies
+	fairy.sdl.texture
 		= create_texture("assets/fairy.png");
-	for (i = 0; i < MAX_ENEMY_MULTIPLE; i++) {
-		SDL_QueryTexture(fairies.sdl.texture, NULL, NULL,
-				&fairies.sdl.rect.w, &fairies.sdl.rect.h);
-	}
+	SDL_QueryTexture(fairy.sdl.texture, NULL, NULL,
+			&fairy.sdl.rect.w, &fairy.sdl.rect.h);
+	
+	// blue fairies
+	fairy_blue.sdl.texture
+		= create_texture("assets/fairy_blue.png");
+	SDL_QueryTexture(fairy_blue.sdl.texture, NULL, NULL,
+			&fairy_blue.sdl.rect.w, &fairy_blue.sdl.rect.h);
 }
 
 // load items
@@ -180,11 +184,15 @@ void initialize_items()
 {
 	int i;
 
+	// small powerup item
 	powerup.sdl.texture = create_texture("assets/power_small.png");
-	for (i = 0; i < MAX_ITEM_MULTIPLE; i++) {
-		SDL_QueryTexture(powerup.sdl.texture, NULL, NULL, &powerup.sdl.rect.w,
-				&powerup.sdl.rect.h);
-	}
+	SDL_QueryTexture(powerup.sdl.texture, NULL, NULL, &powerup.sdl.rect.w,
+			&powerup.sdl.rect.h);
+	
+	// small score item
+	score.sdl.texture = create_texture("assets/score_small.png");
+	SDL_QueryTexture(score.sdl.texture, NULL, NULL, &score.sdl.rect.w,
+			&score.sdl.rect.h);
 }
 
 // load sprites

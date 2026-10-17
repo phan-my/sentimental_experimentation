@@ -29,9 +29,6 @@
 #define MAX_PLAYERS 2
 #define PLAYER_BOTTOM_MARGIN 16 // extra margins for player at bottom of field
 
-// enemies
-#define MAX_ENEMIES 1
-
 // player's shot
 // #define MAX_SHOTS 2
 #define MAX_SHOT_MULTIPLE 2048
@@ -39,8 +36,6 @@
 // #define SHOT_REIMU_A 1
 #define MAX_RELOAD 3
 #define PLAYER_BULLET_SPEED 16.
-
-#define MAX_ENEMY_MULTIPLE 1024
 
 // for bulletlist
 #define MAX_BULLETS 3
@@ -50,12 +45,16 @@
 #define BULLET_BUBBLE 0
 
 // name for enemyID
+#define MAX_ENEMIES 2
+#define MAX_ENEMY_MULTIPLE 1024
 #define ENEMY_FAIRY 0
+#define ENEMY_FAIRY_BLUE 1
 
 // item
-#define MAX_ITEMS 1
+#define MAX_ITEMS 2
 #define MAX_ITEM_MULTIPLE 1024
 #define ITEM_POWERUP 0
+#define ITEM_SCORE 1
 
 
 /* STRUCTS */ 
@@ -148,6 +147,7 @@ struct player {
 	// stats
 	int health;
 	double power;
+	int score;
 	int bombs;
 	int shot;
 	bool active;
@@ -222,7 +222,8 @@ extern struct bullet bubble;
 
 extern struct enemy enemylist[MAX_ENEMIES][MAX_ENEMY_MULTIPLE];
 extern int nth_enemy[MAX_ENEMIES];
-extern struct enemy fairies;
+extern struct enemy fairy;
+extern struct enemy fairy_blue;
 
 extern struct overlay main_menu;
 extern struct overlay border; // UI
@@ -231,8 +232,9 @@ extern SDL_Texture *tex; // bullets
 extern SDL_Texture *player_bullet_texture;
 
 extern struct item itemlist[MAX_ITEMS][MAX_ITEM_MULTIPLE];
-extern struct item powerup;
 extern int nth_item[MAX_ITEMS];
+extern struct item powerup;
+extern struct item score;
 
 // functions
 void set_position(struct position *p, double xcoord, double ycoord);

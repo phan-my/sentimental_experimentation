@@ -49,13 +49,15 @@ struct bullet bubble;
 
 // enemies
 struct enemy enemylist[MAX_ENEMIES][MAX_ENEMY_MULTIPLE];
-struct enemy fairies;
 int nth_enemy[MAX_ENEMIES];
+struct enemy fairy;
+struct enemy fairy_blue;
 
 // items
 struct item itemlist[MAX_ITEMS][MAX_ITEM_MULTIPLE];
 int nth_item[MAX_ITEMS];
 struct item powerup;
+struct item score;
 
 // overlay
 struct overlay main_menu;
@@ -104,6 +106,69 @@ void reset_player_position()
 
 }
 
+// initialize bulletlist with bulletIDs
+void initialize_bullets()
+{
+	int i, j;
+	// 8x8 pellet
+	ball_8x8.id = BULLET_BALL_8x8;
+	ball_8x8.active = false;
+	ball_8x8.motion.hb.r = 3.;
+	bulletlist[ball_8x8.id][0] = ball_8x8;
+	
+	// 16x16 ball
+	ball_16x16.id = BULLET_BALL_16x16;
+	ball_16x16.active = false;
+	ball_16x16.motion.hb.r = 4.27;
+	bulletlist[ball_16x16.id][0] = ball_16x16;
+	
+	// bubble
+	bubble.id = BULLET_BUBBLE;
+	bubble.active = false;
+	bubble.motion.hb.r = 16.;
+	bulletlist[bubble.id][0] = bubble;
+	
+	// create multiple of all unique bullets
+	for (i = 0; i < MAX_BULLETS; i++) {
+		// create multiples per bulletID
+		for (j = 0; j < MAX_BULLET_MULTIPLE; j++)
+			bulletlist[i][j] = bulletlist[i][0];
+		
+		// set smart pointers to 0
+		nth_bullet[i] = 0;
+	}
+}
+
+// initialzie enemylist with enemyIDs
+void initialize_enemies()
+{
+	int i, j;
+	
+	// red fairy 
+	fairy.id = ENEMY_FAIRY;
+	fairy.active = false;
+	fairy.motion.hb.r = 10.;
+	fairy.health = 4;
+	fairy.item = ITEM_POWERUP;
+	enemylist[fairy.id][0] = fairy;
+	
+	// blue fairy
+	fairy_blue.id = ENEMY_FAIRY_BLUE;
+	fairy_blue.active = false;
+	fairy_blue.motion.hb.r = 10.;
+	fairy_blue.health = 4;
+	fairy_blue.item = ITEM_SCORE;
+	enemylist[fairy_blue.id][0] = fairy_blue;
+	
+	// create multiple of all unique enemies
+	for (i = 0; i < MAX_ENEMIES; i++) {
+		for (j = 0; j < MAX_ENEMY_MULTIPLE; j++) {
+			enemylist[i][j] = enemylist[i][0];
+		}
+	}
+	
+}
+
 // full initialization of objects and their property
 void initialize_logic()
 {
@@ -134,68 +199,30 @@ void initialize_logic()
 	}
 
 	
-	// initialzie enemylist with enemyIDs
-	fairies.id = ENEMY_FAIRY;
-	fairies.active = false;
-	fairies.motion.hb.r = 10.;
-	fairies.health = 4;
-	fairies.item = ITEM_POWERUP;
-	enemylist[fairies.id][0] = fairies;
-	
-	// create multiple of all unique enemies
-	for (i = 0; i < MAX_ENEMIES; i++) {
-		for (j = 0; j < MAX_ENEMY_MULTIPLE; j++) {
-			enemylist[i][j] = enemylist[i][0];
-		}
-	}
-	
-	/* initialize bulletlist with bulletIDs */
-	// 8x8 pellet
-	ball_8x8.id = BULLET_BALL_8x8;
-	ball_8x8.active = false;
-	ball_8x8.motion.hb.r = 3.;
-	bulletlist[ball_8x8.id][0] = ball_8x8;
-	
-	// 16x16 ball
-	ball_16x16.id = BULLET_BALL_16x16;
-	ball_16x16.active = false;
-	ball_16x16.motion.hb.r = 4.27;
-	bulletlist[ball_16x16.id][0] = ball_16x16;
-	
-	// 16x16 ball
-	ball_16x16.id = BULLET_BALL_16x16;
-	ball_16x16.active = false;
-	ball_16x16.motion.hb.r = 7.;
-	bulletlist[ball_16x16.id][0] = ball_16x16;
-	
-	// bubble
-	bubble.id = BULLET_BUBBLE;
-	bubble.active = false;
-	bubble.motion.hb.r = 16.;
-	bulletlist[bubble.id][0] = bubble;
-	
-	// create multiple of all unique bullets
-	for (i = 0; i < MAX_BULLETS; i++) {
-		// create multiples per bulletID
-		for (j = 0; j < MAX_BULLET_MULTIPLE; j++)
-			bulletlist[i][j] = bulletlist[i][0];
-		
-		// set smart pointers to 0
-		nth_bullet[i] = 0;
-	}
+	initialize_enemies();
+	initialize_bullets();
 	
 	/* initialize items */
+	
+	// small powerup item
 	powerup.id = ITEM_POWERUP;
 	powerup.active = false;
 	powerup.motion.hb.r = powerup.sdl.rect.w;
 	powerup.value = 0.05;
 	itemlist[powerup.id][0] = powerup;
 	
+	// small score item
+	score.id = ITEM_SCORE;
+	score.active = false;
+	score.motion.hb.r = score.sdl.rect.w;
+	score.value = 1;
+	itemlist[score.id][0] = score;
+	
 	for (i = 0; i < MAX_ITEMS; i++) {
 		for (j = 0; j < MAX_ITEM_MULTIPLE; j++) {
 			itemlist[i][j] = itemlist[i][0];
-			nth_item[i] = 0; // sets smart pointer
 		}
+		nth_item[i] = 0; // sets smart pointer
 	}
 }
 
@@ -359,7 +386,7 @@ void do_items()
 				update_velocity_by_acceleration(&itemlist[i][j].motion);
 			// if at cap velocity, set acceleration to 0
 			else
-				itemlist[i][j].motion.a.y = 0;
+				set_acceleration(&itemlist[i][j].motion.a, 0, 0);
 			// velocity -> position
 			update_position_by_velocity(&itemlist[i][j].motion);
 		}

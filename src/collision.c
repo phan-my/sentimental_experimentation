@@ -140,9 +140,9 @@ int create_item_pile(struct enemy entity, int multiple)
 	
 	for (i = 0; i < multiple; i++) {
 		// cycle through smart pointer
-		nth_item[ITEM_POWERUP]
-			= cycle_item_smart_pointer(nth_item[ITEM_POWERUP],
-					&itemlist[ITEM_POWERUP]);
+		nth_item[entity.item]
+			= cycle_item_smart_pointer(nth_item[entity.item],
+					&itemlist[entity.item]);
 		// spawn item
 		create_item(&itemlist[entity.item][nth_item[entity.item]],
 				randint(left, right),
@@ -156,7 +156,7 @@ void do_collision()
 {
 	int i, j, k, l;
 
-	/* player hitting harmful*/
+	/* player hitting bullet or enemy */
 	
 	// if not invincible, do collision
 	// questions/21650246/sdl-2-collision-detetection
@@ -187,6 +187,9 @@ void do_collision()
 				case ITEM_POWERUP:
 					player[curr_player].power += itemlist[i][j].value;
 					printf("%lf\n", player[curr_player].power);
+					break;
+				case ITEM_SCORE:
+					player[curr_player].score += itemlist[i][j].value;
 					break;
 				default:
 					break;
@@ -219,7 +222,6 @@ void do_collision()
 			// TODO: make it so only red fairies drop powerups
 			// enemy dies, drops item
 			if (enemylist[k][l].health == 0) {
-				nth_item[ITEM_POWERUP] = cycle_item_smart_pointer(nth_item[ITEM_POWERUP], &itemlist[ITEM_POWERUP]);
 				enemylist[k][l].active = false;
 				// item drop
 				create_item_pile(enemylist[k][l], 2);
