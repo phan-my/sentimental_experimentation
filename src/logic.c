@@ -42,17 +42,18 @@ int reload = MAX_RELOAD;
 
 // bullets
 struct bullet bulletlist[MAX_BULLETS][MAX_BULLET_MULTIPLE];
+int nth_bullet[MAX_ITEMS];
 struct bullet ball_8x8;
-int nth_ball_8x8 = 0;
 
 // enemies
 struct enemy enemylist[MAX_ENEMIES][MAX_ENEMY_MULTIPLE];
 struct enemy fairies;
+int nth_enemy[MAX_ENEMIES];
 
 // items
 struct item itemlist[MAX_ITEMS][MAX_ITEM_MULTIPLE];
+int nth_item[MAX_ITEMS];
 struct item powerup;
-int nth_powerup = 0;
 
 // overlay
 struct overlay main_menu;
@@ -101,7 +102,7 @@ void reset_player_position()
 
 }
 
-// full initialization of structs
+// full initialization of objects and their property
 void initialize_logic()
 {
 	int i, j;	
@@ -136,6 +137,7 @@ void initialize_logic()
 	fairies.active = false;
 	fairies.motion.hb.r = 10.;
 	fairies.health = 4;
+	fairies.item = ITEM_POWERUP;
 	enemylist[fairies.id][0] = fairies;
 	
 	// create multiple of all unique enemies
@@ -155,6 +157,7 @@ void initialize_logic()
 	for (i = 0; i < MAX_BULLETS; i++) {
 		for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
 			bulletlist[i][j] = bulletlist[i][0];
+			nth_bullet[i] = 0;
 		}
 	}
 	
@@ -165,9 +168,12 @@ void initialize_logic()
 	powerup.value = 1.;
 	itemlist[powerup.id][0] = powerup;
 	
-	for (i = 0; i < MAX_ITEMS; i++)
-		for (j = 0; j < MAX_ITEM_MULTIPLE; j++) 
-			itemlist[i][j] = itemlist[powerup.id][0];
+	for (i = 0; i < MAX_ITEMS; i++) {
+		for (j = 0; j < MAX_ITEM_MULTIPLE; j++) {
+			itemlist[i][j] = itemlist[i][0];
+			nth_item[i] = 0; // sets smart pointer
+		}
+	}
 }
 
 // translate velocity into position in struct kinematics
@@ -272,6 +278,11 @@ void do_player_bullets()
 {
 	int i, j;
 	
+	// update player bullet reload
+	reload--;
+	if (reload < 0)
+		reload = MAX_RELOAD;
+	
 	// update player bullets
 	for (i = 0; i < MAX_SHOTS; i++) {
 		for (j = 0; j < MAX_SHOT_MULTIPLE; j++) {
@@ -311,20 +322,24 @@ void do_player_bullets()
 	}
 }
 
+// operations with items
 void do_items()
 {
 	int i, j;
+	double max_speed_y = 2.5;
 	// item falls
 	for (i = 0; i < MAX_ITEMS; i++) {
-		for (j = 0; j < MAX_ITEM_MULTIPLE; j++) {
-			if (itemlist[i][j].active) {
-				// TODO: use motion.v
-				itemlist[i][j].motion.hb.p.y += 1.;
-				// TODO: move to render.c
-				itemlist[i][j].sdl.rect.x = (int)(itemlist[i][j].motion.hb.p.x - itemlist[i][j].sdl.rect.w / 2.);
-				itemlist[i][j].sdl.rect.y = (int)(itemlist[i][j].motion.hb.p.y - itemlist[i][j].sdl.rect.h / 2.);
-			}
+	for (j = 0; j < MAX_ITEM_MULTIPLE; j++) {
+		if (itemlist[i][j].active) {
+			// update velocity by acceleration until cap velocity
+			if (itemlist[i][j].motion.v.y < max_speed_y)
+				update_velocity_by_acceleration(&itemlist[i][j].motion);
+			// if at cap velocity, set acceleration to 0
+			else
+				itemlist[i][j].motion.a.y = 0;
+			update_position_by_velocity(&itemlist[i][j].motion);
 		}
+	}
 	}
 }
 
@@ -333,13 +348,6 @@ void do_logic()
 {
 	int i;
 
-	// update player bullet reload
-	reload--;
-	if (reload < 0)
-		reload = MAX_RELOAD;
-	
-	nth_powerup = cycle_item_smart_pointer(nth_powerup, &itemlist[ITEM_POWERUP]);
-	
 	// update all positional values of entities
 	update_player_motion();
 	update_bullet_motion();

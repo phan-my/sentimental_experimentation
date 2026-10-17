@@ -9,10 +9,15 @@
 
 /* INCLUDES */
 #include <stdbool.h>
+#include <math.h>
 #include "collision.h"
 #include "logic.h"
 #include "common.h"
 #include "shot.h"
+#include "random.h"
+
+// table for connecting enemy to item drops
+
 
 
 // returns Boolean value if two circle hitboxes overlap
@@ -23,10 +28,10 @@ bool circle_in_circle(struct circlebox dest, struct circlebox src)
 {
 	// https://silentmatt.com/rectangle-intersection/
 	// https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
-	double dx = src.p.x + src.r - (dest.p.x + dest.r);
-	double dy = src.p.y + src.r - (dest.p.y + dest.r);
-	double distance = sqrt(dx * dx + dy * dy);
-	return distance < src.r + dest.r;
+	double dx = src.p.x - dest.p.x;
+	double dy = src.p.y - dest.p.y;
+	double distance = dx * dx + dy * dy;
+	return distance <= pow(src.r + dest.r, 2);
 }
 
 // UNUSED: returns Boolean value if a point lies within a rectangle
@@ -100,6 +105,51 @@ void player_bullet_collision()
 	}
 }
 
+// sets velocities of a single item and spawn it at given position
+// *item: item structure by reference
+// xcoord: x-position of the spawner
+// ycoord: y-position of the spawner
+int create_item(struct item *item, int xcoord, int ycoord)
+{
+	// set initial and current positions
+	set_position(&(*item).motion.o, xcoord, ycoord);
+	set_position(&(*item).motion.hb.p, xcoord, ycoord);
+	
+	// set velocity
+	double speed = 2.;
+	set_velocity(&(*item).motion.v, 0, -speed);
+	
+	// item accelerates downwards
+	set_acceleration(&(*item).motion.a, 0, 0.05);
+	
+	
+	// activate the item
+	item -> active = true;
+}
+
+// spawns a pile of items at enemy & returns item smart pointer
+// entity: the enemy from which the items spawn
+// multiple: how much of the item is spawned
+int create_item_pile(struct enemy entity, int multiple)
+{
+	int i;
+	
+	// x-axis interval for items to	
+	int left = entity.motion.hb.p.x - entity.motion.hb.r;
+	int right = entity.motion.hb.p.x + entity.motion.hb.r;
+	
+	for (i = 0; i < multiple; i++) {
+		// cycle through smart pointer
+		nth_item[ITEM_POWERUP]
+			= cycle_item_smart_pointer(nth_item[ITEM_POWERUP],
+					&itemlist[ITEM_POWERUP]);
+		// spawn item
+		create_item(&itemlist[entity.item][nth_item[entity.item]],
+				randint(left, right),
+				entity.motion.hb.p.y);
+	}
+}
+
 // main collision detection logic
 // TODO: quadtree hitbox detection: github.com/arpit2297/Collision-Detection-using-Quad-Trees
 void do_collision()
@@ -167,17 +217,12 @@ void do_collision()
 			shotlist[i][j].active = false;
 
 			// TODO: make it so only red fairies drop powerups
-			// fairy dies
+			// enemy dies, drops item
 			if (enemylist[k][l].health == 0) {
-				nth_powerup = cycle_item_smart_pointer(nth_powerup, &itemlist[ITEM_POWERUP]);
-				enemylist[k][l].active = 0;
+				nth_item[ITEM_POWERUP] = cycle_item_smart_pointer(nth_item[ITEM_POWERUP], &itemlist[ITEM_POWERUP]);
+				enemylist[k][l].active = false;
 				// item drop
-				itemlist[ITEM_POWERUP][nth_powerup].active = true;
-				itemlist[ITEM_POWERUP][nth_powerup].motion.o.x = enemylist[k][l].motion.hb.p.x;
-				itemlist[ITEM_POWERUP][nth_powerup].motion.o.y = enemylist[k][l].motion.hb.p.y;
-				itemlist[ITEM_POWERUP][nth_powerup].motion.hb.p.x = enemylist[k][l].motion.hb.p.x;
-				itemlist[ITEM_POWERUP][nth_powerup].motion.hb.p.y = enemylist[k][l].motion.hb.p.y;
-				nth_powerup = cycle_item_smart_pointer(nth_powerup, &itemlist[ITEM_POWERUP]);
+				create_item_pile(enemylist[k][l], 2);
 			}
 		}
 	}

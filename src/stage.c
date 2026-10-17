@@ -61,6 +61,58 @@ void initialize_stage()
 	single_activation = true;
 }
 
+/* patterns */
+
+// 17-spread (aimed) of ball_8x8
+void pattern_spread_test()
+{
+	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+	double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
+	if (stage_progress_frames % 20 == 0) {	
+		nth_bullet[BULLET_BALL_8x8] =
+			launch_aimed_spread(&(bulletlist[BULLET_BALL_8x8]),
+					nth_bullet[BULLET_BALL_8x8], x, y, 17, 2.4,
+					M_PI / 2.);
+	}
+}
+
+void pattern_two_fairy_columns()
+{
+	// update the fairies' position according to specification
+	if (stage_progress_frames == 70) {
+		int i;
+		double fairy_speed = 2.;
+
+		int num_fairies = 12;
+		
+		// TODO: make this work for nonlinear movements (pointer to function?)
+		// two columns of fairies
+		for (i = 0; i < num_fairies; i++) {
+			if (!enemylist[ENEMY_FAIRY][i].active) {
+				// creates left column and right column
+				enemylist[ENEMY_FAIRY][i].motion.hb.p.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
+					+ pow(-1, i) * 20;
+				// positions the fairies apart on the y axis
+				enemylist[ENEMY_FAIRY][i].motion.hb.p.y = FIELD_OFFSET_Y - i * 20;
+
+				// spawner
+
+				enemylist[ENEMY_FAIRY][i].motion.o.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
+					+ pow(-1, i) * 20;
+				// positions the fairies apart on the y axis
+				enemylist[ENEMY_FAIRY][i].motion.o.y = FIELD_OFFSET_Y - i * 20;
+
+				// TODO: debug as to why stopped fairies appear again next phase
+//				if (fairies[i].hitbox.p.y <= stopping_line)
+				// fairy moves straight down
+				enemylist[ENEMY_FAIRY][i].motion.v.x = 0.;
+				enemylist[ENEMY_FAIRY][i].motion.v.y = fairy_speed;
+				enemylist[ENEMY_FAIRY][i].active = true;
+			}
+		}
+	}
+}
+
 /* main loop */
 
 // invoked in the main loop
@@ -68,7 +120,7 @@ void do_stage()
 {
 	int i;
 
-	nth_powerup = cycle_item_smart_pointer(nth_powerup, &itemlist[ITEM_POWERUP]);
+//	nth_item[ITEM_POWERUP] = cycle_item_smart_pointer(nth_item[ITEM_POWERUP], &itemlist[ITEM_POWERUP]);
 	if (state_menu) {
 		initialize_stage();
 	}
@@ -77,39 +129,7 @@ void do_stage()
 	case 1:
 		// fairy movement
 		if (stage_progress_frames > stages[current_stage - 1][0]) {
-			// update the fairies' position according to specification
-			if (stage_progress_frames == 70) {
-				int i;
-				double fairy_speed = 2.;
-
-				int num_fairies = 12;
-				
-				// TODO: make this work for nonlinear movements (pointer to function?)
-				// two columns of fairies
-				for (i = 0; i < num_fairies; i++) {
-					if (!enemylist[ENEMY_FAIRY][i].active) {
-						// creates left column and right column
-						enemylist[ENEMY_FAIRY][i].motion.hb.p.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
-							+ pow(-1, i) * 20;
-						// positions the fairies apart on the y axis
-						enemylist[ENEMY_FAIRY][i].motion.hb.p.y = FIELD_OFFSET_Y - i * 20;
-
-						// spawner
-
-						enemylist[ENEMY_FAIRY][i].motion.o.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
-							+ pow(-1, i) * 20;
-						// positions the fairies apart on the y axis
-						enemylist[ENEMY_FAIRY][i].motion.o.y = FIELD_OFFSET_Y - i * 20;
-
-						// TODO: debug as to why stopped fairies appear again next phase
-	//					if (fairies[i].hitbox.p.y <= stopping_line)
-						// fairy moves straight down
-						enemylist[ENEMY_FAIRY][i].motion.v.x = 0.;
-						enemylist[ENEMY_FAIRY][i].motion.v.y = fairy_speed;
-						enemylist[ENEMY_FAIRY][i].active = true;
-					}
-				}
-			}
+		  	pattern_two_fairy_columns();
 		}
 
 
@@ -122,15 +142,15 @@ void do_stage()
 			double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
 			double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
 
-			nth_ball_8x8 =
+			nth_bullet[BULLET_BALL_8x8] =
 				launch_aimed_ring(&(bulletlist[BULLET_BALL_8x8]),
-						nth_ball_8x8, x, y, 18, 2.4);
-			nth_ball_8x8 =
+						nth_bullet[BULLET_BALL_8x8], x, y, 18, 2.4);
+			nth_bullet[BULLET_BALL_8x8] =
 				launch_aimed_ring(&(bulletlist[BULLET_BALL_8x8]),
-						nth_ball_8x8, x+60, y, 17, 3.);
-			nth_ball_8x8 =
+						nth_bullet[BULLET_BALL_8x8], x+60, y, 17, 3.);
+			nth_bullet[BULLET_BALL_8x8] =
 				launch_aimed_ring(&(bulletlist[BULLET_BALL_8x8]),
-						nth_ball_8x8, x-60, y, 17, 3.);
+						nth_bullet[BULLET_BALL_8x8], x-60, y, 17, 3.);
 		}
 }
 
@@ -139,29 +159,23 @@ void do_stage()
 				stage_progress_frames
 				<= stages[current_stage - 1][3])
 {
-		if (stage_progress_frames % 20 == 0) {
-			// spread
-			double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-			double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
-			
-			nth_ball_8x8 =
-				launch_aimed_spread(&(bulletlist[BULLET_BALL_8x8]),
-						nth_ball_8x8, x, y, 17, 2.4,
-						M_PI / 2.);
-		}
+		pattern_spread_test();
 }
 
 		if (stage_progress_frames >= stages[current_stage - 1][3])
 {
-		if (stage_progress_frames % 500 == 0) {
+		if (stage_progress_frames % 120 == 0) {
 			// stack
 			double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
 			double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
 			
-			nth_ball_8x8 =
+			nth_bullet[BULLET_BALL_8x8] =
 				launch_stack(&(bulletlist[BULLET_BALL_8x8]),
-						nth_ball_8x8, x, y, 6, 2.4, 5.,
+						nth_bullet[BULLET_BALL_8x8], x, y, 6, 2.4, 5.,
 						M_PI / 2.);
+			nth_bullet[BULLET_BALL_8x8] =
+				launch_aimed_stack(&(bulletlist[BULLET_BALL_8x8]),
+						nth_bullet[BULLET_BALL_8x8], x, y, 6, 2.4, 5.);
 		}
 }
 

@@ -20,11 +20,11 @@
 
 // globals
 extern int current_stage;
-extern double speed[MAX_BULLET_MULTIPLE];
-extern double cap_speed;
-extern double angles[MAX_BULLET_MULTIPLE];
-extern int stopping_line;
-extern double fairy_speed;
+// extern double speed[MAX_BULLET_MULTIPLE];
+// extern double cap_speed;
+// extern double angles[MAX_BULLET_MULTIPLE];
+// extern int stopping_line;
+// extern double fairy_speed;
 
 // functions
 void initialize_stage();

@@ -168,6 +168,7 @@ struct enemy {
 	bool active;
 	
 	// misc
+	int item; // item that drops upon defeat
 	bool clearable; // 1: automatically unloaded if reaches off-screen
 };
 
@@ -213,9 +214,10 @@ extern int reload;
 
 extern struct bullet bulletlist[MAX_BULLETS][MAX_BULLET_MULTIPLE];
 extern struct bullet ball_8x8;
-extern int nth_ball_8x8;
+extern int nth_bullet[MAX_ITEMS];
 
 extern struct enemy enemylist[MAX_ENEMIES][MAX_ENEMY_MULTIPLE];
+extern int nth_enemy[MAX_ENEMIES];
 extern struct enemy fairies;
 
 extern struct overlay main_menu;
@@ -226,7 +228,7 @@ extern SDL_Texture *player_bullet_texture;
 
 extern struct item itemlist[MAX_ITEMS][MAX_ITEM_MULTIPLE];
 extern struct item powerup;
-extern int nth_powerup;
+extern int nth_item[MAX_ITEMS];
 
 // functions
 void set_position(struct position *p, double xcoord, double ycoord);
