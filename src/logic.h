@@ -43,9 +43,11 @@
 #define MAX_ENEMY_MULTIPLE 1024
 
 // for bulletlist
-#define MAX_BULLETS 1
+#define MAX_BULLETS 3
 #define MAX_BULLET_MULTIPLE 2048
-#define BULLET_BALL_8x8 0
+#define BULLET_BALL_8x8 2
+#define BULLET_BALL_16x16 1
+#define BULLET_BUBBLE 0
 
 // name for enemyID
 #define ENEMY_FAIRY 0
@@ -213,8 +215,10 @@ extern int nth_shot_marisa;
 extern int reload;
 
 extern struct bullet bulletlist[MAX_BULLETS][MAX_BULLET_MULTIPLE];
-extern struct bullet ball_8x8;
 extern int nth_bullet[MAX_ITEMS];
+extern struct bullet ball_8x8;
+extern struct bullet ball_16x16;
+extern struct bullet bubble;
 
 extern struct enemy enemylist[MAX_ENEMIES][MAX_ENEMY_MULTIPLE];
 extern int nth_enemy[MAX_ENEMIES];

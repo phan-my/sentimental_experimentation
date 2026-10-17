@@ -142,15 +142,15 @@ void do_stage()
 			double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
 			double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
 
-			nth_bullet[BULLET_BALL_8x8] =
-				launch_aimed_ring(&(bulletlist[BULLET_BALL_8x8]),
-						nth_bullet[BULLET_BALL_8x8], x, y, 18, 2.4);
-			nth_bullet[BULLET_BALL_8x8] =
-				launch_aimed_ring(&(bulletlist[BULLET_BALL_8x8]),
-						nth_bullet[BULLET_BALL_8x8], x+60, y, 17, 3.);
-			nth_bullet[BULLET_BALL_8x8] =
-				launch_aimed_ring(&(bulletlist[BULLET_BALL_8x8]),
-						nth_bullet[BULLET_BALL_8x8], x-60, y, 17, 3.);
+			nth_bullet[BULLET_BUBBLE] =
+				launch_aimed_ring(&(bulletlist[BULLET_BUBBLE]),
+						nth_bullet[BULLET_BUBBLE], x, y, 8, 2.4);
+			nth_bullet[BULLET_BUBBLE] =
+				launch_aimed_ring(&(bulletlist[BULLET_BUBBLE]),
+						nth_bullet[BULLET_BUBBLE], x+60, y, 7, 3.);
+			nth_bullet[BULLET_BUBBLE] =
+				launch_aimed_ring(&(bulletlist[BULLET_BUBBLE]),
+						nth_bullet[BULLET_BUBBLE], x-60, y, 7, 3.);
 		}
 }
 

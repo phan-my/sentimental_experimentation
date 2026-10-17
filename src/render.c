@@ -144,11 +144,21 @@ void initialize_bullet_render()
 
 	// "snowball" bullets
 	ball_8x8.sdl.texture = create_texture("assets/bullet_snow.png");
-	for (i = 0; i < MAX_BULLETS; i++) {
-		SDL_QueryTexture(ball_8x8.sdl.texture, NULL, NULL,
-				&ball_8x8.sdl.rect.w,
-				&ball_8x8.sdl.rect.h);
-	}
+	SDL_QueryTexture(ball_8x8.sdl.texture, NULL, NULL,
+			&ball_8x8.sdl.rect.w,
+			&ball_8x8.sdl.rect.h);
+	
+	// 16x16 snowball bullets
+	ball_16x16.sdl.texture = create_texture("assets/ball.png");
+	SDL_QueryTexture(ball_16x16.sdl.texture, NULL, NULL,
+			&ball_16x16.sdl.rect.w,
+			&ball_16x16.sdl.rect.h);
+			
+	// bubble bullets
+	bubble.sdl.texture = create_texture("assets/bubble.png");
+	SDL_QueryTexture(bubble.sdl.texture, NULL, NULL,
+			&bubble.sdl.rect.w,
+			&bubble.sdl.rect.h);
 }
 
 // load sprites of stage enemies, bullets, and bosses

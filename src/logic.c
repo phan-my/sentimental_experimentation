@@ -44,6 +44,8 @@ int reload = MAX_RELOAD;
 struct bullet bulletlist[MAX_BULLETS][MAX_BULLET_MULTIPLE];
 int nth_bullet[MAX_ITEMS];
 struct bullet ball_8x8;
+struct bullet ball_16x16;
+struct bullet bubble;
 
 // enemies
 struct enemy enemylist[MAX_ENEMIES][MAX_ENEMY_MULTIPLE];
@@ -147,25 +149,46 @@ void initialize_logic()
 		}
 	}
 	
-	// initialize bulletlist with bulletIDs
+	/* initialize bulletlist with bulletIDs */
+	// 8x8 pellet
 	ball_8x8.id = BULLET_BALL_8x8;
 	ball_8x8.active = false;
-	ball_8x8.motion.hb.r = 3.8;
+	ball_8x8.motion.hb.r = 3.;
 	bulletlist[ball_8x8.id][0] = ball_8x8;
+	
+	// 16x16 ball
+	ball_16x16.id = BULLET_BALL_16x16;
+	ball_16x16.active = false;
+	ball_16x16.motion.hb.r = 4.27;
+	bulletlist[ball_16x16.id][0] = ball_16x16;
+	
+	// 16x16 ball
+	ball_16x16.id = BULLET_BALL_16x16;
+	ball_16x16.active = false;
+	ball_16x16.motion.hb.r = 7.;
+	bulletlist[ball_16x16.id][0] = ball_16x16;
+	
+	// bubble
+	bubble.id = BULLET_BUBBLE;
+	bubble.active = false;
+	bubble.motion.hb.r = 16.;
+	bulletlist[bubble.id][0] = bubble;
 	
 	// create multiple of all unique bullets
 	for (i = 0; i < MAX_BULLETS; i++) {
-		for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
+		// create multiples per bulletID
+		for (j = 0; j < MAX_BULLET_MULTIPLE; j++)
 			bulletlist[i][j] = bulletlist[i][0];
-			nth_bullet[i] = 0;
-		}
+		
+		// set smart pointers to 0
+		nth_bullet[i] = 0;
 	}
 	
-	// initialize items
+	/* initialize items */
 	powerup.id = ITEM_POWERUP;
 	powerup.active = false;
 	powerup.motion.hb.r = powerup.sdl.rect.w;
-	powerup.value = 1.;
+	powerup.value = 0.05;
 	itemlist[powerup.id][0] = powerup;
 	
 	for (i = 0; i < MAX_ITEMS; i++) {
@@ -337,6 +360,7 @@ void do_items()
 			// if at cap velocity, set acceleration to 0
 			else
 				itemlist[i][j].motion.a.y = 0;
+			// velocity -> position
 			update_position_by_velocity(&itemlist[i][j].motion);
 		}
 	}
