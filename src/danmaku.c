@@ -218,6 +218,8 @@ int launch_aimed_spread(struct bullet (*bullets)[MAX_BULLET_MULTIPLE], int nth_b
 	return cycle_bullet_smart_pointer(nth_bullet, bullets);
 }
 
+// creates a 
+
 
 /* unused functions */
 /*

@@ -84,3 +84,26 @@ int cycle_item_smart_pointer(int pointer,
 	return pointer;
 }
 
+// computes linear interpolation (in one dimension) with given values
+// a: 1st value for lerp
+// b: 2nd value for lerp
+// t: value in [0, 1] that represents the states in-between
+double lerp(double a, double b, double t)
+{
+	return a + t * (b - a);
+}
+
+// computes lerp coordinates on plane out of two given sets of coordinates
+// x_0: x-value of first coordinate
+// y_0: y-value of first coordinate
+// x_1: x-value of second coordinate
+// y_1: y-value of second coordinate
+// t: value in [0, 1] that represents the states in-between
+struct position lerp2(double x_0, double y_0, double x_1, double y_1, double t)
+{
+	struct position p;
+	p.x = lerp(x_0, x_1, t);
+	p.y = lerp(y_0, y_1, t);
+	return p;
+}
+

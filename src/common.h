@@ -21,5 +21,7 @@ double rolling_average(double *points, int num_elements);
 double log_256(double x);
 int cycle_bullet_smart_pointer(int pointer, struct bullet (*array)[MAX_BULLET_MULTIPLE]);
 int cycle_item_smart_pointer(int pointer, struct item (*array)[MAX_ITEM_MULTIPLE]);
+double lerp(double a, double b, double t);
+struct position lerp2(double x_0, double y_0, double x_1, double y_1, double t);
 
 #endif /* COMMON_H */

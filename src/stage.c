@@ -20,8 +20,8 @@
 #include "menu.h"
 
 /* GLOBALS */
-// double stages_s[MAX_STAGES][CHECKPOINTS_STAGE_1] = {{1, 4.5, 42, 70.5}};
-int stages[MAX_STAGES][CHECKPOINTS_STAGE_1] = {{60, 270, 520, 830}};
+// double stages_s[MAX_STAGES][MAX_CHECKPOINTS] = {{1, 4.5, 42, 70.5}};
+int stages[MAX_STAGES][MAX_CHECKPOINTS] = {{4, 60, 270, 320, 430}};
 int current_stage = 1;
 
 // stage variables
@@ -113,6 +113,27 @@ void pattern_two_fairy_columns()
 	}
 }
 
+// testing moving spawner pattern with rings
+void pattern_moving_spawner_test()
+{
+	int phase_progress = get_phase_progress();
+
+	double x0 = 50;
+	double y0 = 50;
+	double x1 = 512;
+	double y1 = 50;
+
+	int duration = 60 * 5;
+	double t = (double) (phase_progress % duration) / (double) duration; 
+
+	if (phase_progress % 20 == 0) {
+		nth_bullet[BULLET_BALL_8x8] =
+			launch_aimed_ring(&(bulletlist[BULLET_BALL_8x8]),
+					nth_bullet[BULLET_BALL_8x8],
+					lerp(x0, x1, t), lerp(y0, y1, t), 18, 2.4);
+	}
+}
+
 /* main loop */
 
 // invoked in the main loop
@@ -131,8 +152,13 @@ void do_stage()
 		if (stage_progress_frames > stages[current_stage - 1][0]) {
 		  	pattern_two_fairy_columns();
 		}
+		
+		if (stage_progress_frames > stages[current_stage - 1][1]) {
+			pattern_moving_spawner_test();
+		}
 
 
+/*
 		if (stage_progress_frames >= stages[current_stage - 1][1] &&
 				stage_progress_frames
 				<= stages[current_stage - 1][2])
@@ -178,6 +204,7 @@ void do_stage()
 						nth_bullet[BULLET_BALL_8x8], x, y, 6, 2.4, 5.);
 		}
 }
+*/
 
 		/* timing */
 		clock_gettime(CLOCK_MONOTONIC_RAW, &stage_now);

@@ -20,6 +20,8 @@
 
 // globals
 extern int current_stage;
+extern int stages[MAX_STAGES][MAX_CHECKPOINTS];
+extern int stage_progress_frames;
 // extern double speed[MAX_BULLET_MULTIPLE];
 // extern double cap_speed;
 // extern double angles[MAX_BULLET_MULTIPLE];

@@ -22,6 +22,7 @@
 #include "common.h"
 #include "player.h"
 #include "shot.h"
+#include "stage.h"
 
 
 /* VARIABLES */
@@ -97,6 +98,13 @@ void set_acceleration(struct acceleration *a, double xvec, double yvec)
 	a -> y = yvec;
 }
 
+// returns measure angle in radians of a velocity vector
+// v: given velocity vector 
+double get_angle_from_velocity(struct velocity v)
+{
+	return atan2(v.y, v.x);
+}
+
 // sets player at the main start position
 void reset_player_position()
 {
@@ -105,6 +113,24 @@ void reset_player_position()
 //	update_player_render(&player[curr_player]); // subpixel hitbox -> integer SDL_Rect
 
 }
+
+// returns timer since stage phase started
+int get_phase_progress()
+{
+	int size = stages[current_stage][0]; // first item in array is size
+	int i = 1;
+
+	// loops through array until ith item is geq stage timestamp
+	while (stage_progress_frames > stages[current_stage - 1][i] ) {
+		if (i == size)
+			return -1;
+		i++;
+	}
+
+	return stage_progress_frames - stages[current_stage][i];
+	
+}
+
 
 // initialize bulletlist with bulletIDs
 void initialize_bullets()
@@ -208,6 +234,7 @@ void initialize_logic()
 	powerup.id = ITEM_POWERUP;
 	powerup.active = false;
 	powerup.motion.hb.r = powerup.sdl.rect.w;
+	powerup.motion.v_max = 2.5;
 	powerup.value = 0.05;
 	itemlist[powerup.id][0] = powerup;
 	
@@ -216,6 +243,7 @@ void initialize_logic()
 	score.active = false;
 	score.motion.hb.r = score.sdl.rect.w;
 	score.value = 1;
+	score.motion.v_max = 2.5;
 	itemlist[score.id][0] = score;
 	
 	for (i = 0; i < MAX_ITEMS; i++) {
@@ -240,6 +268,21 @@ void update_velocity_by_acceleration(struct kinematics *motion)
 	// increment pointer to p.x by v.x
 	motion -> v.x += motion -> a.x;
 	motion -> v.y += motion -> a.y;
+}
+
+// updates all motion values with given acceleration
+// motion: kinematic properties, passed by reference
+void update_motion(struct kinematics *motion)
+{
+	// updates velocity by acceleration until cap velocity
+	if (hypot(motion -> v.x, motion -> v.y) <= motion -> v_max)
+		update_velocity_by_acceleration(motion);
+	// if at cap velocity, set acceleration to 0
+	else
+		set_acceleration(&(motion -> a), 0, 0);
+
+	// velocity -> position
+	update_position_by_velocity(motion);
 }
 
 // update all positional values of the player
@@ -376,19 +419,12 @@ void do_player_bullets()
 void do_items()
 {
 	int i, j;
-	double max_speed_y = 2.5;
 	// item falls
 	for (i = 0; i < MAX_ITEMS; i++) {
 	for (j = 0; j < MAX_ITEM_MULTIPLE; j++) {
 		if (itemlist[i][j].active) {
-			// update velocity by acceleration until cap velocity
-			if (itemlist[i][j].motion.v.y < max_speed_y)
-				update_velocity_by_acceleration(&itemlist[i][j].motion);
-			// if at cap velocity, set acceleration to 0
-			else
-				set_acceleration(&itemlist[i][j].motion.a, 0, 0);
-			// velocity -> position
-			update_position_by_velocity(&itemlist[i][j].motion);
+			// updates all values in struct
+			update_motion(&itemlist[i][j].motion);
 		}
 	}
 	}
