@@ -30,11 +30,10 @@
 #define PLAYER_BOTTOM_MARGIN 16 // extra margins for player at bottom of field
 
 // player's shot
-// #define MAX_SHOTS 2
+#define MAX_SHOTS 2
 #define MAX_SHOT_MULTIPLE 2048
 // #define SHOT_REIMU 0
 // #define SHOT_REIMU_A 1
-#define MAX_RELOAD 3
 #define PLAYER_BULLET_SPEED 16.
 
 // for bulletlist
@@ -211,33 +210,40 @@ struct overlay {
 };
 
 // globals
+
+// player
 extern struct player player[MAX_PLAYERS];
 extern int curr_player;
 
+// shot
 extern struct bullet shotlist[MAX_SHOTS][MAX_SHOT_MULTIPLE];
+extern int nth_shot[MAX_SHOTS];
 extern struct bullet shot_reimu;
 extern int nth_shot_reimu;
 extern struct bullet shot_marisa;
 extern int nth_shot_marisa;
-extern int reload;
 
+// bullet
 extern struct bullet bulletlist[MAX_BULLETS][MAX_BULLET_MULTIPLE];
-extern int nth_bullet[MAX_ITEMS];
+extern int nth_bullet[MAX_BULLETS];
 extern struct bullet ball_8x8;
 extern struct bullet ball_16x16;
 extern struct bullet bubble;
 
+// enemy
 extern struct enemy enemylist[MAX_ENEMIES][MAX_ENEMY_MULTIPLE];
 extern int nth_enemy[MAX_ENEMIES];
 extern struct enemy fairy;
 extern struct enemy fairy_blue;
 
+// overlay
 extern struct overlay main_menu;
 extern struct overlay border; // UI
 extern struct overlay loading;
 extern SDL_Texture *tex; // bullets
 extern SDL_Texture *player_bullet_texture;
 
+// item
 extern struct item itemlist[MAX_ITEMS][MAX_ITEM_MULTIPLE];
 extern int nth_item[MAX_ITEMS];
 extern struct item powerup;
@@ -249,6 +255,7 @@ void set_velocity(struct velocity *v, double xvec, double yvec);
 void set_acceleration(struct acceleration *a, double xvec, double yvec);
 void reset_player_position();
 int get_phase_progress();
+int get_phase();
 void initialize_logic();
 void update_player_motion();
 void update_enemy_motion();

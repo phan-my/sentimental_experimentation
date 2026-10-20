@@ -18,10 +18,11 @@
 #include "danmaku.h"
 #include "random.h"
 #include "menu.h"
+#include "pointer.h"
 
 /* GLOBALS */
 // double stages_s[MAX_STAGES][MAX_CHECKPOINTS] = {{1, 4.5, 42, 70.5}};
-int stages[MAX_STAGES][MAX_CHECKPOINTS] = {{4, 60, 270, 320, 430}};
+int stages[MAX_STAGES][MAX_CHECKPOINTS] = {{4, 0*60, 3*60, 100*60, 111*50}};
 int current_stage = 1;
 
 // stage variables
@@ -69,17 +70,15 @@ void pattern_spread_test()
 	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
 	double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
 	if (stage_progress_frames % 20 == 0) {	
-		nth_bullet[BULLET_BALL_8x8] =
-			launch_aimed_spread(&(bulletlist[BULLET_BALL_8x8]),
-					nth_bullet[BULLET_BALL_8x8], x, y, 17, 2.4,
-					M_PI / 2.);
+		launch_aimed_spread(BULLET_BALL_8x8, x, y, 17, 2.4,
+				M_PI / 2.);
 	}
 }
 
 void pattern_two_fairy_columns()
 {
 	// update the fairies' position according to specification
-	if (stage_progress_frames == 70) {
+	if (get_phase_progress() == 0) {
 		int i;
 		double fairy_speed = 2.;
 
@@ -126,11 +125,10 @@ void pattern_moving_spawner_test()
 	int duration = 60 * 5;
 	double t = (double) (phase_progress % duration) / (double) duration; 
 
+	printf("%d\n", phase_progress % duration);
 	if (phase_progress % 20 == 0) {
-		nth_bullet[BULLET_BALL_8x8] =
-			launch_aimed_ring(&(bulletlist[BULLET_BALL_8x8]),
-					nth_bullet[BULLET_BALL_8x8],
-					lerp(x0, x1, t), lerp(y0, y1, t), 18, 2.4);
+		launch_aimed_ring(BULLET_BALL_8x8,
+				lerp(x0, x1, t), lerp(y0, y1, t), 18, 2.4);
 	}
 }
 
@@ -141,20 +139,25 @@ void do_stage()
 {
 	int i;
 
-//	nth_item[ITEM_POWERUP] = cycle_item_smart_pointer(nth_item[ITEM_POWERUP], &itemlist[ITEM_POWERUP]);
+	// if game state is at a menu/loading screen, initialize stage
 	if (state_menu) {
 		initialize_stage();
 	}
 
+	// main timing of stage elements
 	switch (current_stage) {
 	case 1:
-		// fairy movement
-		if (stage_progress_frames > stages[current_stage - 1][0]) {
-		  	pattern_two_fairy_columns();
-		}
-		
-		if (stage_progress_frames > stages[current_stage - 1][1]) {
+//		printf("%lf ; %d ; %lf \n", (double)stage_progress_frames / 60., get_phase(), (double)get_phase_progress() / 60.);
+		switch (get_phase()) {
+		// FIXME: why is there a delay before it starts?
+		case 1:
+	 		pattern_two_fairy_columns();
+	 		break;
+		case 2:
 			pattern_moving_spawner_test();
+			break;
+		default:
+			break;
 		}
 
 
@@ -216,7 +219,7 @@ void do_stage()
 		stage_progress_seconds = stage_progress / 1000000.;
 //		printf("%d time\n", stage_progress);
 		
-		
+		break;
 	// universal things in every stage
 	default:
 		break;

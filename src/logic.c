@@ -33,17 +33,17 @@ int curr_player = 1;
 
 // shot
 struct bullet shotlist[MAX_SHOTS][MAX_SHOT_MULTIPLE];
+int nth_shot[MAX_SHOTS];
 struct bullet shot_reimu;
 int nth_shot_reimu = 0;
 struct bullet shot_reimu_a;
 int nth_shot_reimu_a = 0;
 struct bullet shot_marisa;
 int nth_shot_marisa = 0;
-int reload = MAX_RELOAD;
 
 // bullets
 struct bullet bulletlist[MAX_BULLETS][MAX_BULLET_MULTIPLE];
-int nth_bullet[MAX_ITEMS];
+int nth_bullet[MAX_BULLETS];
 struct bullet ball_8x8;
 struct bullet ball_16x16;
 struct bullet bubble;
@@ -121,14 +121,31 @@ int get_phase_progress()
 	int i = 1;
 
 	// loops through array until ith item is geq stage timestamp
+	while (stage_progress_frames >= stages[current_stage - 1][i] ) {
+		i++;
+	}
+	
+	// return error
+	if (i == size)
+		return -1;
+	return stage_progress_frames - stages[current_stage - 1][i - 1];
+}
+
+// returns timer since stage phase started; starts at 0
+int get_phase()
+{
+	int size = stages[current_stage][0]; // first item in array is size
+	int i = 1;
+
+	// loops through array until ith item is geq stage timestamp
 	while (stage_progress_frames > stages[current_stage - 1][i] ) {
+		// return error
 		if (i == size)
 			return -1;
 		i++;
 	}
 
-	return stage_progress_frames - stages[current_stage][i];
-	
+	return i - 1;
 }
 
 
@@ -219,9 +236,9 @@ void initialize_logic()
 	shotlist[shot_marisa.id][0] = shot_marisa;
 
 	for (i = 0; i < MAX_SHOTS; i++) {
-		for (j = 0; j < MAX_SHOT_MULTIPLE; j++) {
+		for (j = 0; j < MAX_SHOT_MULTIPLE; j++)
 			shotlist[i][j] = shotlist[i][0];
-		}
+		nth_shot[i] = 0; // sets smart pointer
 	}
 
 	

@@ -11,23 +11,17 @@
 #include "logic.h"
 
 void launch_straight(struct bullet *bullet, double speed, double radians);
-int launch_stack(struct bullet (*bullets)[MAX_BULLET_MULTIPLE], int nth_bullet,
-		double xcoord, double ycoord, int n, double min_speed,
-		double max_speed, double angle);
-int launch_aimed_stack(struct bullet (*bullets)[MAX_BULLET_MULTIPLE],
-		int nth_bullet, double xcoord, double ycoord, int n,
+void launch_stack(int bullet_type, double xcoord, double ycoord, int n,
+		double min_speed, double max_speed, double angle);
+void launch_aimed_stack(int type, double xcoord, double ycoord, int n,
 		double min_speed, double max_speed);
-int launch_ring(struct bullet (*bullets)[MAX_BULLET_MULTIPLE], int nth_bullet,
-		double xcoord, double ycoord, int n, double speed,
+void launch_ring(int type, double xcoord, double ycoord, int n, double speed,
 		double angle);
-int launch_aimed_ring(struct bullet (*bullets)[MAX_BULLET_MULTIPLE],
-		int nth_bullet, double xcoord, double ycoord, int n,
+void launch_aimed_ring(int type, double xcoord, double ycoord, int n,
 		double speed);
-int launch_spread(struct bullet (*bullets)[MAX_BULLET_MULTIPLE], int nth_bullet,
-		double xcoord, double ycoord, int n, double speed,
+void launch_spread(int type, double xcoord, double ycoord, int n, double speed,
 		double seed_angle, double arc);
-int launch_aimed_spread(struct bullet (*bullets)[MAX_BULLET_MULTIPLE], int nth_bullet,
-		double xcoord, double ycoord, int n, double speed,
-		double arc);
+void launch_aimed_spread(int type, double xcoord, double ycoord, int n,
+		double speed, double arc);
 
 #endif /* DANMAKU_H */

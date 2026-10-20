@@ -15,6 +15,7 @@
 #include "common.h"
 #include "shot.h"
 #include "random.h"
+#include "pointer.h"
 
 // table for connecting enemy to item drops
 
@@ -140,9 +141,7 @@ int create_item_pile(struct enemy entity, int multiple)
 	
 	for (i = 0; i < multiple; i++) {
 		// cycle through smart pointer
-		nth_item[entity.item]
-			= cycle_item_smart_pointer(nth_item[entity.item],
-					&itemlist[entity.item]);
+		cycle_item_smart_pointer(entity.item);
 		// spawn item
 		create_item(&itemlist[entity.item][nth_item[entity.item]],
 				randint(left, right),

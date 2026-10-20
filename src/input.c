@@ -17,6 +17,7 @@
 #include "render.h"
 #include "menu.h"
 #include "shot.h"
+#include "pointer.h"
 
 /* VARIABLES */
 
@@ -247,27 +248,16 @@ int do_input()
 	if (keyboard_states[SDL_SCANCODE_Z]) {
 		switch (curr_player) {
 		case PLAYER_REIMU:
-			// two columns of reimu shot
-			for (i = 0; i < 2; i++) {
-				// cycles through array
-				nth_shot_reimu = cycle_bullet_smart_pointer(
-						nth_shot_reimu,
-						&shotlist[SHOT_REIMU]);
-				// activate one bullet
-				if (reload == 0)
-					shotlist[SHOT_REIMU][nth_shot_reimu].active = 1;
-			}
+			activate_reimu_shot();
 			break;
 		case PLAYER_MARISA:
 			// two columns of marisa shot
 			for (i = 0; i < 2; i++) {
 				// cycles through array
-				nth_shot_marisa = cycle_bullet_smart_pointer(
-						nth_shot_marisa,
-						&shotlist[SHOT_MARISA]);
+				cycle_shot_smart_pointer(SHOT_MARISA);
 				// activate one bullet
 				if (reload == 0)
-					shotlist[SHOT_MARISA][nth_shot_marisa].active = 1;
+					shotlist[SHOT_MARISA][nth_shot[SHOT_MARISA]].active = 1;
 			}
 			break;
 		default:

@@ -19,4 +19,12 @@
 #define SHOT_REIMU 0
 #define SHOT_MARISA 1
 
+#define MAX_RELOAD 3
+
+// globals
+extern int reload;
+
+// functions
+void activate_reimu_shot();
+
 #endif /* SHOT_H */
