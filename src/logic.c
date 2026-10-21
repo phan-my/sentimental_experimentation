@@ -111,7 +111,6 @@ void reset_player_position()
 	player[curr_player].motion.hb.p.x = PLAYER_ORIGIN_X;
 	player[curr_player].motion.hb.p.y = PLAYER_ORIGIN_Y;
 //	update_player_render(&player[curr_player]); // subpixel hitbox -> integer SDL_Rect
-
 }
 
 // returns timer since stage phase started
@@ -287,6 +286,25 @@ void update_velocity_by_acceleration(struct kinematics *motion)
 	motion -> v.y += motion -> a.y;
 }
 
+// translate angular acceleration into angular rate and velocity angle
+void update_angle(struct kinematics *motion)
+{
+	// acceleration to rate
+	motion -> angle_rate += motion -> angle_acceleration;
+}
+
+// translates angular values to new velocity vectors
+// *motion: kinematic properties, by reference
+void update_velocity_by_angle(struct kinematics *motion)
+{
+	double magnitude = hypot(motion -> v.x, motion -> v.y);
+	motion -> angle_rate += motion -> angle_acceleration;
+	double new_angle = get_angle_from_velocity(motion -> v) + motion -> angle_rate;
+
+	motion -> v.x = magnitude * cos(new_angle);
+	motion -> v.y = magnitude * sin(new_angle);
+}
+
 // updates all motion values with given acceleration
 // motion: kinematic properties, passed by reference
 void update_motion(struct kinematics *motion)
@@ -367,8 +385,12 @@ void update_bullet_motion()
 	// update all enemy bullets
 	for (i = 0; i < MAX_BULLETS; i++) {
 		for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
+			// angles
+			update_angle(&bulletlist[i][j].motion);
+			update_velocity_by_angle(&bulletlist[i][j].motion);
 			// v -> p
 			update_position_by_velocity(&bulletlist[i][j].motion);
+
 
 /*
 			// p -> core hitbox

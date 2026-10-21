@@ -22,7 +22,7 @@
 
 /* GLOBALS */
 // double stages_s[MAX_STAGES][MAX_CHECKPOINTS] = {{1, 4.5, 42, 70.5}};
-int stages[MAX_STAGES][MAX_CHECKPOINTS] = {{4, 0*60, 3*60, 100*60, 111*50}};
+int stages[MAX_STAGES][MAX_CHECKPOINTS] = {{4, 0*60, 1*60, 2*60, 111*50}};
 int current_stage = 1;
 
 // stage variables
@@ -132,6 +132,10 @@ void pattern_moving_spawner_test()
 	}
 }
 
+double alpha = 0;
+double alpha_v = 0;
+double alpha_a = 0.0005;
+
 /* main loop */
 
 // invoked in the main loop
@@ -156,6 +160,24 @@ void do_stage()
 		case 2:
 			pattern_moving_spawner_test();
 			break;
+		case 3:
+			double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+			double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
+
+			if (get_phase_progress() % 5 == 0) {
+				launch_ring(BULLET_BALL_16x16, x, y, 10, 3,
+						alpha);
+			}
+			alpha_v += alpha_a;
+			alpha += alpha_v;
+			break;
+
+		/* CURVED LASER
+			double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+			double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
+			launch_ring_spiral(BULLET_BALL_16x16, x, y, 5, 2.5,
+					0, 0.01);
+		*/
 		default:
 			break;
 		}

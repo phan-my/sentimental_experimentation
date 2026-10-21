@@ -23,5 +23,7 @@ void launch_spread(int type, double xcoord, double ycoord, int n, double speed,
 		double seed_angle, double arc);
 void launch_aimed_spread(int type, double xcoord, double ycoord, int n,
 		double speed, double arc);
+void launch_ring_spiral(int type, double xcoord, double ycoord, int n, double speed,
+		double angle, double angular_acceleration);
 
 #endif /* DANMAKU_H */

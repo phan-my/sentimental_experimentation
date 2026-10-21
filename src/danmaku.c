@@ -125,6 +125,35 @@ void launch_ring(int type, double xcoord, double ycoord, int n, double speed,
 	}
 }
 
+// creates rounds of rings with angular acceleration, similar to BoWaP
+void launch_ring_spiral(int type, double xcoord, double ycoord, int n, double speed,
+		double angle, double angular_acceleration)
+{
+	int i;
+	double delta_angle = 2. * M_PI / n; // angle difference between bullets
+	
+	// begin loop to launch n bullets
+	for (i = 0; i < n; i++) {
+		// cycles pointer to next inactive element of bullet array
+		cycle_bullet_smart_pointer(type);
+
+		// set spawner position of the bullets
+		set_position(&bulletlist[type][nth_bullet[type]].motion.o,
+				xcoord, ycoord);
+		// set current position of bullet
+		set_position(&bulletlist[type][nth_bullet[type]].motion.hb.p,
+				xcoord, ycoord);
+
+		// set angular values
+		bulletlist[type][nth_bullet[type]].motion.angle_rate = 0;
+		bulletlist[type][nth_bullet[type]].motion.angle_acceleration = angular_acceleration;
+
+		// launch each individual bullet
+		launch_straight(&bulletlist[type][nth_bullet[type]], speed,
+				angle + delta_angle * i);
+	}
+}
+
 // creates an n-ring of bullets at specified spawner with speed, seed bullet
 // aims at the player
 // returns value of smart pointer nth_bullet
