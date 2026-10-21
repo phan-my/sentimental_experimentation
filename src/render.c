@@ -39,11 +39,12 @@ void check_sdl_init(void)
 // set up window and flag
 void initialize_screen(void)
 {
+	double windowscale = 2.;
 	// create window
 	screen = SDL_CreateWindow(WINDOW_TITLE,
 			SDL_WINDOWPOS_UNDEFINED,
 			SDL_WINDOWPOS_CENTERED,
-			SCREEN_WIDTH, SCREEN_HEIGHT,
+			SCREEN_WIDTH * windowscale, SCREEN_HEIGHT * windowscale,
 			SDL_WINDOW_OPENGL);
 	
 	// check that surface was retrieved
@@ -57,6 +58,13 @@ void initialize_screen(void)
 	Uint32 render_flags =
 		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
 	rend = SDL_CreateRenderer(screen, -1, render_flags);
+	
+	// https://superjamie.github.io/2022/11/06/sdl-fullscreen-scaling
+	SDL_RenderSetLogicalSize(rend, SCREEN_WIDTH * windowscale,
+			SCREEN_HEIGHT * windowscale);
+	SDL_RenderSetIntegerScale(rend, SDL_TRUE);
+//	SDL_SetWindowFullscreen(screen, 1);
+	SDL_RenderSetScale(rend, 2, 2);
 }
 
 // close all windows and quit
