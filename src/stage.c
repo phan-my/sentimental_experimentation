@@ -132,9 +132,31 @@ void pattern_moving_spawner_test()
 	}
 }
 
-double alpha = 0;
-double alpha_v = 0;
-double alpha_a = 0.0005;
+void pattern_boundary_of_wave_and_particle()
+{
+	int phase_progress = get_phase_progress();
+	
+	// globals
+	// values at https://youtu.be/cpz4mnXJYb0?t=318
+	double alpha = M_PI * (0.3);
+	double alpha_v = -0.078539816;
+	
+	// constants
+	// divided by 2 due to normal difficulty
+	double alpha_a = 0.003926991 / 2;
+	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+	double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
+	int delay = 2;
+	
+	if (get_phase_progress() % delay == 0) {
+		// implementation for "global" variables by basing the 
+		// current value (alpha_v) on phase_progress and firing rate
+		alpha_v += alpha_a * (double)phase_progress / (double)delay;
+		alpha += alpha_v * (double)phase_progress / (double)delay;
+		
+		launch_ring(BULLET_BALL_16x16, x, y, 5, 3, alpha);
+	}
+}
 
 /* main loop */
 
@@ -161,15 +183,7 @@ void do_stage()
 			pattern_moving_spawner_test();
 			break;
 		case 3:
-			double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-			double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
-
-			if (get_phase_progress() % 5 == 0) {
-				launch_ring(BULLET_BALL_16x16, x, y, 10, 3,
-						alpha);
-			}
-			alpha_v += alpha_a;
-			alpha += alpha_v;
+			pattern_boundary_of_wave_and_particle();
 			break;
 
 		/* CURVED LASER

@@ -29,7 +29,7 @@
 
 // player
 struct player player[MAX_PLAYERS];
-int curr_player = 1;
+int curr_player = 0;
 
 // shot
 struct bullet shotlist[MAX_SHOTS][MAX_SHOT_MULTIPLE];
@@ -286,13 +286,6 @@ void update_velocity_by_acceleration(struct kinematics *motion)
 	motion -> v.y += motion -> a.y;
 }
 
-// translate angular acceleration into angular rate and velocity angle
-void update_angle(struct kinematics *motion)
-{
-	// acceleration to rate
-	motion -> angle_rate += motion -> angle_acceleration;
-}
-
 // translates angular values to new velocity vectors
 // *motion: kinematic properties, by reference
 void update_velocity_by_angle(struct kinematics *motion)
@@ -386,7 +379,6 @@ void update_bullet_motion()
 	for (i = 0; i < MAX_BULLETS; i++) {
 		for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
 			// angles
-			update_angle(&bulletlist[i][j].motion);
 			update_velocity_by_angle(&bulletlist[i][j].motion);
 			// v -> p
 			update_position_by_velocity(&bulletlist[i][j].motion);
