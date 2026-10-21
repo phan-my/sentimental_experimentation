@@ -39,7 +39,7 @@ void check_sdl_init(void)
 // set up window and flag
 void initialize_screen(void)
 {
-	double windowscale = 2.;
+	double windowscale = 1.;
 	// create window
 	screen = SDL_CreateWindow(WINDOW_TITLE,
 			SDL_WINDOWPOS_UNDEFINED,
@@ -64,7 +64,7 @@ void initialize_screen(void)
 			SCREEN_HEIGHT * windowscale);
 	SDL_RenderSetIntegerScale(rend, SDL_TRUE);
 //	SDL_SetWindowFullscreen(screen, 1);
-	SDL_RenderSetScale(rend, 2, 2);
+	SDL_RenderSetScale(rend, windowscale, windowscale);
 }
 
 // close all windows and quit
