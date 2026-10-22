@@ -189,11 +189,11 @@ void do_stage()
 			double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
 			
 			struct position p_0;
-			p_0.x = x;
+			p_0.x = x - 20;
 			p_0.y = y;
 			
 			struct position p_1;
-			p_1.x = x;
+			p_1.x = x - 20;
 			p_1.y = y - 20;
 
 			struct position p_2;
@@ -201,14 +201,14 @@ void do_stage()
 			p_2.y = y - 20;
 
 			struct position p_3;
-			p_3.x = x + 30;
+			p_3.x = x + 20;
 			p_3.y = y;
 
 			if (t > 1)
 				global_i = -1;
 			if (t < 0)
 				global_i = 1;
-			t += global_i * 0.01;
+			t += global_i * 0.05;
 			struct position s = cubic_bezier(p_0, p_1, p_2, p_3, t);
 
 			if (get_phase_progress() % 2 == 0)
