@@ -137,13 +137,12 @@ void pattern_boundary_of_wave_and_particle()
 	int phase_progress = get_phase_progress();
 	
 	// globals
-	// values at https://youtu.be/cpz4mnXJYb0?t=318
 	double alpha = M_PI * (0.3);
-	double alpha_v = -0.078539816;
 	
 	// constants
-	// divided by 2 due to normal difficulty
-	double alpha_a = 0.003926991 / 2;
+	// values at https://youtu.be/cpz4mnXJYb0?t=318
+	double alpha_v = -0.078539816;
+	double alpha_a = 0.003926991;
 	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
 	double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
 	int delay = 2;
@@ -151,8 +150,8 @@ void pattern_boundary_of_wave_and_particle()
 	if (get_phase_progress() % delay == 0) {
 		// implementation for "global" variables by basing the 
 		// current value (alpha_v) on phase_progress and firing rate
-		alpha_v += alpha_a * (double)phase_progress / (double)delay;
-		alpha += alpha_v * (double)phase_progress / (double)delay;
+//		alpha_v += alpha_a * (double)phase_progress / delay;
+		alpha += alpha_v * (double)phase_progress / delay + alpha_a * 0.5 * pow((double)phase_progress / delay, 2);
 		
 		launch_ring(BULLET_BALL_16x16, x, y, 5, 3, alpha);
 	}
