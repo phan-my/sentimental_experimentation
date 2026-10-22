@@ -35,6 +35,8 @@ double log_256(double x)
 	return log(x)/log(256);
 }
 
+// https://docs.godotengine.org/en/latest/tutorials/math/interpolation.html
+
 // computes linear interpolation (in one dimension) with given values
 // a: 1st value for lerp
 // b: 2nd value for lerp
@@ -58,3 +60,34 @@ struct position lerp2(double x_0, double y_0, double x_1, double y_1, double t)
 	return p;
 }
 
+// alternative version of lerp2 that uses struct position
+// computes lerp coordinates on plane out of two given sets of points
+// p_0: first position
+// p_1: second position
+// t: value in [0, 1] that represents the states in-between
+struct position lerp_p(struct position p_0, struct position p_1, double t)
+{
+	struct position p;
+	p.x = lerp(p_0.x, p_1.x, t);
+	p.y = lerp(p_0.y, p_1.y, t);
+	return p;
+}
+
+// https://docs.godotengine.org/en/latest/tutorials/math/beziers_and_curves.html
+
+// returns the position of the Bezier curve at variable t
+// p_0: first position
+// p_1: second position
+struct position cubic_bezier(struct position p_0, struct position p_1,
+		struct position p_2, struct position p_3, double t)
+{
+	struct position q0 = lerp_p(p_0, p_1, t);
+	struct position q1 = lerp_p(p_1, p_2, t);
+	struct position q2 = lerp_p(p_2, p_3, t);
+
+	struct position r0 = lerp_p(q0, q1, t);
+	struct position r1 = lerp_p(q1, q2, t);
+
+	struct position s = lerp_p(r0, r1, t);
+	return s;
+}

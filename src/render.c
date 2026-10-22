@@ -39,7 +39,7 @@ void check_sdl_init(void)
 // set up window and flag
 void initialize_screen(void)
 {
-	double windowscale = 1.;
+	double windowscale = 2.;
 	// create window
 	screen = SDL_CreateWindow(WINDOW_TITLE,
 			SDL_WINDOWPOS_UNDEFINED,

@@ -21,5 +21,7 @@ double rolling_average(double *points, int num_elements);
 double log_256(double x);
 double lerp(double a, double b, double t);
 struct position lerp2(double x_0, double y_0, double x_1, double y_1, double t);
+struct position cubic_bezier(struct position p_0, struct position p_1,
+		struct position p_2, struct position p_3, double t);
 
 #endif /* COMMON_H */
