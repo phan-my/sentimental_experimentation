@@ -12,10 +12,7 @@
 #include "logic.h"
 #include "sounds.h"
 #include "render.h"
-#include "common.h"
 #include "input.h"
-#include "menu.h"
-#include "stage.h"
 
 // main function
 int main(int argc, char **argv)
@@ -29,24 +26,9 @@ int main(int argc, char **argv)
 	/* main loop */
 	bool close = false;
 	while (!close) {
-
 		close = do_input();
 		do_logic();
 		do_screen();
-
-//		const Uint8 *keyboard_states = SDL_GetKeyboardState(NULL);
-		switch (state_menu) {
-		case STATE_LOADING:
-			initialize_sounds();
-			SDL_RenderClear(rend);
-			SDL_RenderCopy(rend, loading.sdl.texture, NULL, &loading.sdl.rect);
-			SDL_RenderPresent(rend);
-			SDL_Delay(500);
-			play_track("02");
-			break;
-		default:
-			break;
-		}
 	}
 
 	/* program termination */

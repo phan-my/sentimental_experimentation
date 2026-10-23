@@ -25,6 +25,7 @@
 #include "stage.h"
 #include "danmaku.h"
 #include "menu.h"
+#include "sounds.h"
 
 
 /* VARIABLES */
@@ -483,7 +484,19 @@ void do_logic()
 		break;
 	case STATE_LOADING:
 		state_menu = STATE_PLAY;
+		initialize_sounds();
+
+		// change to loading screen
+		SDL_RenderClear(rend);
+		SDL_RenderCopy(rend, loading.sdl.texture, NULL,
+				&loading.sdl.rect);
+		SDL_RenderPresent(rend);
+
+		// wait to prevent seizures
+		SDL_Delay(500);
 		
+		// TODO: make variable
+		play_track("02");
 	}
 
 }

@@ -29,53 +29,10 @@ SDL_Renderer *rend;
 
 /* FUNCTIONS */
 
-void check_sdl_init(void)
-{
-	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-		printf("ERROR: %s\n", SDL_GetError());
-		exit(1);
-	}
-}
+/* static */
 
-// set up window and flag
-void initialize_screen(void)
-{
-	double windowscale = 2.;
-	// create window
-	screen = SDL_CreateWindow(WINDOW_TITLE,
-			SDL_WINDOWPOS_UNDEFINED,
-			SDL_WINDOWPOS_CENTERED,
-			SCREEN_WIDTH * windowscale, SCREEN_HEIGHT * windowscale,
-			SDL_WINDOW_OPENGL);
-	
-	// check that surface was retrieved
-	if (screen == NULL){
-		SDL_Quit();
-		exit(1);
-	}
-
-	// flag setup
-	// https://studios.ptilouk.net/superfluous-returnz/blog/2023-03-14_vsync.html
-	Uint32 render_flags =
-		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
-	rend = SDL_CreateRenderer(screen, -1, render_flags);
-	
-	// https://superjamie.github.io/2022/11/06/sdl-fullscreen-scaling
-	SDL_RenderSetLogicalSize(rend, SCREEN_WIDTH * windowscale,
-			SCREEN_HEIGHT * windowscale);
-	SDL_RenderSetIntegerScale(rend, SDL_TRUE);
-//	SDL_SetWindowFullscreen(screen, 1);
-	SDL_RenderSetScale(rend, windowscale, windowscale);
-}
-
-// close all windows and quit
-void terminate_screen(void)
-{
-	SDL_DestroyWindow(screen);
-	SDL_Quit();
-}
-
-// simplify tex creation by omitting surface
+// creates texture with given sprite by allocating and freeing temporary surface
+// sprite: path to file of sprite
 SDL_Texture *create_texture(char *sprite)
 {
 	SDL_Surface *surface = IMG_Load(sprite);
@@ -85,14 +42,18 @@ SDL_Texture *create_texture(char *sprite)
 	return texture;
 }
 
-void position_rect(SDL_Rect rect, int x, int y)
+// sets coordinates of SDL_rect type to provided values 
+// rect: given SDL_Rect type
+// xcoord: x-coordinate at which to set rect
+// ycoord: y-coordinate at which to set rect
+void position_rect(SDL_Rect rect, int xcoord, int ycoord)
 {
-	rect.x = (int)x;
-	rect.y = (int)y;
+	rect.x = (int)xcoord;
+	rect.y = (int)ycoord;
 }
 
-// create and position in-game overlay
-void initialize_overlays()
+// loads sprites to texture of and position in-game overlay
+void initialize_overlay_render()
 {
 	// main menu
 	main_menu.sdl.texture = create_texture("assets/main_menu.png");
@@ -113,12 +74,11 @@ void initialize_overlays()
 	position_rect(loading.sdl.rect, 0, 0);
 }
 
-// initialize chosen player
+// loads sprites to texture of players
 void initialize_player_render()
 {
 	int i, j;
 	// TODO: player selection in main menu
-	// reimu
 	player[PLAYER_REIMU].sdl.texture = create_texture("assets/reimu.png");
 	player[PLAYER_MARISA].sdl.texture = create_texture("assets/marisa.png");
 
@@ -129,7 +89,7 @@ void initialize_player_render()
 	}
 }
 
-// player bullets
+// loads sprites to texture of player shots
 void initialize_shot_render()
 {
 	int i, j;
@@ -170,7 +130,7 @@ void initialize_bullet_render()
 			&bubble.sdl.rect.h);
 }
 
-// load sprites of stage enemies, bullets, and bosses
+// loads sprites to texture of enemies
 void initialize_enemy_render()
 {
 	int i;
@@ -188,8 +148,8 @@ void initialize_enemy_render()
 			&fairy_blue.sdl.rect.w, &fairy_blue.sdl.rect.h);
 }
 
-// load items
-void initialize_items()
+// loads sprites to texture of items
+void initialize_item_render()
 {
 	int i;
 
@@ -204,33 +164,109 @@ void initialize_items()
 			&score.sdl.rect.h);
 }
 
-// load sprites
+
+// loads sprites to texture of all entities
 void initialize_textures(void)
 {
-	initialize_overlays();
+	initialize_overlay_render();
 	initialize_player_render();
 	initialize_bullet_render();
 	initialize_enemy_render();
-	initialize_items();
+	initialize_item_render();
 	initialize_shot_render();
 }
 
-// set sdl int position to match the float position for a bullet
+// exits program if SDL initialization fails, prints error
+void check_sdl_init(void)
+{
+	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+		printf("ERROR: %s\n", SDL_GetError());
+		exit(1);
+	}
+}
+
+// checks that screen was retrieved
+void check_screen()
+{
+	if (screen == NULL) {
+		SDL_Quit();
+		exit(1);
+	}
+}
+
+// sets up window and flag
+void initialize_screen(void)
+{
+	// scale of the window
+	double windowscale = 2.;
+	
+	// check SDL initialization; if error, quit program
+	check_sdl_init();
+	
+	// create window
+	screen = SDL_CreateWindow(WINDOW_TITLE,
+			SDL_WINDOWPOS_UNDEFINED,
+			SDL_WINDOWPOS_CENTERED,
+			SCREEN_WIDTH * windowscale, SCREEN_HEIGHT * windowscale,
+			SDL_WINDOW_OPENGL);
+	
+	// check that surface was retrieved
+	check_screen();
+
+	// flag setup
+	// https://studios.ptilouk.net/superfluous-returnz/blog/2023-03-14_vsync.html
+	Uint32 render_flags =
+		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
+	rend = SDL_CreateRenderer(screen, -1, render_flags);
+	
+	// upscaling screen
+	// https://superjamie.github.io/2022/11/06/sdl-fullscreen-scaling
+	SDL_RenderSetLogicalSize(rend, SCREEN_WIDTH * windowscale,
+			SCREEN_HEIGHT * windowscale);
+	SDL_RenderSetIntegerScale(rend, SDL_TRUE);
+//	SDL_SetWindowFullscreen(screen, 1);
+	SDL_RenderSetScale(rend, windowscale, windowscale);
+
+	// load graphics
+	initialize_textures();
+}
+
+// closes all windows and quits program
+void terminate_screen(void)
+{
+	SDL_DestroyWindow(screen);
+	SDL_Quit();
+}
+
+/* dynamic */
+
+// sets integer graphical position to match the logical position for a bullet
+// *p: the structure of the `bullet`, passed by reference
 void update_bullet_render(struct bullet *p)
 {
 	p -> sdl.rect.x = (int)(p -> motion.hb.p.x - p -> sdl.rect.w / 2.);
 	p -> sdl.rect.y = (int)(p -> motion.hb.p.y - p -> sdl.rect.h / 2.);
 }
 
-// set sdl int position to match the float position for the player
+// sets integer graphical position to match the logical position for the player
+// *p: the structure of the `player`, passed by reference
 void update_player_render(struct player *p)
 {
 	p -> sdl.rect.x = (int)(p -> motion.hb.p.x - p -> sdl.rect.w / 2.);
 	p -> sdl.rect.y = (int)(p -> motion.hb.p.y - p -> sdl.rect.h / 2.);
 }
 
-// set sdl int position to match the float position for an enemy
+// sets integer graphical position to match the logical position for an enemy
+// *p: the structure of the `enemy`, passed by reference
 void update_enemy_render(struct enemy *p)
+{
+	p -> sdl.rect.x = (int)(p -> motion.hb.p.x - p -> sdl.rect.w / 2.);
+	p -> sdl.rect.y = (int)(p -> motion.hb.p.y - p -> sdl.rect.h / 2.);
+}
+
+// sets integer graphical position to match the logical position for an item
+// *p: the structure of the `item`, passed by reference
+void update_item_render(struct item *p)
 {
 	p -> sdl.rect.x = (int)(p -> motion.hb.p.x - p -> sdl.rect.w / 2.);
 	p -> sdl.rect.y = (int)(p -> motion.hb.p.y - p -> sdl.rect.h / 2.);
@@ -244,11 +280,111 @@ void do_player_render()
 			&player[curr_player].sdl.rect);
 }
 
-// update sprites in main menu
-void do_main_menu_screen()
+// copies motion values into SDL_Rect and renders new sprite position of active
+// bullets
+void do_bullet_render()
+{
+	int i, j;
+
+	// loops through each multiple of every bullet in `bulletlist`
+	for (i = 0; i < MAX_BULLETS; i++) {
+	for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
+		// update if active
+		if (bulletlist[i][j].active) {
+			update_bullet_render(&bulletlist[i][j]);			
+			SDL_RenderCopy(rend, bulletlist[i][j].sdl.texture, NULL,
+					&bulletlist[i][j].sdl.rect);
+		}
+	}
+	}
+}
+
+// copies motion values into SDL_Rect and renders new sprite position of active
+// enemies
+void do_enemy_render()
+{
+	int i, j;
+
+	// loops through each multiple of every bullet in `enemylist`
+	for (i = 0; i < MAX_ENEMIES; i++) {
+	for (j = 0; j < MAX_ENEMY_MULTIPLE; j++) {
+		// update if active
+		if (enemylist[i][j].active) {
+			update_enemy_render(&enemylist[i][j]);
+			SDL_RenderCopy(rend, enemylist[i][j].sdl.texture, NULL,
+					&enemylist[i][j].sdl.rect);
+		}
+	}
+	}
+}
+
+// copies motion values into SDL_Rect and renders new sprite position of active
+// player shots
+void do_shot_render()
+{
+	int i, j;
+
+	// loops through each multiple of every bullet in `shotlist`
+	for (i = 0; i < MAX_SHOTS; i++) {
+	for (j = 0; j < MAX_SHOT_MULTIPLE; j++) {
+		// update if active
+		if (shotlist[i][j].active) {
+			update_bullet_render(&shotlist[i][j]);
+			SDL_RenderCopy(rend, shotlist[i][j].sdl.texture,
+					NULL,
+					&shotlist[i][j].sdl.rect);
+		}
+	}
+	}
+}
+
+// copies motion values into SDL_Rect and renders new sprite position of active
+// items
+void do_item_render()
+{
+	int i, j;
+	
+	for (i = 0; i < MAX_ITEMS; i++) {
+	for (j = 0; j < MAX_ITEM_MULTIPLE; j++) {
+		// update if active
+		if (itemlist[i][j].active) {
+			update_item_render(&itemlist[i][j]);
+			SDL_RenderCopy(rend, itemlist[i][j].sdl.texture,
+					NULL, &itemlist[i][j].sdl.rect);
+		}
+	}
+	}
+}
+
+// updates overlay during gameplay
+void do_overlay_render()
+{
+	SDL_RenderCopy(rend, border.sdl.texture, NULL, &border.sdl.rect);
+}
+
+// updates sprites in main menu
+void do_main_menu_render()
 {
 	SDL_RenderClear(rend);
 	SDL_RenderCopy(rend, main_menu.sdl.texture, NULL, &main_menu.sdl.rect);
+	SDL_RenderPresent(rend);
+}
+
+// updates sprites during gameplay
+void do_play_render()
+{
+	// clear screen
+	SDL_RenderClear(rend);
+	
+	// updates all active sprites
+	do_shot_render();
+	do_player_render();
+	do_item_render();
+	do_enemy_render();
+	do_bullet_render();
+	do_overlay_render();
+
+	// end
 	SDL_RenderPresent(rend);
 }
 
@@ -257,69 +393,13 @@ void do_screen()
 {
 	switch (state_menu) {
 	case STATE_PLAY:
-		int i, j;
-
-		// clear screen
-		SDL_RenderClear(rend);
-
-		do_player_render();
-
-		// bullets
-		for (i = 0; i < MAX_BULLETS; i++) {
-			for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
-				if (bulletlist[i][j].active) {
-					update_bullet_render(&bulletlist[i][j]);
-					SDL_RenderCopy(rend, bulletlist[i][j].sdl.texture, NULL, &bulletlist[i][j].sdl.rect);
-				}
-			}
-		}
-
-		// enemies
-		for (i = 0; i < MAX_ENEMIES; i++) {
-			for (j = 0; j < MAX_ENEMY_MULTIPLE; j++) {
-				if (enemylist[i][j].active) {
-					update_enemy_render(&enemylist[i][j]);
-					SDL_RenderCopy(rend,
-							enemylist[i][j].sdl.texture,
-							NULL,
-							&enemylist[i][j].sdl.rect);
-				}
-			}
-		}
-
-		// player bullets
-		for (i = 0; i < MAX_SHOTS; i++) {
-			for (j = 0; j < MAX_SHOT_MULTIPLE; j++) {
-				if (shotlist[i][j].active) {
-					update_bullet_render(&shotlist[i][j]);
-					SDL_RenderCopy(rend, shotlist[i][j].sdl.texture,
-							NULL,
-							&shotlist[i][j].sdl.rect);
-				}
-			}
-		}
-
-		// items
-		for (i = 0; i < MAX_ITEMS; i++) {
-			for (j = 0; j < MAX_ITEM_MULTIPLE; j++) {
-				if (itemlist[i][j].active) {
-					itemlist[i][j].sdl.rect.x = (int)(itemlist[i][j].motion.hb.p.x
-							- itemlist[i][j].sdl.rect.w / 2.);
-					itemlist[i][j].sdl.rect.y = (int)(itemlist[i][j].motion.hb.p.y
-							- itemlist[i][j].sdl.rect.h / 2.);
-					SDL_RenderCopy(rend, itemlist[i][j].sdl.texture,
-							NULL, &itemlist[i][j].sdl.rect);
-				}
-			}
-		}
-		// overlays
-		SDL_RenderCopy(rend, border.sdl.texture, NULL, &border.sdl.rect);
-
-		// end
-		SDL_RenderPresent(rend);
+		do_play_render();
 		break;
 	case STATE_MAIN_MENU:
-		do_main_menu_screen();
+		do_main_menu_render();
+		break;
+	default:
+		break;
 	}
 }
 

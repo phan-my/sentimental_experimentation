@@ -111,6 +111,7 @@ struct kinematics {
 	struct acceleration a0; // initial acceleration
 	struct acceleration a; // current acceleration
 	int time_0; // exact time of spawn in frames
+	bool curved; // false: do funcs for straight motion; true: curvy motion
 	double angle_rate; // first derivative with respect to time
 	double angle_acceleration; // 2nd derivative with respect to time
 };
