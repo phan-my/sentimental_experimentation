@@ -20,8 +20,8 @@ int main(int argc, char **argv)
 	/* initialization */
 	check_sdl_init();	// begin SDL2 setup
 	initialize_screen();	// create window
-	initialize_textures();
 	initialize_logic();
+	initialize_sounds();
 
 	/* main loop */
 	bool close = false;

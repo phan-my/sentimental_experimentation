@@ -19,6 +19,7 @@
 #include "shot.h"
 #include "pointer.h"
 #include "danmaku.h"
+#include "sounds.h"
 
 /* VARIABLES */
 
@@ -280,28 +281,20 @@ int do_input()
 						BOMB_RADIUS);
 				bomb_reload = MAX_BOMB_RELOAD;
 				player[curr_player].bombs--; // subtract bombs
-				player[curr_player].invincible = true; // set invincibility
+				// set invincibility
+				player[curr_player].invincible = true;
 				player[curr_player].iframes = MAX_BOMB_RELOAD;
-			}
-	/*
-			switch (curr_player) {
-			case PLAYER_REIMU:
-				activate_reimu_shot();
-				break;
-			case PLAYER_MARISA:
-				// two columns of marisa shot
-				for (i = 0; i < 2; i++) {
-					// cycles through array
-					cycle_shot_smart_pointer(SHOT_MARISA);
-					// activate one bullet
-					if (shot_reload == 0)
-						shotlist[SHOT_MARISA][nth_shot[SHOT_MARISA]].active = 1;
+				switch (curr_player) {
+				case PLAYER_REIMU:
+					play_sfx("sfx/bomb_reimu_a.ogx");
+					break;
+				case PLAYER_MARISA:
+					play_sfx("sfx/bomb_marisa_a.ogx");
+					break;
+				default:
+					break;
 				}
-				break;
-			default:
-				break;
 			}
-	*/
 		}
 		return 0;
 		break;

@@ -18,6 +18,7 @@ extern Mix_Music *song;
 // functions
 void initialize_sounds();
 void play_track(char *title);
+void play_sfx(char *title);
 void terminate_sounds();
 
 #endif /* SOUNDS_H */

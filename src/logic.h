@@ -154,6 +154,7 @@ struct player {
 	int health;
 	double power;
 	int score;
+	int graze;
 	int bombs;
 	int shot;
 	bool active;
@@ -194,6 +195,8 @@ struct bullet {
 	// function pointer
 	// questions/840501
 	int (*trail)(double, double);
+
+	bool grazed;
 };
 
 // collectible items such as powerups, bombs, score

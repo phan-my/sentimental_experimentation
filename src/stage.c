@@ -185,6 +185,9 @@ void do_stage()
 			pattern_moving_spawner_test();
 			break;
 		case 3:
+			pattern_boundary_of_wave_and_particle();
+			break;
+		case -1:
 			double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
 			double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
 			

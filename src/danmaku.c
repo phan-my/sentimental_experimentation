@@ -86,6 +86,7 @@ void launch_straight(struct bullet *bullet, double speed, double radians)
 	
 	// activate bullet
 	bullet -> active = true;
+	bullet -> grazed = false;
 }
 
 // sets velocities of stack of n bullets based on given angle and positon

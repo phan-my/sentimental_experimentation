@@ -16,6 +16,7 @@
 #include "shot.h"
 #include "random.h"
 #include "pointer.h"
+#include "sounds.h"
 
 // returns Boolean value if two circle hitboxes overlap
 // dest: second circle hitbox (circlebox)
@@ -76,6 +77,7 @@ void player_enemy_collision()
 				player[curr_player].health--; // decrease HP
 				player[curr_player].invincible = true; // iframe
 				reset_player_position(); // put player at origin
+				play_sfx("sfx/death.ogx"); // death sound
 			}
 		}
 	}
@@ -89,7 +91,7 @@ void player_bullet_collision()
 	// loop through entire bulletlist
 	for (i = 0; i < MAX_BULLETS; i++) {
 		for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
-			// check player-bullet collision
+			// collision
 			if (circle_in_circle(bulletlist[i][j].motion.hb,
 						player[curr_player].motion.hb)
 					&& bulletlist[i][j].active) {
@@ -97,6 +99,17 @@ void player_bullet_collision()
 				player[curr_player].health--; // decrease HP
 				player[curr_player].invincible = true; // iframe
 				reset_player_position(); // put player at origin
+				play_sfx("sfx/death.ogx"); // death sound
+			}
+
+			// grazing
+			if (circle_in_circle(bulletlist[i][j].motion.hb,
+						player[curr_player].grazebox)
+					&& bulletlist[i][j].active
+					&& !bulletlist[i][j].grazed) {
+				player[curr_player].graze++;
+				bulletlist[i][j].grazed = true;
+				play_sfx("sfx/graze.ogx"); // graze sound
 			}
 		}
 	}

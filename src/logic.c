@@ -32,7 +32,7 @@
 
 // player
 struct player player[MAX_PLAYERS];
-int curr_player = 1;
+int curr_player = PLAYER_REIMU;
 
 // shot
 struct bullet shotlist[MAX_SHOTS][MAX_SHOT_MULTIPLE];
@@ -157,27 +157,27 @@ void initialize_bullets()
 	int i, j;
 	// 8x8 pellet
 	ball_8x8.id = BULLET_BALL_8x8;
-	ball_8x8.active = false;
 	ball_8x8.motion.hb.r = 3.;
 	bulletlist[ball_8x8.id][0] = ball_8x8;
 	
 	// 16x16 ball
 	ball_16x16.id = BULLET_BALL_16x16;
-	ball_16x16.active = false;
 	ball_16x16.motion.hb.r = 4.27;
 	bulletlist[ball_16x16.id][0] = ball_16x16;
 	
 	// bubble
 	bubble.id = BULLET_BUBBLE;
-	bubble.active = false;
 	bubble.motion.hb.r = 16.;
 	bulletlist[bubble.id][0] = bubble;
 	
 	// create multiple of all unique bullets
 	for (i = 0; i < MAX_BULLETS; i++) {
 		// create multiples per bulletID
-		for (j = 0; j < MAX_BULLET_MULTIPLE; j++)
+		for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
 			bulletlist[i][j] = bulletlist[i][0];
+			bulletlist[i][j].active = false;
+			bulletlist[i][j].grazed = false;
+		}
 		
 		// set smart pointers to 0
 		nth_bullet[i] = 0;
@@ -484,7 +484,6 @@ void do_logic()
 		break;
 	case STATE_LOADING:
 		state_menu = STATE_PLAY;
-		initialize_sounds();
 
 		// change to loading screen
 		SDL_RenderClear(rend);
@@ -496,7 +495,10 @@ void do_logic()
 		SDL_Delay(500);
 		
 		// TODO: make variable
-		play_track("02");
+		play_track("bgm/02_stage1.opus");
+		break;
+	default:
+		break;
 	}
 
 }
