@@ -19,10 +19,14 @@
 #define SHOT_REIMU 0
 #define SHOT_MARISA 1
 
-#define MAX_RELOAD 3
+#define MAX_SHOT_RELOAD 3
+#define MAX_BOMB_RELOAD 300 // 5s
+
+#define BOMB_RADIUS 256
 
 // globals
-extern int reload;
+extern int shot_reload;
+extern int bomb_reload;
 
 // functions
 void activate_reimu_shot();

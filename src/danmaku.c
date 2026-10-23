@@ -13,6 +13,43 @@
 #include "common.h"
 #include "danmaku.h"
 #include "pointer.h"
+#include "collision.h"
+
+// deletes all bullets in circle at given coordinates with radius
+// xcoord: x-position of the point
+// ycoord: y-position of the point
+// radius: radius (in pixels) of the circular field to clear bullets 
+void delete_danmaku_in_circle(double xcoord, double ycoord,
+		double radius)
+{
+	int i, j;
+	struct circlebox field;
+	field.p.x = xcoord;
+	field.p.y = ycoord;
+	field.r = radius;
+
+	for (i = 0; i < MAX_BULLETS; i++) {
+	for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
+		if (circle_in_circle(bulletlist[i][j].motion.hb, field))
+			// deactivate bullets in circle
+			bulletlist[i][j].active = false;
+	}
+	}
+}
+
+// deletes all bullets in the playing field
+void delete_danmaku_all()
+{
+	int i, j;
+
+	for (i = 0; i < MAX_BULLETS; i++) {
+	for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
+		// deactivate bullets in circle
+		bulletlist[i][j].active = false;
+	}
+	}
+}
+
 
 // returns the measure angle between two points in radians
 // x_1: x-position of the first point

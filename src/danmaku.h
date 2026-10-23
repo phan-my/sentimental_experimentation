@@ -10,6 +10,9 @@
 #define DANMAKU_H
 #include "logic.h"
 
+void delete_danmaku_in_circle(double xcoord, double ycoord,
+		double radius);
+void delete_danmaku_all();
 void launch_straight(struct bullet *bullet, double speed, double radians);
 void launch_stack(int bullet_type, double xcoord, double ycoord, int n,
 		double min_speed, double max_speed, double angle);

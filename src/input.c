@@ -18,6 +18,7 @@
 #include "menu.h"
 #include "shot.h"
 #include "pointer.h"
+#include "danmaku.h"
 
 /* VARIABLES */
 
@@ -244,6 +245,7 @@ int do_input()
 		
 	/* shooting */
 
+	// basic shot
 	// https://www.parallelrealities.co.uk/tutorials/shooter/shooter5.php
 	if (keyboard_states[SDL_SCANCODE_Z]) {
 		switch (curr_player) {
@@ -256,13 +258,46 @@ int do_input()
 				// cycles through array
 				cycle_shot_smart_pointer(SHOT_MARISA);
 				// activate one bullet
-				if (reload == 0)
+				if (shot_reload == 0)
 					shotlist[SHOT_MARISA][nth_shot[SHOT_MARISA]].active = 1;
 			}
 			break;
 		default:
 			break;
 		}
+	}
+
+	// bomb
+	if (keyboard_states[SDL_SCANCODE_X]) {			
+		if (bomb_reload < 0 && player[curr_player].bombs > 0) {
+			delete_danmaku_in_circle(
+					player[curr_player].motion.hb.p.x,
+					player[curr_player].motion.hb.p.y,
+					BOMB_RADIUS);
+			bomb_reload = MAX_BOMB_RELOAD;
+			player[curr_player].bombs--; // subtract bombs
+			player[curr_player].invincible = true; // set invincibility
+			player[curr_player].iframes = MAX_BOMB_RELOAD;
+		}
+/*
+		switch (curr_player) {
+		case PLAYER_REIMU:
+			activate_reimu_shot();
+			break;
+		case PLAYER_MARISA:
+			// two columns of marisa shot
+			for (i = 0; i < 2; i++) {
+				// cycles through array
+				cycle_shot_smart_pointer(SHOT_MARISA);
+				// activate one bullet
+				if (shot_reload == 0)
+					shotlist[SHOT_MARISA][nth_shot[SHOT_MARISA]].active = 1;
+			}
+			break;
+		default:
+			break;
+		}
+*/
 	}
 	return 0;
 }

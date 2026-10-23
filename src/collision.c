@@ -17,10 +17,6 @@
 #include "random.h"
 #include "pointer.h"
 
-// table for connecting enemy to item drops
-
-
-
 // returns Boolean value if two circle hitboxes overlap
 // dest: second circle hitbox (circlebox)
 // src: first circle hitbox

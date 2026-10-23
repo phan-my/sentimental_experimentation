@@ -14,7 +14,8 @@
 
 /* VARIABLES */
 
-int reload = MAX_RELOAD;
+int shot_reload = MAX_SHOT_RELOAD;
+int bomb_reload = 0;
 
 /* FUNCTIONS */
 
@@ -28,7 +29,7 @@ void activate_reimu_shot()
 		// cycles through array
 		cycle_shot_smart_pointer(SHOT_REIMU);
 		// activate one bullet
-		if (reload == 0)
+		if (shot_reload == 0)
 			shotlist[SHOT_REIMU][nth_shot[SHOT_REIMU]].active = 1;
 	}
 }

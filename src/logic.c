@@ -23,13 +23,14 @@
 #include "player.h"
 #include "shot.h"
 #include "stage.h"
+#include "danmaku.h"
 
 
 /* VARIABLES */
 
 // player
 struct player player[MAX_PLAYERS];
-int curr_player = 0;
+int curr_player = 1;
 
 // shot
 struct bullet shotlist[MAX_SHOTS][MAX_SHOT_MULTIPLE];
@@ -403,9 +404,14 @@ void do_player_bullets()
 	int i, j;
 	
 	// update player bullet reload
-	reload--;
-	if (reload < 0)
-		reload = MAX_RELOAD;
+	shot_reload--;
+	if (shot_reload < 0)
+		shot_reload = MAX_SHOT_RELOAD;
+	
+	bomb_reload--;
+	if (bomb_reload == 0) {
+		delete_danmaku_all();
+	}
 	
 	// update player bullets
 	for (i = 0; i < MAX_SHOTS; i++) {
