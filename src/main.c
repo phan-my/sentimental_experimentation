@@ -29,28 +29,20 @@ int main(int argc, char **argv)
 	/* main loop */
 	bool close = false;
 	while (!close) {
+
+		close = do_input();
+		do_logic();
+		do_screen();
+
 //		const Uint8 *keyboard_states = SDL_GetKeyboardState(NULL);
 		switch (state_menu) {
-		case STATE_MAIN:
-			do_main_menu_input();
-			do_main_menu_screen();
-			break;
 		case STATE_LOADING:
 			initialize_sounds();
-			state_menu = STATE_PLAY;
-
 			SDL_RenderClear(rend);
 			SDL_RenderCopy(rend, loading.sdl.texture, NULL, &loading.sdl.rect);
 			SDL_RenderPresent(rend);
 			SDL_Delay(500);
 			play_track("02");
-			break;
-		case STATE_PLAY:
-			close = do_input();
-			do_stage();
-			do_logic();
-			do_screen();
-
 			break;
 		default:
 			break;

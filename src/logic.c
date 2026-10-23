@@ -24,6 +24,7 @@
 #include "shot.h"
 #include "stage.h"
 #include "danmaku.h"
+#include "menu.h"
 
 
 /* VARIABLES */
@@ -470,15 +471,21 @@ void do_items()
 // all operations
 void do_logic()
 {
-	int i;
+	switch (state_menu) {
+	case STATE_PLAY:
+		do_stage();
+		update_player_motion();
+		update_bullet_motion();
+		update_enemy_motion();
+		do_player_bullets();
+		do_items();
+		do_collision(); // and check and do collision between them
+		break;
+	case STATE_LOADING:
+		state_menu = STATE_PLAY;
+		
+	}
 
-	// update all positional values of entities
-	update_player_motion();
-	update_bullet_motion();
-	update_enemy_motion();
-	do_player_bullets();
-	do_items();
-	do_collision(); // and check and do collision between them
 }
 
 /*

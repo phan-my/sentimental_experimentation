@@ -31,6 +31,12 @@ bool key_down = 0;
 
 /* FUNCTIONS */
 
+// if holdign left ALT + F4
+bool holding_quit(const Uint8 *states)
+{
+	return states[SDL_SCANCODE_LALT] && states[SDL_SCANCODE_F4];
+}
+
 // TODO: implement menu functionality
 int do_main_menu_input()
 {
@@ -63,6 +69,8 @@ int do_main_menu_input()
 	if (key_down) {
 		if (keyboard_states[SDL_SCANCODE_Z])
 			state_menu = STATE_LOADING;
+		if (holding_quit(keyboard_states))
+			return 1;
 	}
 }
 
@@ -84,12 +92,6 @@ void _do_player_input()
 	player[curr_player].itembox.p.y =
 		player[curr_player].motion.hb.p.y
 		- player[curr_player].itembox.r / 2.;
-}
-
-// if holdign left ALT + F4
-bool holding_quit(const Uint8 *states)
-{
-	return states[SDL_SCANCODE_LALT] && states[SDL_SCANCODE_F4];
 }
 
 // returns default speed if not holding shift or focus speed if holding shift
@@ -142,163 +144,170 @@ bool holding_diagonal(Uint8 *states)
 // returns 1 to exit the main loop
 int do_input()
 {
-	int i;
-	
-	// questions/1252976
-	// github: mikeanthonywild/sdl-shoot-em-up
-	SDL_Event event;
-	const Uint8 *keyboard_states = SDL_GetKeyboardState(NULL);
-
-	// mechanism for player to grind at field border
-	bool in_left =
-		player[curr_player].itembox.p.x - player[curr_player].itembox.r
-		> FIELD_OFFSET_X;
-	bool in_up =
-		player[curr_player].itembox.p.y - player[curr_player].itembox.r
-		> FIELD_OFFSET_Y;
-	bool in_down =
-		player[curr_player].itembox.p.y + player[curr_player].itembox.r
-		< FIELD_OFFSET_Y + FIELD_HEIGHT;
-	bool in_right =
-		player[curr_player].itembox.p.x + player[curr_player].itembox.r
-		< FIELD_OFFSET_X + FIELD_WIDTH;
-
-	while (SDL_PollEvent(&event)) {
-		switch (event.type) {
-
-		// close button
-		case SDL_QUIT:
-			return 1;
-			break;
-
-		// any key pressed
-		case SDL_KEYDOWN:
-			key_down = 1;
-			scanned_key = event.key.keysym.scancode;
-			break;
-		case SDL_KEYUP:
-			stop_player_motion();
-// 				key_down = 0;
-// 				scanned_key = 0;
-			break;
-		default:
-			break;
-		}
-	}
-
-	// avoids key repeat delay
-	// questions/21311824/sdl2-key-repeat-delay
-	// quit game
-	if (holding_quit(keyboard_states))
-		return 1;
-
-	/* movement */
-
-	stop_player_motion();
-	factored_speed = set_player_nondiagonal_speed(keyboard_states);
-	diagonal = factored_speed * INVERSE_SQRT_2;
-
-	// non-diagonal movement
-	if (keyboard_states[SDL_SCANCODE_LEFT] && in_left)
-		player[curr_player].motion.v.x = -factored_speed;
-	if (keyboard_states[SDL_SCANCODE_DOWN] && in_down)
-		player[curr_player].motion.v.y = factored_speed;
-	if (keyboard_states[SDL_SCANCODE_UP] && in_up)
-		player[curr_player].motion.v.y = -factored_speed;
-	if (keyboard_states[SDL_SCANCODE_RIGHT] && in_right)
-		player[curr_player].motion.v.x = factored_speed;
-
-	// diagonal movement
-	if (keyboard_states[SDL_SCANCODE_LEFT] &&
-			keyboard_states[SDL_SCANCODE_DOWN]) {
-		if (in_down)
-			player[curr_player].motion.v.y = diagonal;
-		if (in_left)
-			player[curr_player].motion.v.x = -diagonal;
-	}
-	if (keyboard_states[SDL_SCANCODE_LEFT] &&
-			keyboard_states[SDL_SCANCODE_UP]) {
-		if (in_left)
-			player[curr_player].motion.v.x = -diagonal;
-		if (in_up)
-			player[curr_player].motion.v.y = -diagonal;
-	}
-	if (keyboard_states[SDL_SCANCODE_RIGHT] &&
-			keyboard_states[SDL_SCANCODE_DOWN]) {
-		if (in_right)
-			player[curr_player].motion.v.x = diagonal;
-		if (in_down)
-			player[curr_player].motion.v.y = diagonal;
-	}
-	if (keyboard_states[SDL_SCANCODE_RIGHT] &&
-			keyboard_states[SDL_SCANCODE_UP]) {
-		if (in_right)
-			player[curr_player].motion.v.x = diagonal;
-		if (in_up)
-			player[curr_player].motion.v.y = -diagonal;
-	}
-
-//	player[curr_player].sdl.rect.x = player[curr_player].motion.hb.p.x;
-//	player[curr_player].sdl.rect.y = player[curr_player].motion.hb.p.y;
-//	update_player_motion();
-
+	switch (state_menu) {
+	case STATE_PLAY:
+		int i;
 		
-	/* shooting */
+		// questions/1252976
+		// github: mikeanthonywild/sdl-shoot-em-up
+		SDL_Event event;
+		const Uint8 *keyboard_states = SDL_GetKeyboardState(NULL);
 
-	// basic shot
-	// https://www.parallelrealities.co.uk/tutorials/shooter/shooter5.php
-	if (keyboard_states[SDL_SCANCODE_Z]) {
-		switch (curr_player) {
-		case PLAYER_REIMU:
-			activate_reimu_shot();
-			break;
-		case PLAYER_MARISA:
-			// two columns of marisa shot
-			for (i = 0; i < 2; i++) {
-				// cycles through array
-				cycle_shot_smart_pointer(SHOT_MARISA);
-				// activate one bullet
-				if (shot_reload == 0)
-					shotlist[SHOT_MARISA][nth_shot[SHOT_MARISA]].active = 1;
-			}
-			break;
-		default:
-			break;
-		}
-	}
+		// mechanism for player to grind at field border
+		bool in_left =
+			player[curr_player].itembox.p.x - player[curr_player].itembox.r
+			> FIELD_OFFSET_X;
+		bool in_up =
+			player[curr_player].itembox.p.y - player[curr_player].itembox.r
+			> FIELD_OFFSET_Y;
+		bool in_down =
+			player[curr_player].itembox.p.y + player[curr_player].itembox.r
+			< FIELD_OFFSET_Y + FIELD_HEIGHT;
+		bool in_right =
+			player[curr_player].itembox.p.x + player[curr_player].itembox.r
+			< FIELD_OFFSET_X + FIELD_WIDTH;
 
-	// bomb
-	if (keyboard_states[SDL_SCANCODE_X]) {			
-		if (bomb_reload < 0 && player[curr_player].bombs > 0) {
-			delete_danmaku_in_circle(
-					player[curr_player].motion.hb.p.x,
-					player[curr_player].motion.hb.p.y,
-					BOMB_RADIUS);
-			bomb_reload = MAX_BOMB_RELOAD;
-			player[curr_player].bombs--; // subtract bombs
-			player[curr_player].invincible = true; // set invincibility
-			player[curr_player].iframes = MAX_BOMB_RELOAD;
-		}
-/*
-		switch (curr_player) {
-		case PLAYER_REIMU:
-			activate_reimu_shot();
-			break;
-		case PLAYER_MARISA:
-			// two columns of marisa shot
-			for (i = 0; i < 2; i++) {
-				// cycles through array
-				cycle_shot_smart_pointer(SHOT_MARISA);
-				// activate one bullet
-				if (shot_reload == 0)
-					shotlist[SHOT_MARISA][nth_shot[SHOT_MARISA]].active = 1;
+		while (SDL_PollEvent(&event)) {
+			switch (event.type) {
+
+			// close button
+			case SDL_QUIT:
+				return 1;
+				break;
+
+			// any key pressed
+			case SDL_KEYDOWN:
+				key_down = 1;
+				scanned_key = event.key.keysym.scancode;
+				break;
+			case SDL_KEYUP:
+				stop_player_motion();
+	// 				key_down = 0;
+	// 				scanned_key = 0;
+				break;
+			default:
+				break;
 			}
-			break;
-		default:
-			break;
 		}
-*/
+
+		// avoids key repeat delay
+		// questions/21311824/sdl2-key-repeat-delay
+		// quit game
+		if (holding_quit(keyboard_states))
+			return 1;
+
+		/* movement */
+
+		stop_player_motion();
+		factored_speed = set_player_nondiagonal_speed(keyboard_states);
+		diagonal = factored_speed * INVERSE_SQRT_2;
+
+		// non-diagonal movement
+		if (keyboard_states[SDL_SCANCODE_LEFT] && in_left)
+			player[curr_player].motion.v.x = -factored_speed;
+		if (keyboard_states[SDL_SCANCODE_DOWN] && in_down)
+			player[curr_player].motion.v.y = factored_speed;
+		if (keyboard_states[SDL_SCANCODE_UP] && in_up)
+			player[curr_player].motion.v.y = -factored_speed;
+		if (keyboard_states[SDL_SCANCODE_RIGHT] && in_right)
+			player[curr_player].motion.v.x = factored_speed;
+
+		// diagonal movement
+		if (keyboard_states[SDL_SCANCODE_LEFT] &&
+				keyboard_states[SDL_SCANCODE_DOWN]) {
+			if (in_down)
+				player[curr_player].motion.v.y = diagonal;
+			if (in_left)
+				player[curr_player].motion.v.x = -diagonal;
+		}
+		if (keyboard_states[SDL_SCANCODE_LEFT] &&
+				keyboard_states[SDL_SCANCODE_UP]) {
+			if (in_left)
+				player[curr_player].motion.v.x = -diagonal;
+			if (in_up)
+				player[curr_player].motion.v.y = -diagonal;
+		}
+		if (keyboard_states[SDL_SCANCODE_RIGHT] &&
+				keyboard_states[SDL_SCANCODE_DOWN]) {
+			if (in_right)
+				player[curr_player].motion.v.x = diagonal;
+			if (in_down)
+				player[curr_player].motion.v.y = diagonal;
+		}
+		if (keyboard_states[SDL_SCANCODE_RIGHT] &&
+				keyboard_states[SDL_SCANCODE_UP]) {
+			if (in_right)
+				player[curr_player].motion.v.x = diagonal;
+			if (in_up)
+				player[curr_player].motion.v.y = -diagonal;
+		}
+
+	//	player[curr_player].sdl.rect.x = player[curr_player].motion.hb.p.x;
+	//	player[curr_player].sdl.rect.y = player[curr_player].motion.hb.p.y;
+	//	update_player_motion();
+
+			
+		/* shooting */
+
+		// basic shot
+		// https://www.parallelrealities.co.uk/tutorials/shooter/shooter5.php
+		if (keyboard_states[SDL_SCANCODE_Z]) {
+			switch (curr_player) {
+			case PLAYER_REIMU:
+				activate_reimu_shot();
+				break;
+			case PLAYER_MARISA:
+				// two columns of marisa shot
+				for (i = 0; i < 2; i++) {
+					// cycles through array
+					cycle_shot_smart_pointer(SHOT_MARISA);
+					// activate one bullet
+					if (shot_reload == 0)
+						shotlist[SHOT_MARISA][nth_shot[SHOT_MARISA]].active = 1;
+				}
+				break;
+			default:
+				break;
+			}
+		}
+
+		// bomb
+		if (keyboard_states[SDL_SCANCODE_X]) {			
+			if (bomb_reload < 0 && player[curr_player].bombs > 0) {
+				delete_danmaku_in_circle(
+						player[curr_player].motion.hb.p.x,
+						player[curr_player].motion.hb.p.y,
+						BOMB_RADIUS);
+				bomb_reload = MAX_BOMB_RELOAD;
+				player[curr_player].bombs--; // subtract bombs
+				player[curr_player].invincible = true; // set invincibility
+				player[curr_player].iframes = MAX_BOMB_RELOAD;
+			}
+	/*
+			switch (curr_player) {
+			case PLAYER_REIMU:
+				activate_reimu_shot();
+				break;
+			case PLAYER_MARISA:
+				// two columns of marisa shot
+				for (i = 0; i < 2; i++) {
+					// cycles through array
+					cycle_shot_smart_pointer(SHOT_MARISA);
+					// activate one bullet
+					if (shot_reload == 0)
+						shotlist[SHOT_MARISA][nth_shot[SHOT_MARISA]].active = 1;
+				}
+				break;
+			default:
+				break;
+			}
+	*/
+		}
+		return 0;
+		break;
+	case STATE_MAIN_MENU:
+		do_main_menu_input();
+		break;
 	}
-	return 0;
 }
 

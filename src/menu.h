@@ -13,7 +13,7 @@
 
 // macros
 #define STATE_PLAY	0
-#define STATE_MAIN	1
+#define STATE_MAIN_MENU	1
 #define STATE_LOADING	2
 #define STATE_PAUSE	3
 #define STATE_ENDING	4

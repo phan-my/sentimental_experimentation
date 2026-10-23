@@ -16,6 +16,7 @@
 #include "logic.h"
 #include "player.h"
 #include "shot.h"
+#include "menu.h"
 
 
 /* VARIABLES */
@@ -243,76 +244,82 @@ void do_player_render()
 			&player[curr_player].sdl.rect);
 }
 
-// update objects on screen
-void do_screen()
-{
-	int i, j;
-
-	// clear screen
-	SDL_RenderClear(rend);
-
-	do_player_render();
-
-	// bullets
-	for (i = 0; i < MAX_BULLETS; i++) {
-		for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
-			if (bulletlist[i][j].active) {
-				update_bullet_render(&bulletlist[i][j]);
-				SDL_RenderCopy(rend, bulletlist[i][j].sdl.texture, NULL, &bulletlist[i][j].sdl.rect);
-			}
-		}
-	}
-
-	// enemies
-	for (i = 0; i < MAX_ENEMIES; i++) {
-		for (j = 0; j < MAX_ENEMY_MULTIPLE; j++) {
-			if (enemylist[i][j].active) {
-				update_enemy_render(&enemylist[i][j]);
-				SDL_RenderCopy(rend,
-						enemylist[i][j].sdl.texture,
-						NULL,
-						&enemylist[i][j].sdl.rect);
-			}
-		}
-	}
-
-	// player bullets
-	for (i = 0; i < MAX_SHOTS; i++) {
-		for (j = 0; j < MAX_SHOT_MULTIPLE; j++) {
-			if (shotlist[i][j].active) {
-				update_bullet_render(&shotlist[i][j]);
-				SDL_RenderCopy(rend, shotlist[i][j].sdl.texture,
-						NULL,
-						&shotlist[i][j].sdl.rect);
-			}
-		}
-	}
-
-	// items
-	for (i = 0; i < MAX_ITEMS; i++) {
-		for (j = 0; j < MAX_ITEM_MULTIPLE; j++) {
-			if (itemlist[i][j].active) {
-				itemlist[i][j].sdl.rect.x = (int)(itemlist[i][j].motion.hb.p.x
-						- itemlist[i][j].sdl.rect.w / 2.);
-				itemlist[i][j].sdl.rect.y = (int)(itemlist[i][j].motion.hb.p.y
-						- itemlist[i][j].sdl.rect.h / 2.);
-				SDL_RenderCopy(rend, itemlist[i][j].sdl.texture,
-						NULL, &itemlist[i][j].sdl.rect);
-			}
-		}
-	}
-	// overlays
-	SDL_RenderCopy(rend, border.sdl.texture, NULL, &border.sdl.rect);
-
-	// end
-	SDL_RenderPresent(rend);
-}
-
 // update sprites in main menu
 void do_main_menu_screen()
 {
 	SDL_RenderClear(rend);
 	SDL_RenderCopy(rend, main_menu.sdl.texture, NULL, &main_menu.sdl.rect);
 	SDL_RenderPresent(rend);
+}
+
+// update objects on screen
+void do_screen()
+{
+	switch (state_menu) {
+	case STATE_PLAY:
+		int i, j;
+
+		// clear screen
+		SDL_RenderClear(rend);
+
+		do_player_render();
+
+		// bullets
+		for (i = 0; i < MAX_BULLETS; i++) {
+			for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
+				if (bulletlist[i][j].active) {
+					update_bullet_render(&bulletlist[i][j]);
+					SDL_RenderCopy(rend, bulletlist[i][j].sdl.texture, NULL, &bulletlist[i][j].sdl.rect);
+				}
+			}
+		}
+
+		// enemies
+		for (i = 0; i < MAX_ENEMIES; i++) {
+			for (j = 0; j < MAX_ENEMY_MULTIPLE; j++) {
+				if (enemylist[i][j].active) {
+					update_enemy_render(&enemylist[i][j]);
+					SDL_RenderCopy(rend,
+							enemylist[i][j].sdl.texture,
+							NULL,
+							&enemylist[i][j].sdl.rect);
+				}
+			}
+		}
+
+		// player bullets
+		for (i = 0; i < MAX_SHOTS; i++) {
+			for (j = 0; j < MAX_SHOT_MULTIPLE; j++) {
+				if (shotlist[i][j].active) {
+					update_bullet_render(&shotlist[i][j]);
+					SDL_RenderCopy(rend, shotlist[i][j].sdl.texture,
+							NULL,
+							&shotlist[i][j].sdl.rect);
+				}
+			}
+		}
+
+		// items
+		for (i = 0; i < MAX_ITEMS; i++) {
+			for (j = 0; j < MAX_ITEM_MULTIPLE; j++) {
+				if (itemlist[i][j].active) {
+					itemlist[i][j].sdl.rect.x = (int)(itemlist[i][j].motion.hb.p.x
+							- itemlist[i][j].sdl.rect.w / 2.);
+					itemlist[i][j].sdl.rect.y = (int)(itemlist[i][j].motion.hb.p.y
+							- itemlist[i][j].sdl.rect.h / 2.);
+					SDL_RenderCopy(rend, itemlist[i][j].sdl.texture,
+							NULL, &itemlist[i][j].sdl.rect);
+				}
+			}
+		}
+		// overlays
+		SDL_RenderCopy(rend, border.sdl.texture, NULL, &border.sdl.rect);
+
+		// end
+		SDL_RenderPresent(rend);
+		break;
+	case STATE_MAIN_MENU:
+		do_main_menu_screen();
+	}
 }
 

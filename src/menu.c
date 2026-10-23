@@ -8,6 +8,10 @@
 
 /* INCLUDES */
 #include "menu.h"
+#include <SDL2/SDL_ttf.h>
+
 
 /* GLOBALS */
 int state_menu = 1;
+
+
