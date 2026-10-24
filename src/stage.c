@@ -24,6 +24,7 @@
 // double stages_s[MAX_STAGES][MAX_CHECKPOINTS] = {{1, 4.5, 42, 70.5}};
 int stages[MAX_STAGES][MAX_CHECKPOINTS] = {{4, 0*60, 1*60, 2*60, 111*50}};
 int current_stage = 1;
+bool is_boss;
 
 // stage variables
 double speed[MAX_BULLET_MULTIPLE];
@@ -39,7 +40,6 @@ struct timespec stage_now;
 uint64_t stage_progress;
 int stage_progress_frames = 0;
 double stage_progress_seconds;
-bool single_activation; // controls start of fairy spawning
 
 // fps count
 double frames[10000];
@@ -59,7 +59,7 @@ void initialize_stage()
 	// initialize clock
 	stage_progress_frames = 0;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &stage_start);
-	single_activation = true;
+	is_boss = false;
 }
 
 /* patterns */
@@ -168,7 +168,7 @@ void do_stage()
 	int i;
 
 	// if game state is at a menu/loading screen, initialize stage
-	if (state_menu) {
+	if (state_menu == STATE_LOADING) {
 		initialize_stage();
 	}
 

@@ -37,6 +37,7 @@
 // structs
 
 // globals
+extern int curr_player;
 
 
 // functions

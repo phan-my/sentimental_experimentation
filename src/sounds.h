@@ -12,13 +12,17 @@
 // includes
 #include <SDL2/SDL_mixer.h>
 
+// macros
+#define MAX_SONGS 3
+
 // globals
 extern Mix_Music *song;
 
 // functions
 void initialize_sounds();
-void play_track(char *title);
+void play_track_title(const char *title);
 void play_sfx(char *title);
+void do_sounds();
 void terminate_sounds();
 
 #endif /* SOUNDS_H */

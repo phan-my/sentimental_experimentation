@@ -14,6 +14,8 @@
 
 /* VARIABLES */
 
+int curr_player = PLAYER_MARISA;
+
 /* FUNCTIONS */
 
 // set player initial values

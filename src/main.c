@@ -18,10 +18,9 @@
 int main(int argc, char **argv)
 {
 	/* initialization */
-	check_sdl_init();	// begin SDL2 setup
-	initialize_screen();	// create window
-	initialize_logic();
+	initialize_screen();	
 	initialize_sounds();
+	initialize_logic();
 
 	/* main loop */
 	bool close = false;
@@ -29,6 +28,7 @@ int main(int argc, char **argv)
 		close = do_input();
 		do_logic();
 		do_screen();
+		do_sounds();
 	}
 
 	/* program termination */

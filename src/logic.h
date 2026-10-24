@@ -221,7 +221,6 @@ struct overlay {
 
 // player
 extern struct player player[MAX_PLAYERS];
-extern int curr_player;
 
 // shot
 extern struct bullet shotlist[MAX_SHOTS][MAX_SHOT_MULTIPLE];

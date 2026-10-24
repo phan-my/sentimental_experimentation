@@ -32,7 +32,6 @@
 
 // player
 struct player player[MAX_PLAYERS];
-int curr_player = PLAYER_REIMU;
 
 // shot
 struct bullet shotlist[MAX_SHOTS][MAX_SHOT_MULTIPLE];
@@ -488,20 +487,10 @@ void do_logic()
 		do_collision(); // and check and do collision between them
 		break;
 	case STATE_LOADING:
-		state_menu = STATE_PLAY;
-
-		// change to loading screen
-		SDL_RenderClear(rend);
-		SDL_RenderCopy(rend, loading.sdl.texture, NULL,
-				&loading.sdl.rect);
-		SDL_RenderPresent(rend);
-
-		// wait to prevent seizures
-		SDL_Delay(500);
-		
-		// TODO: make variable
-		play_track("bgm/02_stage1.opus");
+		do_loading();
 		break;
+	case STATE_ON_POWER:
+		state_menu = STATE_MAIN_MENU;
 	default:
 		break;
 	}

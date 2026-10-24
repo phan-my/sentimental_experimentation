@@ -12,13 +12,17 @@
 #define MENU_H
 
 // macros
-#define STATE_PLAY	0
-#define STATE_MAIN_MENU	1
-#define STATE_LOADING	2
-#define STATE_PAUSE	3
-#define STATE_ENDING	4
+#define STATE_ON_POWER	0
+#define STATE_PLAY	1
+#define STATE_MAIN_MENU	2
+#define STATE_LOADING	3
+#define STATE_PAUSE	4
+#define STATE_ENDING	5
 
 // globals
 extern int state_menu;
+
+// functions
+void do_loading();
 
 #endif /* MENU_H */
