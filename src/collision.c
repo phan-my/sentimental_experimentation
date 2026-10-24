@@ -62,6 +62,7 @@ bool _rect_in_rect(struct rectbox obj_1, struct rectbox obj_2)
 
 // if player hits an enemy, then kill both, deplete player health, & reset
 // position
+// returns 0 if no collision; 1 if graze; 2 if collision
 void player_enemy_collision()
 {
 	int i, j;
@@ -73,11 +74,23 @@ void player_enemy_collision()
 			if (circle_in_circle(enemylist[i][j].motion.hb,
 						player[curr_player].motion.hb)
 					&& enemylist[i][j].active) {
+				player[curr_player].deathbomb_active = true;
+				player[curr_player].deathbomb_timer
+					= MAX_DEATHBOMB_RELOAD;
 				enemylist[i][j].active = false; // kill enemy
-				player[curr_player].health--; // decrease HP
 				player[curr_player].invincible = true; // iframe
-				reset_player_position(); // put player at origin
 				play_sfx("sfx/death.ogx"); // death sound
+			}
+			
+			// grazing
+			if (circle_in_circle(enemylist[i][j].motion.hb,
+						player[curr_player].grazebox)
+					&& enemylist[i][j].active
+					&& !player[curr_player].invincible
+					&& !enemylist[i][j].grazed) {
+				player[curr_player].graze++;
+				enemylist[i][j].grazed = true;
+				play_sfx("sfx/graze.ogx"); // graze sound
 			}
 		}
 	}
@@ -85,9 +98,11 @@ void player_enemy_collision()
 
 // if player hits an bullet, then kill both, deplete player health, & reset
 // position
+// returns 0 if no collision; 1 if graze; 2 if collision
 void player_bullet_collision()
 {
 	int i, j;
+	
 	// loop through entire bulletlist
 	for (i = 0; i < MAX_BULLETS; i++) {
 		for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
@@ -107,6 +122,7 @@ void player_bullet_collision()
 			if (circle_in_circle(bulletlist[i][j].motion.hb,
 						player[curr_player].grazebox)
 					&& bulletlist[i][j].active
+					&& !player[curr_player].invincible
 					&& !bulletlist[i][j].grazed) {
 				player[curr_player].graze++;
 				bulletlist[i][j].grazed = true;
@@ -184,6 +200,8 @@ void do_collision()
 				player[curr_player].deathbomb_active) {
 			player[curr_player].health--; // decrease HP
 			reset_player_position(); // put player at origin
+			
+			// resets deathbomb
 			player[curr_player].deathbomb_timer
 				= MAX_DEATHBOMB_RELOAD;
 			player[curr_player].deathbomb_active = false;

@@ -206,9 +206,15 @@ void initialize_enemies()
 	
 	// create multiple of all unique enemies
 	for (i = 0; i < MAX_ENEMIES; i++) {
+		// create multiples per enemyID
 		for (j = 0; j < MAX_ENEMY_MULTIPLE; j++) {
 			enemylist[i][j] = enemylist[i][0];
+			enemylist[i][j].active = false;
+			enemylist[i][j].grazed = false;
 		}
+
+		// set smart pointers to 0
+		nth_enemy[i] = 0;
 	}
 	
 }

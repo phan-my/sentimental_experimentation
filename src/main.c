@@ -26,9 +26,9 @@ int main(int argc, char **argv)
 	bool close = false;
 	while (!close) {
 		close = do_input();
+		do_sounds();
 		do_logic();
 		do_screen();
-		do_sounds();
 	}
 
 	/* program termination */

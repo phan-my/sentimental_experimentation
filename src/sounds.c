@@ -15,6 +15,7 @@
 #include "menu.h"
 #include "texts.h"
 #include "stage.h"
+#include "collision.h"
 
 
 /* VARIABLES */
@@ -93,7 +94,7 @@ void initialize_sounds()
 // plays sounds according to context
 void do_sounds()
 {
-	
+	/* music */
 	switch (state_menu) {
 	case STATE_LOADING:
 		update_track();
@@ -102,6 +103,56 @@ void do_sounds()
 	default:
 		break;
 	}
+	
+	/* sfx */
+	int i, j;
+
+	// loop through entire enemylist
+	// FIXME: player invincibility takes precedence over sfx
+/*
+	for (i = 0; i < MAX_ENEMIES; i++) {
+	for (j = 0; j < MAX_ENEMY_MULTIPLE; j++) {
+		// checks collision
+		if (circle_in_circle(enemylist[i][j].motion.hb,
+					player[curr_player].motion.hb)
+				&& !player[curr_player].invincible
+				&& enemylist[i][j].active) {
+			play_sfx("sfx/death.ogx"); // death sound
+		}
+	
+		// grazing
+		if (circle_in_circle(enemylist[i][j].motion.hb,
+					player[curr_player].grazebox)
+				&& enemylist[i][j].active
+				&& !player[curr_player].invincible
+				&& !enemylist[i][j].grazed) {
+			play_sfx("sfx/graze.ogx"); // graze sound
+		}
+	}
+	}
+
+	// loop through entire bulletlist
+	for (i = 0; i < MAX_BULLETS; i++) {
+	for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
+		// collision
+		if (circle_in_circle(bulletlist[i][j].motion.hb,
+					player[curr_player].motion.hb)
+				&& !player[curr_player].invincible
+				&& bulletlist[i][j].active) {
+			play_sfx("sfx/death.ogx"); // death sound
+		}
+
+		// grazing
+		if (circle_in_circle(bulletlist[i][j].motion.hb,
+					player[curr_player].grazebox)
+				&& bulletlist[i][j].active
+				&& !player[curr_player].invincible
+				&& !bulletlist[i][j].grazed) {
+			play_sfx("sfx/graze.ogx"); // graze sound
+		}
+	}
+	}
+*/
 }
 
 // terminates music and quits mixer

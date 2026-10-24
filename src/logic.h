@@ -184,6 +184,8 @@ struct enemy {
 	// misc
 	int item; // item that drops upon defeat
 	bool clearable; // 1: automatically unloaded if reaches off-screen
+	
+	bool grazed;
 };
 
 struct bullet {
