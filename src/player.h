@@ -19,6 +19,7 @@
 #define PLAYER_MARISA 1
 
 #define MAX_IFRAMES 240 // in fr
+#define MAX_DEATHBOMB_RELOAD 8 // in fr
 
 // player spawn position
 #define PLAYER_ORIGIN_X FIELD_WIDTH / 2. + FIELD_OFFSET_X

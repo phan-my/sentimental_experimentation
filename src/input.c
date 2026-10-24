@@ -20,6 +20,7 @@
 #include "pointer.h"
 #include "danmaku.h"
 #include "sounds.h"
+#include "player.h"
 
 /* VARIABLES */
 
@@ -281,9 +282,20 @@ int do_input()
 						BOMB_RADIUS);
 				bomb_reload = MAX_BOMB_RELOAD;
 				player[curr_player].bombs--; // subtract bombs
+				
 				// set invincibility
 				player[curr_player].invincible = true;
 				player[curr_player].iframes = MAX_BOMB_RELOAD;
+				
+				// deathbomb cancels death
+				if (player[curr_player].deathbomb_active == 1) {
+					player[curr_player].deathbomb_active
+						= 0;
+					player[curr_player].deathbomb_timer
+						= MAX_DEATHBOMB_RELOAD;
+				}
+
+				// TODO: move to mixer
 				switch (curr_player) {
 				case PLAYER_REIMU:
 					play_sfx("sfx/bomb_reimu_a.ogx");

@@ -214,6 +214,11 @@ void initialize_enemies()
 	
 }
 
+// sets default value of struct kinematics (except player)
+void reset_position()
+{
+}
+
 // full initialization of objects and their property
 void initialize_logic()
 {

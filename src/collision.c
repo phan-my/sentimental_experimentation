@@ -95,10 +95,11 @@ void player_bullet_collision()
 			if (circle_in_circle(bulletlist[i][j].motion.hb,
 						player[curr_player].motion.hb)
 					&& bulletlist[i][j].active) {
+				player[curr_player].deathbomb_active = true;
+				player[curr_player].deathbomb_timer
+					= MAX_DEATHBOMB_RELOAD;
 				bulletlist[i][j].active = false; // kill bullet
-				player[curr_player].health--; // decrease HP
 				player[curr_player].invincible = true; // iframe
-				reset_player_position(); // put player at origin
 				play_sfx("sfx/death.ogx"); // death sound
 			}
 
@@ -175,7 +176,21 @@ void do_collision()
 		player_enemy_collision();
 	// if player is invincible
 	} else if (player[curr_player].iframes > 0) {	// decrease iframe
+		// invincibility timer
 		player[curr_player].iframes--;
+		
+		// if deathbomb timer runs out, kill player
+		if (player[curr_player].deathbomb_timer < 0 && 
+				player[curr_player].deathbomb_active) {
+			player[curr_player].health--; // decrease HP
+			reset_player_position(); // put player at origin
+			player[curr_player].deathbomb_timer
+				= MAX_DEATHBOMB_RELOAD;
+			player[curr_player].deathbomb_active = false;
+		// count down deathbomb timer
+		} else {
+			player[curr_player].deathbomb_timer--;
+		}
 	// if iframe is emptied: reset iframe
 	} else {
 		player[curr_player].invincible = false;

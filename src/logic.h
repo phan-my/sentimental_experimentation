@@ -156,10 +156,14 @@ struct player {
 	int score;
 	int graze;
 	int bombs;
-	int shot;
-	bool active;
+
+	int deathbomb_timer; // countdown timer for deathbombing
+	bool deathbomb_active; // true: start counting down deathbomb_timer
+	
+	int shot; 
+	bool active; // only 1 player can be active
 	bool invincible; // i-frames
-	int iframes;
+	int iframes; // countdown to 0
 };
 
 // generic stage enemy

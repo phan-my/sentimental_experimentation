@@ -16,7 +16,7 @@
 
 /* FUNCTIONS */
 
-
+// set player initial values
 void initialize_players()
 {
 	int i;
@@ -27,6 +27,8 @@ void initialize_players()
 		player[i].power = 0.;
 		player[i].score = 0;
 		player[i].graze = 0;
+		player[i].deathbomb_timer = MAX_DEATHBOMB_RELOAD;
+		player[i].deathbomb_active = false;
 		player[i].motion.hb.r = 2.;
 		// TODO: redraw to deal with grazing
 		player[i].grazebox.r = 10.;
