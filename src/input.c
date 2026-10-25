@@ -146,14 +146,46 @@ bool holding_diagonal(Uint8 *states)
 // returns 1 to exit the main loop
 int do_input()
 {
+	// questions/1252976
+	// github: mikeanthonywild/sdl-shoot-em-up
+	SDL_Event event;
+	const Uint8 *keyboard_states = SDL_GetKeyboardState(NULL);
+
+	/* universal inputs */
+	
+	// avoids key repeat delay
+	// questions/21311824/sdl2-key-repeat-delay
+	while (SDL_PollEvent(&event)) {
+		switch (event.type) {
+
+		// close button
+		case SDL_QUIT:
+			return 1;
+			break;
+
+		// any key pressed
+		case SDL_KEYDOWN:
+			key_down = 1;
+			scanned_key = event.key.keysym.scancode;
+			break;
+		case SDL_KEYUP:
+//			stop_player_motion();
+// 				key_down = 0;
+// 				scanned_key = 0;
+			break;
+		default:
+			break;
+		}
+	}
+	
+	// quit game
+	if (holding_quit(keyboard_states))
+		return 1;
+		
+	/* state-specific inputs */
 	switch (state_menu) {
 	case STATE_PLAY:
 		int i;
-		
-		// questions/1252976
-		// github: mikeanthonywild/sdl-shoot-em-up
-		SDL_Event event;
-		const Uint8 *keyboard_states = SDL_GetKeyboardState(NULL);
 
 		// mechanism for player to grind at field border
 		bool in_left =
@@ -168,35 +200,6 @@ int do_input()
 		bool in_right =
 			player[curr_player].itembox.p.x + player[curr_player].itembox.r
 			< FIELD_OFFSET_X + FIELD_WIDTH;
-
-		while (SDL_PollEvent(&event)) {
-			switch (event.type) {
-
-			// close button
-			case SDL_QUIT:
-				return 1;
-				break;
-
-			// any key pressed
-			case SDL_KEYDOWN:
-				key_down = 1;
-				scanned_key = event.key.keysym.scancode;
-				break;
-			case SDL_KEYUP:
-				stop_player_motion();
-	// 				key_down = 0;
-	// 				scanned_key = 0;
-				break;
-			default:
-				break;
-			}
-		}
-
-		// avoids key repeat delay
-		// questions/21311824/sdl2-key-repeat-delay
-		// quit game
-		if (holding_quit(keyboard_states))
-			return 1;
 
 		/* movement */
 
