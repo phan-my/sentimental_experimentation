@@ -13,6 +13,9 @@
 #pragma once
 #include <SDL2/SDL.h>
 
+// globals
+extern bool key_down;
+
 // functions
 int do_input();
 int do_main_menu_input();

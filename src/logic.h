@@ -17,6 +17,7 @@
 #include <math.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include "player.h"
 #include "shot.h"
 
@@ -112,8 +113,10 @@ struct kinematics {
 	struct acceleration a; // current acceleration
 	int time_0; // exact time of spawn in frames
 	bool curved; // false: do funcs for straight motion; true: curvy motion
+		     // UNUSDED
 	double angle_rate; // first derivative with respect to time
 	double angle_acceleration; // 2nd derivative with respect to time
+	struct kinematics *next;
 };
 
 /* colors */
@@ -203,6 +206,9 @@ struct bullet {
 	int (*trail)(double, double);
 
 	bool grazed;
+
+	int max_homing; // in fr, maximum time that bullet is homing
+	bool is_homing; // true: use module for homing bullets; false: otherwise
 };
 
 // collectible items such as powerups, bombs, score

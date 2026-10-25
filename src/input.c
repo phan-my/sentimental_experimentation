@@ -69,11 +69,21 @@ int do_main_menu_input()
 	
 	// start game
 	if (key_down) {
-		if (keyboard_states[SDL_SCANCODE_Z])
+		// player selects Reimu
+		if (keyboard_states[SDL_SCANCODE_1]) {
+			curr_player = PLAYER_REIMU;
 			state_menu = STATE_LOADING;
+		}
+		// player selects Marisa
+		if (keyboard_states[SDL_SCANCODE_2]) {
+			curr_player = PLAYER_MARISA;
+			state_menu = STATE_LOADING;
+		}
 		if (holding_quit(keyboard_states))
 			return 1;
 	}
+	
+//	do_widgets();
 }
 
 // update player 

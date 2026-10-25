@@ -14,6 +14,7 @@
 #include "danmaku.h"
 #include "pointer.h"
 #include "collision.h"
+#include "stage.h"
 
 // deletes all bullets in circle at given coordinates with radius
 // xcoord: x-position of the point
@@ -51,7 +52,7 @@ void delete_danmaku_all()
 }
 
 
-// returns the measure angle between two points in radians
+// returns the angle measure between two points in radians
 // x_1: x-position of the first point
 // y_1: y-position of the first point
 // x_2: x-position of the second point
@@ -76,13 +77,20 @@ double angle_to_player(double xcoord, double ycoord)
 // *bullet: passing struct bullet by reference
 // speed: scalar speed of the bullet in px/fr
 // radians: measure angle between positive x-axis and direction of velocity
-void launch_straight(struct bullet *bullet, double speed, double radians)
+void start_straight(struct bullet *bullet, double speed, double radians)
 {
 	// set bullet speed, with individual v_x and v_y vectors
 	set_velocity(&(*bullet).motion.v, speed * cos(radians),
 			speed * sin(radians));
+	set_velocity(&(*bullet).motion.v0, speed * cos(radians),
+			speed * sin(radians));
 	// constant motion, no acceleration
 	set_acceleration(&(*bullet).motion.a, 0, 0);
+	set_acceleration(&(*bullet).motion.a0, 0, 0);
+	bullet -> motion.v_max = speed;
+	
+	// set initial time
+	bullet -> motion.time_0 = stage_progress_frames;
 	
 	// activate bullet
 	bullet -> active = true;
@@ -109,7 +117,7 @@ void launch_stack(int type, double xcoord, double ycoord, int n,
 				xcoord, ycoord);
 
 		// launch individual bullets in stack
-		launch_straight(&bulletlist[type][nth_bullet[type]],
+		start_straight(&bulletlist[type][nth_bullet[type]],
 				min_speed + i * delta_speed, angle);
 
 		// cycle smart pointer to next inactive bullet
@@ -158,7 +166,7 @@ void launch_ring(int type, double xcoord, double ycoord, int n, double speed,
 
 
 		// launch each individual bullet
-		launch_straight(&bulletlist[type][nth_bullet[type]], speed,
+		start_straight(&bulletlist[type][nth_bullet[type]], speed,
 				angle + delta_angle * i);
 	}
 }
@@ -187,7 +195,7 @@ void launch_ring_spiral(int type, double xcoord, double ycoord, int n, double sp
 		bulletlist[type][nth_bullet[type]].motion.angle_acceleration = angular_acceleration;
 
 		// launch each individual bullet
-		launch_straight(&bulletlist[type][nth_bullet[type]], speed,
+		start_straight(&bulletlist[type][nth_bullet[type]], speed,
 				angle + delta_angle * i);
 	}
 }
@@ -246,7 +254,7 @@ void launch_spread(int type, double xcoord, double ycoord, int n, double speed,
 				xcoord, ycoord);
 
 		// launch each individual bullet
-		launch_straight(&bulletlist[type][nth_bullet[type]], speed,
+		start_straight(&bulletlist[type][nth_bullet[type]], speed,
 				start_angle + delta_angle * i);
 	}
 }

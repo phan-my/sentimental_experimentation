@@ -222,12 +222,15 @@ void initialize_enemies()
 // sets default value of struct kinematics (except player)
 void reset_position()
 {
+	;
 }
 
 // full initialization of objects and their property
 void initialize_logic()
 {
-	int i, j;	
+	int i, j;
+	
+	initialize_widgets();
 	
 	initialize_players();
 	
@@ -361,6 +364,8 @@ void update_enemy_motion()
 	}
 }
 
+// checks if entity is off-screen
+// entity: struct kinematics
 bool in_unload_zone(struct kinematics entity)
 {
 	if ((0 <= entity.hb.p.x && entity.hb.p.x <= FIELD_RIGHT) ||
@@ -371,6 +376,7 @@ bool in_unload_zone(struct kinematics entity)
 		return true;
 }
 
+// unloads entities if they go off-screen (automatic)
 void unload_offscreen_bullets()
 {
 	int i, j;
@@ -390,21 +396,21 @@ void update_bullet_motion()
 	
 	// update all enemy bullets
 	for (i = 0; i < MAX_BULLETS; i++) {
-		for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
-			// angles
-			update_velocity_by_angle(&bulletlist[i][j].motion);
-			// v -> p
-			update_position_by_velocity(&bulletlist[i][j].motion);
+	for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
+		// angles
+		update_velocity_by_angle(&bulletlist[i][j].motion);
+		// v -> p
+		update_position_by_velocity(&bulletlist[i][j].motion);
 
 
 /*
-			// p -> core hitbox
-			bulletlist[i][j].hitbox.p.x
-				= bulletlist[i][j].motion.hb.p.x;
-			bulletlist[i][j].hitbox.p.y
-				= bulletlist[i][j].motion.hb.p.y;
+		// p -> core hitbox
+		bulletlist[i][j].hitbox.p.x
+			= bulletlist[i][j].motion.hb.p.x;
+		bulletlist[i][j].hitbox.p.y
+			= bulletlist[i][j].motion.hb.p.y;
 */
-		}
+	}
 	}
 
 	unload_offscreen_bullets();
@@ -497,6 +503,9 @@ void do_logic()
 		break;
 	case STATE_ON_POWER:
 		state_menu = STATE_MAIN_MENU;
+		break;
+	case STATE_MAIN_MENU:
+		break;
 	default:
 		break;
 	}

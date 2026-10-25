@@ -132,6 +132,7 @@ void pattern_moving_spawner_test()
 	}
 }
 
+// implementation of spell card in TH11 Stage 5 under ReimuA
 void pattern_boundary_of_wave_and_particle()
 {
 	int phase_progress = get_phase_progress();

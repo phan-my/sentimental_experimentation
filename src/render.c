@@ -17,6 +17,7 @@
 #include "player.h"
 #include "shot.h"
 #include "menu.h"
+#include "texts.h"
 
 
 /* VARIABLES */
@@ -24,6 +25,8 @@
 // textures
 SDL_Window *screen;
 SDL_Renderer *rend;
+struct text tmptext;
+
 
 // dests
 
@@ -174,6 +177,7 @@ void initialize_textures(void)
 	initialize_enemy_render();
 	initialize_item_render();
 	initialize_shot_render();
+	initialize_widgets();
 }
 
 // exits program if SDL initialization fails, prints error
@@ -229,6 +233,8 @@ void initialize_screen(void)
 
 	// load graphics
 	initialize_textures();
+	
+	initialize_ttf();
 }
 
 // closes all windows and quits program
@@ -365,8 +371,14 @@ void do_overlay_render()
 // updates sprites in main menu
 void do_main_menu_render()
 {
+//	draw_widgets();
+//	initDemo();
+	SDL_SetRenderDrawColor(rend, 0,0,0, 0);
 	SDL_RenderClear(rend);
-	SDL_RenderCopy(rend, main_menu.sdl.texture, NULL, &main_menu.sdl.rect);
+	draw_text(text_reimu, SCREEN_WIDTH / 2., SCREEN_HEIGHT / 2. - 20);
+	draw_text(text_marisa, SCREEN_WIDTH / 2., SCREEN_HEIGHT / 2. + 20);
+//	SDL_RenderCopy(rend, main_menu.sdl.texture, NULL, &main_menu.sdl.rect);
+
 	SDL_RenderPresent(rend);
 }
 
