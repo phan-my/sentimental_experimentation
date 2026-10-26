@@ -59,10 +59,20 @@ void initialize_stage()
 	// initialize clock
 	stage_progress_frames = 0;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &stage_start);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &dt_start);
 	is_boss = false;
 }
 
-/* patterns */
+// returns the nth cycle of a bullet curtain since the start of the phase
+// delay: delay between each curtain fire in frames
+double get_cycle(int delay)
+{
+	return ((double)get_phase_progress() / (double)delay);
+}
+
+/* PATTERNS */
+
+/* START EDITING HERE */
 
 // 17-spread (aimed) of ball_8x8
 void pattern_spread_test()
@@ -112,10 +122,34 @@ void pattern_two_fairy_columns()
 	}
 }
 
+// three aimed rings of bubbles
+void pattern_ring_test()
+{
+	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+	double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
+	if (stage_progress_frames % 20 == 0) {
+		launch_aimed_ring(BULLET_BUBBLE, x, y, 8, 2.4);
+		launch_aimed_ring(BULLET_BUBBLE, x+60, y, 7, 3.);
+		launch_aimed_ring(BULLET_BUBBLE, x-60, y, 7, 3.);
+	}
+}
+
+// one fixed and one aimed stack
+void pattern_stack_test()
+{
+	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+	double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
+	
+	if (stage_progress_frames % 120 == 0) {
+		launch_stack(BULLET_BALL_8x8, x, y, 6, 2.4, 5., M_PI / 2.);
+		launch_aimed_stack(BULLET_BALL_8x8, x, y, 6, 2.4, 5.);
+	}
+}
+
 // testing moving spawner pattern with rings
 void pattern_moving_spawner_test()
 {
-	int phase_progress = get_phase_progress();
+	int delay = 20;
 
 	double x0 = 50;
 	double y0 = 50;
@@ -123,22 +157,67 @@ void pattern_moving_spawner_test()
 	double y1 = 50;
 
 	int duration = 60 * 5;
-	double t = (double) (phase_progress % duration) / (double) duration; 
+	double t = (double)(get_phase_progress() % duration) / (double) duration; 
 
-	printf("%d\n", phase_progress % duration);
-	if (phase_progress % 20 == 0) {
+//	printf("%d\n", phase_progress % duration);
+	if (get_phase_progress() % delay == 0) {
 		launch_aimed_ring(BULLET_BALL_8x8,
 				lerp(x0, x1, t), lerp(y0, y1, t), 18, 2.4);
 	}
 }
 
+// testing moving spawner that moves back and forth
+// TODO: remove the global variable requirement
+int global_i = 1;
+
+void pattern_moving_spawner_test_2()
+{
+	int delay = 2;
+		
+	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+	double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
+	double t = 0;
+	
+	struct position p_0;
+	p_0.x = x - 20;
+	p_0.y = y;
+	
+	struct position p_1;
+	p_1.x = x - 20;
+	p_1.y = y - 20;
+
+	struct position p_2;
+	p_2.x = x + 20;
+	p_2.y = y - 20;
+
+	struct position p_3;
+	p_3.x = x + 20;
+	p_3.y = y;
+
+	if (get_phase_progress() % delay == 0) {
+		if (t > 1)
+			global_i = -1;
+		if (t < 0)
+			global_i = 1;
+		t += global_i * 0.05 * get_cycle(delay);
+		struct position s = cubic_bezier(p_0, p_1, p_2, p_3, t);
+		launch_spread(BULLET_BALL_16x16, s.x, s.y, 8, 3, M_PI / 2., M_PI / 2.);
+	}
+}
+
+// curved laser in flower pattern (no danmaku attack)
+void pattern_curved_laster_test()
+{
+	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+	double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
+	launch_ring_spiral(BULLET_BALL_16x16, x, y, 5, 2.5,
+			0, 0.01);
+}
+
 // implementation of spell card in TH11 Stage 5 under ReimuA
 void pattern_boundary_of_wave_and_particle()
 {
-	int phase_progress = get_phase_progress();
-	
-	// globals
-	double alpha = M_PI * (0.3);
+	int delay = 2;
 	
 	// constants
 	// values at https://youtu.be/cpz4mnXJYb0?t=318
@@ -146,22 +225,21 @@ void pattern_boundary_of_wave_and_particle()
 	double alpha_a = 0.003926991;
 	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
 	double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
-	int delay = 2;
+	
+      	// globals
+	double alpha = M_PI * (0.3);
 	
 	if (get_phase_progress() % delay == 0) {
 		// implementation for "global" variables by basing the 
 		// current value (alpha_v) on phase_progress and firing rate
 //		alpha_v += alpha_a * (double)phase_progress / delay;
-		alpha += alpha_v * (double)phase_progress / delay + alpha_a * 0.5 * pow((double)phase_progress / delay, 2);
-		
-		launch_ring(BULLET_BALL_8x8, x, y, 8, 3, alpha);
+		alpha += alpha_v * get_cycle(delay)
+			+ alpha_a * .5 * pow(get_cycle(delay), 2);
+		launch_ring(BULLET_BALL_8x8, x, y, 5, 3, alpha);
 	}
 }
 
 /* main loop */
-
-double t = 0;
-int global_i = 1;
 
 // invoked in the main loop
 void do_stage()
@@ -188,112 +266,37 @@ void do_stage()
 		case 3:
 			pattern_boundary_of_wave_and_particle();
 			break;
-		case -1:
-			double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-			double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
-			
-			struct position p_0;
-			p_0.x = x - 20;
-			p_0.y = y;
-			
-			struct position p_1;
-			p_1.x = x - 20;
-			p_1.y = y - 20;
-
-			struct position p_2;
-			p_2.x = x + 20;
-			p_2.y = y - 20;
-
-			struct position p_3;
-			p_3.x = x + 20;
-			p_3.y = y;
-
-			if (t > 1)
-				global_i = -1;
-			if (t < 0)
-				global_i = 1;
-			t += global_i * 0.05;
-			struct position s = cubic_bezier(p_0, p_1, p_2, p_3, t);
-
-			if (get_phase_progress() % 2 == 0)
-				launch_spread(BULLET_BALL_16x16, s.x, s.y, 8, 3, M_PI / 2., M_PI / 2.);
+		case 4:
 
 			break;
-
-		/* CURVED LASER
-			double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-			double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
-			launch_ring_spiral(BULLET_BALL_16x16, x, y, 5, 2.5,
-					0, 0.01);
-		*/
 		default:
 			break;
 		}
-
-
-/*
-		if (stage_progress_frames >= stages[current_stage - 1][1] &&
-				stage_progress_frames
-				<= stages[current_stage - 1][2])
-{
-		if (stage_progress_frames % 20 == 0) {
-			// ring
-			double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-			double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
-
-			nth_bullet[BULLET_BUBBLE] =
-				launch_aimed_ring(&(bulletlist[BULLET_BUBBLE]),
-						nth_bullet[BULLET_BUBBLE], x, y, 8, 2.4);
-			nth_bullet[BULLET_BUBBLE] =
-				launch_aimed_ring(&(bulletlist[BULLET_BUBBLE]),
-						nth_bullet[BULLET_BUBBLE], x+60, y, 7, 3.);
-			nth_bullet[BULLET_BUBBLE] =
-				launch_aimed_ring(&(bulletlist[BULLET_BUBBLE]),
-						nth_bullet[BULLET_BUBBLE], x-60, y, 7, 3.);
-		}
-}
-
-
-		if (stage_progress_frames >= stages[current_stage - 1][2] &&
-				stage_progress_frames
-				<= stages[current_stage - 1][3])
-{
-		pattern_spread_test();
-}
-
-		if (stage_progress_frames >= stages[current_stage - 1][3])
-{
-		if (stage_progress_frames % 120 == 0) {
-			// stack
-			double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-			double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
-			
-			nth_bullet[BULLET_BALL_8x8] =
-				launch_stack(&(bulletlist[BULLET_BALL_8x8]),
-						nth_bullet[BULLET_BALL_8x8], x, y, 6, 2.4, 5.,
-						M_PI / 2.);
-			nth_bullet[BULLET_BALL_8x8] =
-				launch_aimed_stack(&(bulletlist[BULLET_BALL_8x8]),
-						nth_bullet[BULLET_BALL_8x8], x, y, 6, 2.4, 5.);
-		}
-}
-*/
-
-		/* timing */
-		clock_gettime(CLOCK_MONOTONIC_RAW, &stage_now);
-		stage_progress = (stage_now.tv_sec - stage_start.tv_sec)
-			* 1000000. + (stage_now.tv_nsec - stage_start.tv_nsec) 
-			/ 1000.;
-		stage_progress_frames++;
-//		printf("%d\n", stage_progress_frames);
-		stage_progress_seconds = stage_progress / 1000000.;
-//		printf("%d time\n", stage_progress);
-		
 		break;
 	// universal things in every stage
 	default:
 		break;
 	}
+	
+	/* timing */
+	clock_gettime(CLOCK_MONOTONIC_RAW, &stage_now);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &dt_end);
+	
+	stage_progress = (stage_now.tv_sec - stage_start.tv_sec)
+		* 1000000. + (stage_now.tv_nsec - stage_start.tv_nsec) 
+		/ 1000.;
+	dt = (dt_end.tv_sec - dt_start.tv_sec) * 1000000. 
+		+ (dt_end.tv_nsec - dt_start.tv_nsec) / 1000.;
+		
+	frames[stage_progress_frames] = dt / 1000000.;
+//	printf("%d\n", stage_progress_frames);
+	stage_progress_seconds = stage_progress / 1000000.;
+//	printf("%d time\n", stage_progress);
+
+//	if (stage_progress_frames > 60 && stage_progress_frames % 60 == 0)
+//		printf("fps = %lf\n", rolling_average(frames, stage_progress_frames));
+
+	stage_progress_frames++;
 }
 
 

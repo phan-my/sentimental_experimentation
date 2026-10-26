@@ -24,6 +24,11 @@ struct widget *active_widget; // pointer to currently selected widget
 struct widget widget_head;
 struct widget *widget_tail;
 
+struct overlay main_menu;
+struct overlay border; // UI
+struct overlay loading;
+
+
 /* FUNCTIONS */
 
 // initializes linked list with widget_head and *widget_tail

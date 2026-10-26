@@ -15,6 +15,100 @@
 #include "pointer.h"
 #include "collision.h"
 #include "stage.h"
+#include "render.h"
+
+/* GLOBALS */
+
+struct bullet ball_8x8;
+struct bullet ball_16x16;
+struct bullet bubble;
+
+
+/* FUNCTIONS */
+
+/* initialization */
+
+// initialize bulletlist with bulletIDs
+void initialize_bullets()
+{
+	int i, j;
+	// 8x8 pellet
+	ball_8x8.id = BULLET_BALL_8x8;
+	ball_8x8.motion.hb.r = 3.;
+	bulletlist[ball_8x8.id][0] = ball_8x8;
+	
+	// 16x16 ball
+	ball_16x16.id = BULLET_BALL_16x16;
+	ball_16x16.motion.hb.r = 4.27;
+	bulletlist[ball_16x16.id][0] = ball_16x16;
+	
+	// bubble
+	bubble.id = BULLET_BUBBLE;
+	bubble.motion.hb.r = 16.;
+	bulletlist[bubble.id][0] = bubble;
+	
+	// create multiple of all unique bullets
+	for (i = 0; i < MAX_BULLETS; i++) {
+		// create multiples per bulletID
+		for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
+			bulletlist[i][j] = bulletlist[i][0];
+			bulletlist[i][j].active = false;
+			bulletlist[i][j].grazed = false;
+		}
+		
+		// set smart pointers to 0
+		nth_bullet[i] = 0;
+	}
+}
+
+// checks if entity is off-screen
+// entity: struct kinematics
+bool in_unload_zone(struct kinematics entity)
+{
+	if ((0 <= entity.hb.p.x && entity.hb.p.x <= FIELD_RIGHT) ||
+			(0 <= entity.hb.p.y &&
+			 entity.hb.p.y <= + FIELD_BOTTOM + FIELD_OFFSET_Y))
+		return false;
+	else
+		return true;
+}
+
+// unloads entities if they go off-screen (automatic)
+void unload_offscreen_bullets()
+{
+	int i, j;
+
+	for (i = 0; i < MAX_BULLETS; i++) {
+	for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
+		if (in_unload_zone(bulletlist[i][j].motion))
+			bulletlist[i][j].active = false;
+	}
+	}
+}
+
+// update all positional values of all active bullets
+void update_bullet_motion()
+{
+	int i, j;
+	
+	// update all enemy bullets
+	for (i = 0; i < MAX_BULLETS; i++) {
+	for (j = 0; j < MAX_BULLET_MULTIPLE; j++) {
+		update_motion(&bulletlist[i][j].motion);
+	}
+	}
+
+	// if bullet falls off-screen, unload
+	unload_offscreen_bullets();
+}
+
+// includes all operations of bullets
+void do_bullet()
+{
+	update_bullet_motion();
+}
+
+/* deletion functions */
 
 // deletes all bullets in circle at given coordinates with radius
 // xcoord: x-position of the point
@@ -52,6 +146,8 @@ void delete_danmaku_all()
 }
 
 
+/* angle functions */
+
 // returns the angle measure between two points in radians
 // x_1: x-position of the first point
 // y_1: y-position of the first point
@@ -59,7 +155,7 @@ void delete_danmaku_all()
 // y_2: y-position of the second point
 double measure_angle(double x_1, double y_1, double x_2, double y_2)
 {
-	// calculate the difference between point 2 and point 1
+	// calculates the difference between point 2 and point 1
 	return atan2(y_2 - y_1, x_2 - x_1);
 }
 
@@ -68,10 +164,13 @@ double measure_angle(double x_1, double y_1, double x_2, double y_2)
 // ycoord: y-position of the point
 double angle_to_player(double xcoord, double ycoord)
 {
+	// calculates the difference between given coord and player position
 	return measure_angle(xcoord, ycoord,
 			player[curr_player].motion.hb.p.x,
 			player[curr_player].motion.hb.p.y);
 }
+
+/* bullet starters (no position specified) */
 
 // sets velocities of a single bullet based on given angle for constant motion
 // *bullet: passing struct bullet by reference
@@ -80,13 +179,13 @@ double angle_to_player(double xcoord, double ycoord)
 void start_straight(struct bullet *bullet, double speed, double radians)
 {
 	// set bullet speed, with individual v_x and v_y vectors
-	set_velocity(&(*bullet).motion.v, speed * cos(radians),
-			speed * sin(radians));
 	set_velocity(&(*bullet).motion.v0, speed * cos(radians),
 			speed * sin(radians));
+	set_velocity(&(*bullet).motion.v, speed * cos(radians),
+			speed * sin(radians));
 	// constant motion, no acceleration
-	set_acceleration(&(*bullet).motion.a, 0, 0);
 	set_acceleration(&(*bullet).motion.a0, 0, 0);
+	set_acceleration(&(*bullet).motion.a, 0, 0);
 	bullet -> motion.v_max = speed;
 	
 	// set initial time
@@ -97,11 +196,57 @@ void start_straight(struct bullet *bullet, double speed, double radians)
 	bullet -> grazed = false;
 }
 
-// sets velocities of stack of n bullets based on given angle and positon
+// TODO: test functionality, write other accelerated functions
+// sets velocities of a single bullet based on given angle for constant motion
+// *bullet: passing struct bullet by reference
+// speed: scalar speed of the bullet in px/fr
+// acceleration: scalar acceleration of the bullet in px/fr^2
+// max_speed: maximum speed of bullet (regardless of acceleration)
+// radians: measure angle between positive x-axis and direction of velocity
+void start_accelerated(struct bullet *bullet, double speed, double acceleration,
+		double max_speed, double radians)
+{
+	// set bullet speed, with individual v_x and v_y vectors
+	set_velocity(&(*bullet).motion.v0, speed * cos(radians),
+			speed * sin(radians));
+	// TODO: optimize by creating copy_velocity(b, a)
+	set_velocity(&(*bullet).motion.v, speed * cos(radians),
+			speed * sin(radians));
+	// set constant acceleration, with individual a_x and a_y vectors
+	set_acceleration(&(*bullet).motion.a0,
+			acceleration * cos(radians),
+			acceleration * sin(radians));
+	set_acceleration(&(*bullet).motion.a, acceleration * cos(radians),
+			acceleration * sin(radians));
+	
+	// set maximum speed that nullifies acceleration
+	bullet -> motion.v_max = max_speed;
+	
+	// set initial time
+	bullet -> motion.time_0 = stage_progress_frames;
+	
+	// activate bullet
+	bullet -> active = true;
+	bullet -> grazed = false;
+}
+
+
+/* simple groups */
+
+// creates an n-stack based on specifications
+// type: bullet type as specified in danmaku.h, e.g. BULLET_BUBBLE
+// xcoord: origin position on x-axis
+// ycoord: origin position on y-axis
+// n: number of bullets in stack
+// min_speed: scalar speed of slowest bullet in px/fr
+// max_speed: scalar speed of fastest bullet in px/fr
+// angle: the radians clockwise from the x-axis that the stack aims at
 void launch_stack(int type, double xcoord, double ycoord, int n,
 		double min_speed, double max_speed, double angle)
 {
 	int i = 0;
+	
+	// difference in speed for each member of the stack
 	double delta_speed = (max_speed - min_speed) / (n - 1);
 
 	// cycle smart pointer through bullet array
@@ -126,26 +271,29 @@ void launch_stack(int type, double xcoord, double ycoord, int n,
 	}
 }
 
-// 
+// creates an aimed n-stack based on specifications
+// type: bullet type as specified in danmaku.h, e.g. BULLET_BUBBLE
+// xcoord: origin position on x-axis
+// ycoord: origin position on y-axis
+// n: number of bullets in stack
+// min_speed: scalar speed of slowest bullet in px/fr
+// max_speed: scalar speed of fastest bullet in px/fr
 void launch_aimed_stack(int type, double xcoord, double ycoord, int n,
 		double min_speed, double max_speed)
 {
+	// using angle_to_player() for aiming
 	launch_stack(type, xcoord, ycoord, n,
 			min_speed, max_speed, angle_to_player(xcoord, ycoord));
-
 }
 
 
 // creates an n-ring of bullets at specified spawner with angle and speed
-// returns value of smart pointer nth_bullet
-// (*bullets)[MAX_BULLET_MULTIPLE]: the array of bullets parsed by reference
-// nth_bullet: smart pointer for the bullet array
-// xcoord: origin position on x-axis of the ring group
-// ycoord: origin position on y-axis of the ring group
+// type: bullet type as specified in danmaku.h, e.g. BULLET_BUBBLE
+// xcoord: origin position on x-axis
+// ycoord: origin position on y-axis
 // n: number of bullets in the ring
 // speed: scalar speed of each bullet in px/fr
 // angle: the radians clockwise from the x-axis that the 0th bullet aims at
-// TODO: use **bullets instead of (*bullets)[MAX_BULLET_MULTIPLE]
 void launch_ring(int type, double xcoord, double ycoord, int n, double speed,
 		double angle)
 {
@@ -171,6 +319,7 @@ void launch_ring(int type, double xcoord, double ycoord, int n, double speed,
 	}
 }
 
+// TODO: complete this
 // creates rounds of rings with angular acceleration, similar to BoWaP
 void launch_ring_spiral(int type, double xcoord, double ycoord, int n, double speed,
 		double angle, double angular_acceleration)
@@ -201,32 +350,28 @@ void launch_ring_spiral(int type, double xcoord, double ycoord, int n, double sp
 }
 
 // creates an n-ring of bullets at specified spawner with speed, seed bullet
-// aims at the player
-// returns value of smart pointer nth_bullet
-// (*bullets)[MAX_BULLET_MULTIPLE]: the array of bullet to use
-// nth_bullet: smart pointer for the bullet array
-// xcoord: origin position on x-axis of the ring group
-// ycoord: origin position on y-axis of the ring group
+// 	aims at the player
+// type: bullet type as specified in danmaku.h, e.g. BULLET_BUBBLE
+// xcoord: origin position on x-axis
+// ycoord: origin position on y-axis
 // n: number of bullets in the ring
 // speed: scalar speed of each bullet in px/fr
 void launch_aimed_ring(int type, double xcoord, double ycoord, int n,
 		double speed)
 {
+	// using angle_to_player() for aiming
 	launch_ring(type, xcoord, ycoord, n, speed,
 			angle_to_player(xcoord, ycoord));
 }
 
 // creates an n-spread of bullets at specified spawner with angle and speed
-// returns value of smart pointer nth_bullet
-// (*bullets)[MAX_BULLET_MULTIPLE]: the array of bullets parsed by reference
-// nth_bullet: smart pointer for the bullet array
+// type: bullet type as specified in danmaku.h, e.g. BULLET_BUBBLE
 // xcoord: origin position on x-axis of the spread group
 // ycoord: origin position on y-axis of the spread group
 // n > 1: number of bullets in spread
 // speed: scalar speed of each bullet in px/fr
 // seed_angle: radians clockwise from the x-axis that spread center targets
 // arc: arc angle in radians of spread; 
-// TODO: use **bullets instead of (*bullets)[MAX_BULLET_MULTIPLE]
 void launch_spread(int type, double xcoord, double ycoord, int n, double speed,
 		double seed_angle, double arc)
 {
@@ -235,11 +380,11 @@ void launch_spread(int type, double xcoord, double ycoord, int n, double speed,
 	double delta_angle;
 	
 	// n == 1 as parameter not allowed due to division by zero; foolproof
-	if (n == 1) {
+	if (n == 1)
 		delta_angle = 0.;
-	}
-
-	delta_angle = arc / (n - 1); // angle difference between bullets
+	// set angle difference between bullets
+	else
+		delta_angle = arc / (n - 1);
 	
 	// begin loop to launch n bullets
 	for (i = 0; i < n; i++) {
@@ -260,18 +405,16 @@ void launch_spread(int type, double xcoord, double ycoord, int n, double speed,
 }
 
 // creates an n-spread at spec1ified spawner with speed, seed bullet
-// returns value of smart pointer nth_bullet
-// (*bullets)[MAX_BULLET_MULTIPLE]: the array of bullets parsed by reference
-// nth_bullet: smart pointer for the bullet array
+// type: bullet type as specified in danmaku.h, e.g. BULLET_BUBBLE
 // xcoord: origin position on x-axis of the spread group
 // ycoord: origin position on y-axis of the spread group
 // n > 1: number of bullets in spread
 // speed: scalar speed of each bullet in px/fr
 // arc: arc angle in radians of spread; 
-// TODO: use **bullets instead of (*bullets)[MAX_BULLET_MULTIPLE]
 void launch_aimed_spread(int type, double xcoord, double ycoord, int n,
 		double speed, double arc)
 {
+	// using angle_to_player() for aiming
 	launch_spread(type, xcoord, ycoord, n, speed,
 			angle_to_player(xcoord, ycoord), arc);
 }

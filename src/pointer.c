@@ -60,8 +60,7 @@ void cycle_shot_smart_pointer(int type)
 
 // cycles smart pointer through array until an inactive item is found
 // returns the smart pointer value that points at the closest inactive item
-// pointer: the smart pointer as an integer value (nth element in array)
-// array: array that pointer points to
+// type: integer index for type of shot, e.g. ITEM_POWERUP
 void cycle_item_smart_pointer(int type)
 {
 	int count = 0;
@@ -77,6 +76,29 @@ void cycle_item_smart_pointer(int type)
 		if (count > MAX_ITEM_MULTIPLE) {
 			printf("ITEMLIST OVERFLOW, UNLOADING SOME BULLETS\n");
 			itemlist[type][nth_item[type]].active = false; // unload shot
+			break;
+		}
+	}
+}
+
+// cycles smart pointer (global) through array until an inactive enemy is found
+// returns the smart pointer value that points at the closest inactive enemy
+// type: integer index for type of bullet, e.g. ENEMY_FAIRY_BLUE
+void cycle_enemy_smart_pointer(int type)
+{
+	int count = 0;
+
+	// main cycle
+	while (enemylist[type][nth_enemy[type]].active) {
+		// cycles through array
+		nth_enemy[type]++; // increment pointer
+		nth_enemy[type] %= MAX_ENEMY_MULTIPLE; // if pointer > max, then modulo
+		
+		// failsafe: if all elements are loaded, then break
+		count++;
+		if (count > MAX_ENEMY_MULTIPLE) {
+			printf("ENEMYLIST OVERFLOW, UNLOADING SOME ENEMIES\n");
+			enemylist[type][nth_enemy[type]].active = false; // unload enemy
 			break;
 		}
 	}

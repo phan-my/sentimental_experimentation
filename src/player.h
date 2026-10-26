@@ -42,5 +42,6 @@ extern int curr_player;
 
 // functions
 void initialize_players();
+void do_player();
 
 #endif /* PLAYER_H */

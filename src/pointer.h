@@ -15,5 +15,6 @@
 void cycle_bullet_smart_pointer(int type);
 void cycle_shot_smart_pointer(int type);
 void cycle_item_smart_pointer(int type);
+void cycle_enemy_smart_pointer(int type);
 
 #endif /* POINTER_H */

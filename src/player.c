@@ -47,3 +47,23 @@ void initialize_players()
 	player[PLAYER_MARISA].focus = MARISA_FOCUS_SPEED;
 }
 
+// update all positional values of the player
+void update_player_motion()
+{
+	// v -> p
+	update_position_by_velocity(&player[curr_player].motion);
+	
+	// p -> graze hitbox
+	player[curr_player].grazebox.p.x = player[curr_player].motion.hb.p.x;
+	player[curr_player].grazebox.p.y = player[curr_player].motion.hb.p.y;
+	
+	// p -> item collection htibox
+	player[curr_player].itembox.p.x = player[curr_player].motion.hb.p.x;
+	player[curr_player].itembox.p.y = player[curr_player].motion.hb.p.y;
+}
+
+// complete template for player operations
+void do_player()
+{
+	update_player_motion();
+}

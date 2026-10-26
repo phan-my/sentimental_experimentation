@@ -8,14 +8,11 @@
 
 /* INCLUDES */
 
+#include "render.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <stdbool.h>
-
-#include "render.h"
 #include "logic.h"
-#include "player.h"
-#include "shot.h"
 #include "menu.h"
 #include "texts.h"
 
@@ -25,7 +22,6 @@
 // textures
 SDL_Window *screen;
 SDL_Renderer *rend;
-struct text tmptext;
 
 
 // dests
@@ -233,7 +229,6 @@ void initialize_screen(void)
 
 	// load graphics
 	initialize_textures();
-	
 	initialize_ttf();
 }
 

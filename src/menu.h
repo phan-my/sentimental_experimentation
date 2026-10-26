@@ -12,7 +12,9 @@
 #define MENU_H
 
 // includes
+#pragma once
 #include "texts.h"
+#include "logic.h"
 
 // macros
 #define STATE_ON_POWER	0
@@ -22,36 +24,15 @@
 #define STATE_PAUSE	4
 #define STATE_ENDING	5
 
-#define MAX_NAME_LENGTH 256
-
-// structs
-
-// https://www.parallelrealities.co.uk/tutorials/widgets/widgets1.php
-struct widget {
-	char name[MAX_NAME_LENGTH]; // unique name for widget
-	
-	struct text text;
-	
-	// coordinates for drawing
-	int x;
-	int y;
-	
-	// text that is displayed
-	char label[MAX_NAME_LENGTH];
-	
-	// double-linked list pointers
-	// eases back-and-forth movement within list
-	struct widget *prev;
-	struct widget *next;
-	void (*action)(void);
-	
-};
-
 // globals
 extern int state_menu;
 extern struct widget *active_widget;
 extern struct widget widget_head;
 extern struct widget *widget_tail;
+extern struct overlay main_menu;
+extern struct overlay border; // UI
+extern struct overlay loading;
+
 
 // functions
 void initialize_widgets(void);

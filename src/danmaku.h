@@ -8,8 +8,23 @@
 
 #ifndef DANMAKU_H
 #define DANMAKU_H
+
+// includes
 #include "logic.h"
 
+// macros
+#define BULLET_BUBBLE 0
+#define BULLET_BALL_16x16 1
+#define BULLET_BALL_8x8 2
+
+// globals
+extern struct bullet ball_8x8;
+extern struct bullet ball_16x16;
+extern struct bullet bubble;
+
+// functions
+void initialize_bullets();
+void do_bullet();
 void delete_danmaku_in_circle(double xcoord, double ycoord,
 		double radius);
 void delete_danmaku_all();

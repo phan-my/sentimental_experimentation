@@ -17,7 +17,9 @@
 
 /* FUNCTIONS */
 
-// returns random integer in range
+// returns random integer in given range
+// min: minimum integer (inclusive)
+// min: maximum integer (inclusive)
 int randint(int min, int max)
 {
 	int difference = max - min;
@@ -37,10 +39,10 @@ int randint(int min, int max)
 	return r + min;
 }
 
-// generates a double in (0.0, 1.0)
-// THIS FUNCTION IS NOT CRYPTOGRAPHICALLY-SECURE
+// returns a pseudorandom double in range (0.0, 1.0)
 double uniform()
 {
+	// generation by manipulating to IEEE 754 floating points standards
 	int i;
 	union udouble f;
 	f.d = 0.0d;

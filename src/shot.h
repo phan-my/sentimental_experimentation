@@ -13,9 +13,6 @@
 #pragma once
 
 // macros
-#define MAX_SHOTS 2
-#define MAX_SHOT_MULTIPLE 2048
-
 #define SHOT_REIMU 0
 #define SHOT_MARISA 1
 
@@ -25,10 +22,16 @@
 #define BOMB_RADIUS 256
 
 // globals
+extern struct bullet shot_reimu;
+extern struct bullet shot_marisa;
 extern int shot_reload;
 extern int bomb_reload;
 
+
 // functions
+void initialize_shot();
 void activate_reimu_shot();
+void activate_marisa_shot();
+void do_shot();
 
 #endif /* SHOT_H */

@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "render.h"
+#include "logic.h"
 
 /* GLOBALS */
 TTF_Font *fontlist[MAX_FONT];

@@ -20,23 +20,6 @@
 #define MAX_FONT 1
 #define NUM_GLYPHS 1024
 
-// structs
-
-// for ttf functionality
-struct text {
-	// render
-	struct sdl_types sdl;
-	
-	double x;
-	double y;
-	
-	// formal requirements
-	TTF_Font *font;
-	SDL_Color color;
-	const char *string;
-};
-
-
 // globals
 extern TTF_Font *fonts[MAX_FONT];
 extern SDL_Rect glyphs[MAX_FONT][NUM_GLYPHS];

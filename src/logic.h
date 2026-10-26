@@ -20,6 +20,10 @@
 #include <SDL2/SDL_ttf.h>
 #include "player.h"
 #include "shot.h"
+#include "danmaku.h"
+#include "enemy.h"
+#include "item.h"
+#include "menu.h"
 
 /* MACROS */
 // UNUSED: hitboxes
@@ -40,9 +44,6 @@
 // for bulletlist
 #define MAX_BULLETS 3
 #define MAX_BULLET_MULTIPLE 2048
-#define BULLET_BALL_8x8 2
-#define BULLET_BALL_16x16 1
-#define BULLET_BUBBLE 0
 
 // name for enemyID
 #define MAX_ENEMIES 2
@@ -55,6 +56,9 @@
 #define MAX_ITEM_MULTIPLE 1024
 #define ITEM_POWERUP 0
 #define ITEM_SCORE 1
+
+// widget
+#define MAX_NAME_LENGTH 256
 
 
 /* STRUCTS */ 
@@ -186,6 +190,7 @@ struct enemy {
 	
 	// misc
 	int item; // item that drops upon defeat
+	int item_multiple; // number of items dropped upon defeat
 	bool clearable; // 1: automatically unloaded if reaches off-screen
 	
 	bool grazed;
@@ -221,8 +226,44 @@ struct item {
 	double value;
 };
 
+// for overlay images
 struct overlay {
 	struct sdl_types sdl;
+};
+
+// for ttf functionality
+struct text {
+	// render
+	struct sdl_types sdl;
+	
+	double x;
+	double y;
+	
+	// formal requirements
+	TTF_Font *font;
+	SDL_Color color;
+	const char *string;
+};
+
+// https://www.parallelrealities.co.uk/tutorials/widgets/widgets1.php
+struct widget {
+	char name[MAX_NAME_LENGTH]; // unique name for widget
+	
+	struct text text;
+	
+	// coordinates for drawing
+	int x;
+	int y;
+	
+	// text that is displayed
+	char label[MAX_NAME_LENGTH];
+	
+	// double-linked list pointers
+	// eases back-and-forth movement within list
+	struct widget *prev;
+	struct widget *next;
+	void (*action)(void);
+	
 };
 
 // globals
@@ -233,41 +274,29 @@ extern struct player player[MAX_PLAYERS];
 // shot
 extern struct bullet shotlist[MAX_SHOTS][MAX_SHOT_MULTIPLE];
 extern int nth_shot[MAX_SHOTS];
-extern struct bullet shot_reimu;
-extern int nth_shot_reimu;
-extern struct bullet shot_marisa;
-extern int nth_shot_marisa;
 
 // bullet
 extern struct bullet bulletlist[MAX_BULLETS][MAX_BULLET_MULTIPLE];
 extern int nth_bullet[MAX_BULLETS];
-extern struct bullet ball_8x8;
-extern struct bullet ball_16x16;
-extern struct bullet bubble;
 
 // enemy
 extern struct enemy enemylist[MAX_ENEMIES][MAX_ENEMY_MULTIPLE];
 extern int nth_enemy[MAX_ENEMIES];
-extern struct enemy fairy;
-extern struct enemy fairy_blue;
-
-// overlay
-extern struct overlay main_menu;
-extern struct overlay border; // UI
-extern struct overlay loading;
-extern SDL_Texture *tex; // bullets
-extern SDL_Texture *player_bullet_texture;
 
 // item
 extern struct item itemlist[MAX_ITEMS][MAX_ITEM_MULTIPLE];
 extern int nth_item[MAX_ITEMS];
-extern struct item powerup;
-extern struct item score;
+
+// overlay
+extern SDL_Texture *tex; // bullets
+extern SDL_Texture *player_bullet_texture;
 
 // functions
 void set_position(struct position *p, double xcoord, double ycoord);
 void set_velocity(struct velocity *v, double xvec, double yvec);
 void set_acceleration(struct acceleration *a, double xvec, double yvec);
+void update_position_by_velocity(struct kinematics *motion);
+void update_motion(struct kinematics *motion);
 void reset_player_position();
 int get_phase_progress();
 int get_phase();
