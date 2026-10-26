@@ -99,13 +99,7 @@ void draw_widgets(void)
 // invokes all functions during the loading screen
 void do_loading()
 {
-	// change to loading screen
-	SDL_RenderClear(rend);
-	SDL_RenderCopy(rend, loading.sdl.texture, NULL,
-			&loading.sdl.rect);
-	SDL_RenderPresent(rend);
-	
-	reset_player_position();
+      	reset_player_position();
 	
 	// wait to prevent flashing lights
 	SDL_Delay(500);

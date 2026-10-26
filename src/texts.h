@@ -26,6 +26,7 @@ extern SDL_Rect glyphs[MAX_FONT][NUM_GLYPHS];
 extern SDL_Texture *fontTextures[MAX_FONT];
 extern struct text text_reimu;
 extern struct text text_marisa;
+extern struct text text_loading;
 extern struct text text_main_menu_pointer;
 
 // functions

@@ -25,6 +25,7 @@ SDL_Texture *font_textures[MAX_FONT];
 
 struct text text_reimu;
 struct text text_marisa;
+struct text text_loading;
 struct text text_main_menu_pointer;
 
 /* FUNCTIONS */
@@ -107,6 +108,12 @@ void initialize_ttf()
 	text_marisa.color.b = 255;
 	text_marisa.font = fontlist[0];
 	text_marisa.string = "Marisa (Press 2)";
+	
+	text_loading.color.r = 255; // set to white
+	text_loading.color.g = 255;
+	text_loading.color.b = 255;
+	text_loading.font = fontlist[0];
+	text_loading.string = "Girls are preparing. Please wait warmly...";
 	
 	text_main_menu_pointer.color.r = 128;
 	text_main_menu_pointer.color.g = 0;

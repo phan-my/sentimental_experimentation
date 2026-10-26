@@ -370,10 +370,20 @@ void do_main_menu_render()
 //	initDemo();
 	SDL_SetRenderDrawColor(rend, 0,0,0, 0);
 	SDL_RenderClear(rend);
-	draw_text(text_reimu, SCREEN_WIDTH / 2., SCREEN_HEIGHT / 2. - 20);
-	draw_text(text_marisa, SCREEN_WIDTH / 2., SCREEN_HEIGHT / 2. + 20);
+	draw_text(text_reimu, MIDDLE_X, MIDDLE_X);
+	draw_text(text_marisa, MIDDLE_X, MIDDLE_Y);
 //	SDL_RenderCopy(rend, main_menu.sdl.texture, NULL, &main_menu.sdl.rect);
 
+	SDL_RenderPresent(rend);
+}
+
+// updates sprites in loading screen
+void do_loading_render()
+{
+	// change to loading screen
+	SDL_SetRenderDrawColor(rend, 0,0,0, 0);
+	SDL_RenderClear(rend);	
+	draw_text(text_loading, 20, MIDDLE_Y);
 	SDL_RenderPresent(rend);
 }
 
@@ -404,6 +414,9 @@ void do_screen()
 		break;
 	case STATE_MAIN_MENU:
 		do_main_menu_render();
+		break;
+	case STATE_LOADING:
+		do_loading_render();
 		break;
 	default:
 		break;
