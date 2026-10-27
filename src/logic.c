@@ -212,6 +212,18 @@ void update_motion(struct kinematics *motion)
 	update_position_by_velocity(motion);
 }
 
+// checks if entity is off-screen
+// entity: struct kinematics
+bool in_unload_zone(struct kinematics entity)
+{
+	if ((0 <= entity.hb.p.x && entity.hb.p.x <= FIELD_RIGHT) ||
+			(0 <= entity.hb.p.y &&
+			 entity.hb.p.y <= + FIELD_BOTTOM + FIELD_OFFSET_Y))
+		return false;
+	else
+		return true;
+}
+
 // all operations
 void do_logic()
 {
@@ -260,12 +272,6 @@ double bottomright(double core, double radius)
 }
 */
 
-/*
-bool circle_in_circle(struct player p, struct bullet b)
-{
-
-}
-*/
 
 // FIXME: create a bullet model for QueryTexture to invoke
 /*

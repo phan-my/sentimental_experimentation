@@ -28,6 +28,6 @@ union udouble {
 
 // functions
 int randint(int min, int max);
-double uniform();
+double randrannge(double min, double max);
 
 #endif /* RANDOM_H */

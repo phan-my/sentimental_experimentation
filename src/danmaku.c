@@ -61,18 +61,6 @@ void initialize_bullets()
 	}
 }
 
-// checks if entity is off-screen
-// entity: struct kinematics
-bool in_unload_zone(struct kinematics entity)
-{
-	if ((0 <= entity.hb.p.x && entity.hb.p.x <= FIELD_RIGHT) ||
-			(0 <= entity.hb.p.y &&
-			 entity.hb.p.y <= + FIELD_BOTTOM + FIELD_OFFSET_Y))
-		return false;
-	else
-		return true;
-}
-
 // unloads entities if they go off-screen (automatic)
 void unload_offscreen_bullets()
 {
@@ -178,6 +166,9 @@ double angle_to_player(double xcoord, double ycoord)
 // radians: measure angle between positive x-axis and direction of velocity
 void start_straight(struct bullet *bullet, double speed, double radians)
 {
+	// straight bullet: use appropriate operations
+	bullet -> motion.curved = false;
+
 	// set bullet speed, with individual v_x and v_y vectors
 	set_velocity(&(*bullet).motion.v0, speed * cos(radians),
 			speed * sin(radians));
@@ -192,11 +183,10 @@ void start_straight(struct bullet *bullet, double speed, double radians)
 	bullet -> motion.time_0 = stage_progress_frames;
 	
 	// activate bullet
-	bullet -> active = true;
 	bullet -> grazed = false;
+	bullet -> active = true;
 }
 
-// TODO: test functionality, write other accelerated functions
 // sets velocities of a single bullet based on given angle for constant motion
 // *bullet: passing struct bullet by reference
 // speed: scalar speed of the bullet in px/fr
@@ -206,6 +196,9 @@ void start_straight(struct bullet *bullet, double speed, double radians)
 void start_accelerated(struct bullet *bullet, double speed, double acceleration,
 		double max_speed, double radians)
 {
+	// straight bullet: use appropriate operations
+	bullet -> motion.curved = false;
+	
 	// set bullet speed, with individual v_x and v_y vectors
 	set_velocity(&(*bullet).motion.v0, speed * cos(radians),
 			speed * sin(radians));
@@ -237,7 +230,7 @@ void start_accelerated(struct bullet *bullet, double speed, double acceleration,
 // type: bullet type as specified in danmaku.h, e.g. BULLET_BUBBLE
 // xcoord: origin position on x-axis
 // ycoord: origin position on y-axis
-// n: number of bullets in stack
+// n > 1: number of bullets in stack
 // min_speed: scalar speed of slowest bullet in px/fr
 // max_speed: scalar speed of fastest bullet in px/fr
 // angle: the radians clockwise from the x-axis that the stack aims at
@@ -286,7 +279,6 @@ void launch_aimed_stack(int type, double xcoord, double ycoord, int n,
 			min_speed, max_speed, angle_to_player(xcoord, ycoord));
 }
 
-
 // creates an n-ring of bullets at specified spawner with angle and speed
 // type: bullet type as specified in danmaku.h, e.g. BULLET_BUBBLE
 // xcoord: origin position on x-axis
@@ -319,10 +311,18 @@ void launch_ring(int type, double xcoord, double ycoord, int n, double speed,
 	}
 }
 
-// TODO: complete this
-// creates rounds of rings with angular acceleration, similar to BoWaP
-void launch_ring_spiral(int type, double xcoord, double ycoord, int n, double speed,
-		double angle, double angular_acceleration)
+// creates an n-ring of bullets at given spawner with angle, speed, and accel
+// type: bullet type as specified in danmaku.h, e.g. BULLET_BUBBLE
+// xcoord: origin position on x-axis
+// ycoord: origin position on y-axis
+// n: number of bullets in the ring
+// speed: scalar speed of each bullet in px/fr
+// acceleration: scalar acceleration of the bullet in px/fr^2
+// max_speed: maximum speed of bullet (regardless of acceleration)
+// angle: the radians clockwise from the x-axis that the 0th bullet aims at
+void launch_ring_accelerated(int type, double xcoord, double ycoord, int n,
+		double speed, double acceleration, double max_speed,
+		double angle)
 {
 	int i;
 	double delta_angle = 2. * M_PI / n; // angle difference between bullets
@@ -339,12 +339,10 @@ void launch_ring_spiral(int type, double xcoord, double ycoord, int n, double sp
 		set_position(&bulletlist[type][nth_bullet[type]].motion.hb.p,
 				xcoord, ycoord);
 
-		// set angular values
-		bulletlist[type][nth_bullet[type]].motion.angle_rate = 0;
-		bulletlist[type][nth_bullet[type]].motion.angle_acceleration = angular_acceleration;
 
 		// launch each individual bullet
-		start_straight(&bulletlist[type][nth_bullet[type]], speed,
+		start_accelerated(&bulletlist[type][nth_bullet[type]], speed,
+				acceleration, max_speed,
 				angle + delta_angle * i);
 	}
 }
@@ -419,7 +417,99 @@ void launch_aimed_spread(int type, double xcoord, double ycoord, int n,
 			angle_to_player(xcoord, ycoord), arc);
 }
 
-// creates a 
+// creates a phyllotaxic pattern using a constant angular rate
+// type: bullet type as specified in danmaku.h, e.g. BULLET_BUBBLE
+// xcoord: origin position on x-axis of the spread group
+// ycoord: origin position on y-axis of the spread group
+// speed: scalar speed of each bullet in px/fr
+// angle: seed angle in radians clockwise from the x-axis to velocity vector
+// angle_rate: angular change with every new bullet
+// t: time elapsed since an imaginary t_0, usually invoked as get_cycle(delay)
+void launch_spiral(int type, double xcoord, double ycoord, double speed,
+		double angle, double angle_rate, double t)
+{
+	// sets current angle from given angular rate and time
+	angle += angle_rate * t;
+	// cycles pointer to next inactive element of bullet array
+	cycle_bullet_smart_pointer(type);
+
+	// set spawner position of the bullets
+	set_position(&bulletlist[type][nth_bullet[type]].motion.o,
+			xcoord, ycoord);
+	// set current position of bullet
+	set_position(&bulletlist[type][nth_bullet[type]].motion.hb.p,
+			xcoord, ycoord);
+	// launch individual bullet
+	start_straight(&bulletlist[type][nth_bullet[type]], speed, angle);
+}
+
+// creates an accelerated phyllotaxic pattern using a constant angular accel
+// type: bullet type as specified in danmaku.h, e.g. BULLET_BUBBLE
+// xcoord: origin position on x-axis of the spread group
+// ycoord: origin position on y-axis of the spread group
+// speed: scalar speed of each bullet in px/fr
+// angle: seed angle in radians clockwise from the x-axis to velocity vector
+// angle_rate: seed angular rate in rad/fr
+// angle_acceleration: angular acceleration constant that derives current angle
+// t: time elapsed since an imaginary t_0, usually invoked as get_cycle(delay)
+void launch_spiral_accelerated(int type, double xcoord, double ycoord, double speed,
+		double angle, double angle_rate, double angle_acceleration,
+		double t)
+{
+	// sets current angle from given angular rate and time
+	angle += angle_rate * t + .5 * angle_acceleration * pow(t, 2);
+	// cycles pointer to next inactive element of bullet array
+	cycle_bullet_smart_pointer(type);
+
+	// set spawner position of the bullets
+	set_position(&bulletlist[type][nth_bullet[type]].motion.o,
+			xcoord, ycoord);
+	// set current position of bullet
+	set_position(&bulletlist[type][nth_bullet[type]].motion.hb.p,
+			xcoord, ycoord);
+	// launch individual bullet
+	start_straight(&bulletlist[type][nth_bullet[type]], speed, angle);
+}
+
+// creates curtains of rings with constant angular rate
+// type: bullet type as specified in danmaku.h, e.g. BULLET_BUBBLE
+// xcoord: origin position on x-axis of the spread group
+// ycoord: origin position on y-axis of the spread group
+// speed: scalar speed of each bullet in px/fr
+// angle: seed angle in radians clockwise from the x-axis to velocity vector
+// angle_rate: angular change with every new  ring
+// t: time elapsed since an imaginary t_0, usually invoked as get_cycle(delay)
+void launch_ring_spiral(int type, double xcoord, double ycoord,
+		int n, double speed, double angle, double angle_rate,
+		double angle_acceleration, double t)
+{
+	// sets current angle from given angular rate and time
+	angle += angle_rate * t + .5 * angle_acceleration * pow(t, 2);
+	
+	// using angle_to_player() for aiming
+	launch_ring(type, xcoord, ycoord, n, speed, angle);
+}
+
+// creates curtains of rings with angular acceleration; generalization of BoWaP
+// type: bullet type as specified in danmaku.h, e.g. BULLET_BUBBLE
+// xcoord: origin position on x-axis of the spread group
+// ycoord: origin position on y-axis of the spread group
+// speed: scalar speed of each bullet in px/fr
+// angle: seed angle in radians clockwise from the x-axis to velocity vector
+// angle_rate: seed angular rate in rad/fr
+// angle_acceleration: angular acceleration constant that derives current angle
+// t: time elapsed since an imaginary t_0, usually invoked as get_cycle(delay)
+void launch_ring_spiral_accelerated(int type, double xcoord, double ycoord,
+		int n, double speed, double angle, double angle_rate,
+		double angle_acceleration, double t)
+{
+	// sets current angle from given angular rate and time
+	angle += angle_rate * t + .5 * angle_acceleration * pow(t, 2);
+	
+	// using angle_to_player() for aiming
+	launch_ring(type, xcoord, ycoord, n, speed, angle);
+}
+
 
 
 /* unused functions */

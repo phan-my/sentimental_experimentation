@@ -27,14 +27,14 @@
 #define FIELD_OFFSET_X 32
 #define FIELD_OFFSET_Y 16
 
-#define MIDDLE_Y (FIELD_HEIGHT / 2.) // middle of the screen
-#define MIDDLE_X (FIELD_WIDTH / 2.)
+#define MIDDLE_X ((double)FIELD_WIDTH / 2.) // middle of the screen
+#define MIDDLE_Y ((double)FIELD_HEIGHT / 2.)
 
-#define FIELD_MIDDLE_X (FIELD_WIDTH / 2.) // middle of the playing field
-#define FIELD_MIDDLE_Y (FIELD_HEIGHT / 2.)
+#define FIELD_MIDDLE_X (FIELD_OFFSET_X + (double)FIELD_WIDTH / 2.) // middle of the playing field
+#define FIELD_MIDDLE_Y (FIELD_OFFSET_Y + (double)FIELD_HEIGHT / 2.)
 
-#define FIELD_RIGHT FIELD_OFFSET_X + FIELD_WIDTH
-#define FIELD_BOTTOM FIELD_OFFSET_Y + FIELD_HEIGHT
+#define FIELD_RIGHT (FIELD_OFFSET_X + FIELD_WIDTH)
+#define FIELD_BOTTOM (FIELD_OFFSET_Y + FIELD_HEIGHT)
 #define FIELD_TOP FIELD_OFFSET_Y
 #define FIELD_LEFT FIELD_OFFSET_X
 

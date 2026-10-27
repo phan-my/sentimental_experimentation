@@ -19,6 +19,8 @@ extern struct enemy fairy_blue;
 // functions
 void initialize_enemies();
 void do_enemy();
+void delete_enemies_in_circle(double xcoord, double ycoord,
+		double radius);
 
 #endif /* ENEMY_H */
 

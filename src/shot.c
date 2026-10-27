@@ -25,6 +25,7 @@ int bomb_reload = 0;
 
 /* FUNCTIONS */
 
+// initialization of logic behind shots
 void initialize_shot()
 {
 	int i, j;
@@ -78,6 +79,7 @@ void activate_marisa_shot()
 			shotlist[SHOT_MARISA][nth_shot[SHOT_MARISA]].active = 1;
 	}
 }
+
 
 // update all positional values of all active shot types
 void update_shot_motion()

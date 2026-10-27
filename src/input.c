@@ -21,6 +21,7 @@
 #include "danmaku.h"
 #include "sounds.h"
 #include "player.h"
+#include "enemy.h"
 
 /* GLOBALS */
 
@@ -254,47 +255,57 @@ void do_shot_input(const Uint8 *keyboard_states)
 	}
 }
 
+// does all operations upon activating bomb (clears screen, play sound etc)
+void activate_bomb()
+{
+	// bomb is not on cooldown and player has bombs
+	if (bomb_reload < 0 && player[curr_player].bombs > 0) {
+		// clears portion of field 
+		delete_danmaku_in_circle(player[curr_player].motion.hb.p.x,
+				player[curr_player].motion.hb.p.y,
+				BOMB_RADIUS);
+		delete_enemies_in_circle(player[curr_player].motion.hb.p.x,
+				player[curr_player].motion.hb.p.y,
+				BOMB_RADIUS);
+
+		// sets bomb reload
+		bomb_reload = MAX_BOMB_RELOAD;
+		player[curr_player].bombs--; // subtract bombs
+		
+		// set invincibility
+		player[curr_player].invincible = true;
+		player[curr_player].iframes = MAX_BOMB_RELOAD;
+		
+		// deathbomb cancels death
+		if (player[curr_player].deathbomb_active == 1) {
+			player[curr_player].deathbomb_active
+				= 0;
+			player[curr_player].deathbomb_timer
+				= MAX_DEATHBOMB_RELOAD;
+		}
+
+		// plays bomb sound
+		// FIXME: sounds do not play when moving this to sounds.h
+		switch (curr_player) {
+		case PLAYER_REIMU:
+			play_sfx("sfx/bomb_reimu_a.ogx");
+			break;
+		case PLAYER_MARISA:
+			play_sfx("sfx/bomb_marisa_a.ogx");
+			break;
+		default:
+			break;
+		}
+	}
+}
+
 // uses bomb on input (accounting for bomb reload)
 // *keyboard_states: keyboard state to parse
 void do_bomb_input(const Uint8 *keyboard_states)
 {
 	// on x press, do bomb
 	if (keyboard_states[SDL_SCANCODE_X]) {
-		// bomb is not on cooldown and player has bombs
-		if (bomb_reload < 0 && player[curr_player].bombs > 0) {
-			// clears portion of field 
-			delete_danmaku_in_circle(
-					player[curr_player].motion.hb.p.x,
-					player[curr_player].motion.hb.p.y,
-					BOMB_RADIUS);
-			// sets bomb reload
-			bomb_reload = MAX_BOMB_RELOAD;
-			player[curr_player].bombs--; // subtract bombs
-			
-			// set invincibility
-			player[curr_player].invincible = true;
-			player[curr_player].iframes = MAX_BOMB_RELOAD;
-			
-			// deathbomb cancels death
-			if (player[curr_player].deathbomb_active == 1) {
-				player[curr_player].deathbomb_active
-					= 0;
-				player[curr_player].deathbomb_timer
-					= MAX_DEATHBOMB_RELOAD;
-			}
-
-			// TODO: move to mixer
-			switch (curr_player) {
-			case PLAYER_REIMU:
-				play_sfx("sfx/bomb_reimu_a.ogx");
-				break;
-			case PLAYER_MARISA:
-				play_sfx("sfx/bomb_marisa_a.ogx");
-				break;
-			default:
-				break;
-			}
-		}
+		activate_bomb();
 	}
 }
 
@@ -342,8 +353,6 @@ int do_input()
 	
 	switch (state_menu) {
 	case STATE_PLAY:
-		int i;
-
 		/* movement */
 		
 		do_player_motion_input(keyboard_states);

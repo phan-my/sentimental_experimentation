@@ -60,6 +60,8 @@
 // widget
 #define MAX_NAME_LENGTH 256
 
+// curves
+#define MAX_CURVES 100 // max curves per composite path
 
 /* STRUCTS */ 
 
@@ -107,9 +109,10 @@ struct _ellipsebox {
 	double angle; // in radians
 };
 
+// all relevant values for a moving entity
 struct kinematics {
 	struct position o; // origin point p_0(x_0, y_0)
-	struct circlebox hb;
+	struct circlebox hb; // hitbox
 	struct velocity v0; // initial velocity
 	struct velocity v; // current velocity (vector)
 	double v_max; // maximum velocity
@@ -117,7 +120,6 @@ struct kinematics {
 	struct acceleration a; // current acceleration
 	int time_0; // exact time of spawn in frames
 	bool curved; // false: do funcs for straight motion; true: curvy motion
-		     // UNUSDED
 	double angle_rate; // first derivative with respect to time
 	double angle_acceleration; // 2nd derivative with respect to time
 	struct kinematics *next;
@@ -266,6 +268,15 @@ struct widget {
 	
 };
 
+// a singular bezier curve
+struct bezier {
+	struct position p0;
+	struct position c0;
+	struct position p1;
+	struct position c1;
+};
+
+
 // globals
 
 // player
@@ -303,6 +314,7 @@ int get_phase();
 void initialize_logic();
 void update_player_motion();
 void update_enemy_motion();
+bool in_unload_zone(struct kinematics entity);
 void do_logic();
 
 #endif /* LOGIC_H */

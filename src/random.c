@@ -70,3 +70,12 @@ double uniform()
 	// cut the 1 before binary point
 	return f.d - 1.0;
 }
+
+// returns pseudorandom double float in range
+// min: minimum value
+// min: maximum value
+double randrannge(double min, double max)
+{
+	return (max - min) * uniform() + min;
+}
+

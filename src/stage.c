@@ -79,7 +79,7 @@ void pattern_spread_test()
 {
 	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
 	double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
-	if (stage_progress_frames % 20 == 0) {	
+	if (get_phase_progress() % 20 == 0) {	
 		launch_aimed_spread(BULLET_BALL_8x8, x, y, 17, 2.4,
 				M_PI / 2.);
 	}
@@ -125,9 +125,9 @@ void pattern_two_fairy_columns()
 // three aimed rings of bubbles
 void pattern_ring_test()
 {
-	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+	double x = FIELD_MIDDLE_X;
 	double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
-	if (stage_progress_frames % 20 == 0) {
+	if (get_phase_progress() % 20 == 0) {
 		launch_aimed_ring(BULLET_BUBBLE, x, y, 8, 2.4);
 		launch_aimed_ring(BULLET_BUBBLE, x+60, y, 7, 3.);
 		launch_aimed_ring(BULLET_BUBBLE, x-60, y, 7, 3.);
@@ -137,10 +137,11 @@ void pattern_ring_test()
 // one fixed and one aimed stack
 void pattern_stack_test()
 {
-	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+	int delay = 120;
+	double x = FIELD_MIDDLE_X;
 	double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
 	
-	if (stage_progress_frames % 120 == 0) {
+	if (get_phase_progress() % delay == 0) {
 		launch_stack(BULLET_BALL_8x8, x, y, 6, 2.4, 5., M_PI / 2.);
 		launch_aimed_stack(BULLET_BALL_8x8, x, y, 6, 2.4, 5.);
 	}
@@ -205,6 +206,7 @@ void pattern_moving_spawner_test_2()
 	}
 }
 
+/*
 // curved laser in flower pattern (no danmaku attack)
 void pattern_curved_laster_test()
 {
@@ -213,9 +215,78 @@ void pattern_curved_laster_test()
 	launch_ring_spiral(BULLET_BALL_16x16, x, y, 5, 2.5,
 			0, 0.01);
 }
+*/
 
 // implementation of spell card in TH11 Stage 5 under ReimuA
 void pattern_boundary_of_wave_and_particle()
+{
+	int delay = 2;
+	
+	// constants
+	// values at https://youtu.be/cpz4mnXJYb0?t=318
+      	double angle = 0.3 * M_PI;
+	double angle_v = -0.078539816;
+	double angle_a = 0.003926991;
+	
+	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+	double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
+	
+	
+	if (get_phase_progress() % delay == 0) {
+		launch_ring_spiral_accelerated(BULLET_BALL_8x8, x, y,
+			5, 3, angle, angle_v, angle_a, get_cycle(delay));
+	}
+}
+
+// Hong Meiling's spell card
+void pattern_gorgeous_sweet_flower()
+{
+	int delay = 5;
+	double x = FIELD_MIDDLE_X;
+	double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
+	
+	double alpha = 0;
+	double alpha_v = 0.14; // GOLDEN_RATIO * 2 * M_PI;
+	
+	if (get_phase_progress() % delay == 0) {
+		alpha += alpha_v * get_cycle(delay);
+		launch_ring(BULLET_BALL_8x8, x, y, 6, 2, alpha);
+		launch_ring(BULLET_BALL_8x8, x, y, 6, 2, -(alpha + M_PI / 3.));
+	}
+}
+
+// pattern using phyllotaxis theory
+void pattern_sunflower()
+{
+	int delay = 1;
+	double x = FIELD_MIDDLE_X;
+	double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
+	
+	double alpha = 0;
+	double alpha_v = GOLDEN_RATIO * 2 * M_PI;
+	
+	if (get_phase_progress() % delay == 0) {
+		alpha += alpha_v * get_cycle(delay);
+		launch_ring(BULLET_BALL_8x8, x, y, 1, 1.4, alpha);
+//		launch_ring(BULLET_BALL_8x8, x, y, 6, 2, -(alpha + M_PI / 3.));
+	}
+}
+
+// testing spiral function
+void pattern_spiral_test()
+{
+	int delay = 2;
+	double x = FIELD_MIDDLE_X;
+	double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
+	
+	if (get_phase_progress() % delay == 0) {
+		launch_spiral_accelerated(BULLET_BALL_8x8, x, y, 3,
+			0, GOLDEN_RATIO * M_PI * 2, 0.1, get_cycle(delay));
+	}
+}
+
+// titlepage of the matura, consisting of the sunflower pattern and BoWaP
+void pattern_titlepage()
 {
 	int delay = 2;
 	
@@ -235,7 +306,32 @@ void pattern_boundary_of_wave_and_particle()
 //		alpha_v += alpha_a * (double)phase_progress / delay;
 		alpha += alpha_v * get_cycle(delay)
 			+ alpha_a * .5 * pow(get_cycle(delay), 2);
-		launch_ring(BULLET_BALL_8x8, x, y, 5, 3, alpha);
+		launch_ring(BULLET_BALL_16x16, x, y, 8, 3, alpha);
+	}
+}
+
+// tests acceleration functionality
+void pattern_acceleration_test()
+{
+	int delay = 2;
+	
+	// constants
+	// values at https://youtu.be/cpz4mnXJYb0?t=318
+	double alpha_v = -0.078539816;
+	double alpha_a = 0.003926991;
+	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
+	double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
+	
+      	// globals
+	double alpha = M_PI * (0.3);
+	
+	if (get_phase_progress() % delay == 0) {
+		// implementation for "global" variables by basing the 
+		// current value (alpha_v) on phase_progress and firing rate
+//		alpha_v += alpha_a * (double)phase_progress / delay;
+		alpha += alpha_v * get_cycle(delay)
+			+ alpha_a * .5 * pow(get_cycle(delay), 2);
+		launch_ring_accelerated(BULLET_BALL_8x8, x, y, 5, 1, .01, 6, alpha);
 	}
 }
 
