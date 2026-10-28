@@ -480,11 +480,10 @@ void launch_spiral_accelerated(int type, double xcoord, double ycoord, double sp
 // angle_rate: angular change with every new  ring
 // t: time elapsed since an imaginary t_0, usually invoked as get_cycle(delay)
 void launch_ring_spiral(int type, double xcoord, double ycoord,
-		int n, double speed, double angle, double angle_rate,
-		double angle_acceleration, double t)
+		int n, double speed, double angle, double angle_rate, double t)
 {
 	// sets current angle from given angular rate and time
-	angle += angle_rate * t + .5 * angle_acceleration * pow(t, 2);
+	angle += angle_rate * t;
 	
 	// using angle_to_player() for aiming
 	launch_ring(type, xcoord, ycoord, n, speed, angle);

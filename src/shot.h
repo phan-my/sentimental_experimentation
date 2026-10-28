@@ -19,7 +19,7 @@
 #define MAX_SHOT_RELOAD 3
 #define MAX_BOMB_RELOAD 300 // 5s
 
-#define BOMB_RADIUS 256
+#define BOMB_RADIUS 300
 
 // globals
 extern struct bullet shot_reimu;

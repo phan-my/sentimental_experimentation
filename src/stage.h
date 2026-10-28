@@ -14,7 +14,7 @@
 #include "logic.h"
 
 // macros
-#define MAX_STAGES 7
+#define MAX_STAGES 2
 #define MAX_CHECKPOINTS 256
 #define CHECKPOINTS_STAGE_1 4
 

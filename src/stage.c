@@ -21,10 +21,27 @@
 #include "pointer.h"
 
 /* GLOBALS */
+
+// PHASES START AT 1
 // double stages_s[MAX_STAGES][MAX_CHECKPOINTS] = {{1, 4.5, 42, 70.5}};
-int stages[MAX_STAGES][MAX_CHECKPOINTS] = {{4, 0*60, 1*60, 2*60, 111*50}};
-int current_stage = 1;
-bool is_boss;
+int stages[MAX_STAGES][MAX_CHECKPOINTS] = {
+	{4, 1*60, 10*60, 20*60, 30*60}, // STAGE 1 (0th array)
+	{4, 0*60, 1*60, 2*60, 3*60}  // STAGE 2
+};
+int current_stage = 0; // STARTS AT 0
+
+// boss timing : number of spells of boss
+bool is_boss = 0;
+int boss_phases[MAX_STAGES] = {
+	2
+};
+int curr_boss_phase;
+
+// midboss
+// designate the phase
+int midboss_phases[MAX_STAGES] = {
+	3
+};
 
 // stage variables
 double speed[MAX_BULLET_MULTIPLE];
@@ -38,7 +55,7 @@ double fairy_speed = 2.;
 struct timespec stage_start;
 struct timespec stage_now;
 uint64_t stage_progress;
-int stage_progress_frames = 0;
+int stage_progress_frames;
 double stage_progress_seconds;
 
 // fps count
@@ -85,40 +102,52 @@ void pattern_spread_test()
 	}
 }
 
+// testing two fairy columns
 void pattern_two_fairy_columns()
 {
-	// update the fairies' position according to specification
-	if (get_phase_progress() == 0) {
-		int i;
-		double fairy_speed = 2.;
-
-		int num_fairies = 12;
-		
-		// TODO: make this work for nonlinear movements (pointer to function?)
-		// two columns of fairies
-		for (i = 0; i < num_fairies; i++) {
-			if (!enemylist[ENEMY_FAIRY_BLUE][i].active) {
-				// creates left column and right column
-				enemylist[ENEMY_FAIRY_BLUE][i].motion.hb.p.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
-					+ pow(-1, i) * 20;
-				// positions the fairies apart on the y axis
-				enemylist[ENEMY_FAIRY_BLUE][i].motion.hb.p.y = FIELD_OFFSET_Y - i * 20;
-
-				// spawner
-
-				enemylist[ENEMY_FAIRY_BLUE][i].motion.o.x = FIELD_OFFSET_X + FIELD_WIDTH / 2
-					+ pow(-1, i) * 20;
-				// positions the fairies apart on the y axis
-				enemylist[ENEMY_FAIRY_BLUE][i].motion.o.y = FIELD_OFFSET_Y - i * 20;
-
-				// TODO: debug as to why stopped fairies appear again next phase
-//				if (fairies[i].hitbox.p.y <= stopping_line)
-				// fairy moves straight down
-				enemylist[ENEMY_FAIRY_BLUE][i].motion.v.x = 0.;
-				enemylist[ENEMY_FAIRY_BLUE][i].motion.v.y = fairy_speed;
-				enemylist[ENEMY_FAIRY_BLUE][i].active = true;
+	int delay = 40;
+	int i, j;
+	
+	double x = FIELD_OFFSET_X + MIDDLE_X;
+	double y = FIELD_OFFSET_Y;
+	
+	// firing rate: spawn fairies continuously only with breaks of the interval `delay`
+	if (get_phase_progress() % delay == 0) {
+		// condition to fire exactly 12 enemies
+		if (get_cycle(delay) <= 24) {
+			enemy_launch_straight(ENEMY_FAIRY_BLUE, x + 200, y, 2., M_PI / 2. + M_PI / 3.);
+			enemy_launch_straight(ENEMY_FAIRY_RED, x - 200, y, 2., M_PI / 2. - M_PI / 3.);
+		}
+	}
+	
+	// red fairies fire 8-rings
+	delay = 120;
+	for (i = 0; i < MAX_ENEMIES; i++) {
+	for (j = 0; j < MAX_ENEMY_MULTIPLE; j++) {
+		if (enemylist[i][j].active &&
+				enemylist[i][j].id == ENEMY_FAIRY_RED) {
+			if ((stage_progress_frames - enemylist[i][j].motion.time_0) % delay == 0) {
+				launch_aimed_ring(BULLET_BALL_8x8,
+						enemylist[i][j].motion.hb.p.x,
+						enemylist[i][j].motion.hb.p.y, 16, 2.4);
 			}
 		}
+	}
+	}
+	
+	// blue fairies fire stacks
+	delay = 120;
+	for (i = 0; i < MAX_ENEMIES; i++) {
+	for (j = 0; j < MAX_ENEMY_MULTIPLE; j++) {
+		if (enemylist[i][j].active &&
+				enemylist[i][j].id == ENEMY_FAIRY_BLUE) {
+			if ((stage_progress_frames - enemylist[i][j].motion.time_0) % delay == 0) {
+				launch_aimed_stack(BULLET_BALL_8x8,
+						enemylist[i][j].motion.hb.p.x,
+						enemylist[i][j].motion.hb.p.y, 4, 2.4, 3);
+			}
+		}
+	}
 	}
 }
 
@@ -206,16 +235,15 @@ void pattern_moving_spawner_test_2()
 	}
 }
 
-/*
 // curved laser in flower pattern (no danmaku attack)
 void pattern_curved_laster_test()
 {
+	int delay;
 	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
 	double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
 	launch_ring_spiral(BULLET_BALL_16x16, x, y, 5, 2.5,
-			0, 0.01);
+			0, 0.01, get_cycle(delay));
 }
-*/
 
 // implementation of spell card in TH11 Stage 5 under ReimuA
 void pattern_boundary_of_wave_and_particle()
@@ -337,42 +365,69 @@ void pattern_acceleration_test()
 
 /* main loop */
 
+// plays through 1st stage (0th stage in array)
+void do_1st_stage()
+{
+	// stage proper
+	switch (get_phase()) {
+	case 1:
+		pattern_two_fairy_columns();
+		break;
+	case 2:
+		break;
+	case 3:
+		break;
+	case 4:
+		break;
+	case 5:
+		break;
+	case 6:
+		break;
+	case 7:
+		break;
+	case 8:
+		break;
+	case 9:
+		break;
+	case 10:
+		break;
+	case 11:
+		break;
+	case -1:
+		
+	default:
+		break;
+	}
+}
+
 // invoked in the main loop
 void do_stage()
 {
-	int i;
-
 	// if game state is at a menu/loading screen, initialize stage
 	if (state_menu == STATE_LOADING) {
 		initialize_stage();
 	}
+	
+	
+
+	printf("%d ; %d ; %d \n", stage_progress_frames, get_phase(), get_phase_progress());
+
+	/* START EDITING HERE */
 
 	// main timing of stage elements
 	switch (current_stage) {
-	case 1:
-//		printf("%lf ; %d ; %lf \n", (double)stage_progress_frames / 60., get_phase(), (double)get_phase_progress() / 60.);
-		switch (get_phase()) {
-		// FIXME: why is there a delay before it starts?
-		case 1:
-	 		pattern_two_fairy_columns();
-	 		break;
-		case 2:
-			pattern_moving_spawner_test();
-			break;
-		case 3:
-			pattern_boundary_of_wave_and_particle();
-			break;
-		case 4:
-
-			break;
-		default:
-			break;
-		}
+	case 0:
+		do_1st_stage();
 		break;
 	// universal things in every stage
 	default:
 		break;
 	}
+	
+	
+	
+	
+	/* DO NOT EDIT BEYOND THIS LINE */
 	
 	/* timing */
 	clock_gettime(CLOCK_MONOTONIC_RAW, &stage_now);

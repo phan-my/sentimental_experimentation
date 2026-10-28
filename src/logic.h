@@ -48,8 +48,6 @@
 // name for enemyID
 #define MAX_ENEMIES 2
 #define MAX_ENEMY_MULTIPLE 1024
-#define ENEMY_FAIRY 0
-#define ENEMY_FAIRY_BLUE 1
 
 // item
 #define MAX_ITEMS 2

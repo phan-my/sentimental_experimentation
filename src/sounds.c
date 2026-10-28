@@ -73,9 +73,9 @@ void play_sfx(char *title)
 void update_track()
 {
 	if (is_boss)
-		current_song = current_stage + 1;
+		current_song = 1 + current_stage + 1;
 	else
-		current_song = current_stage;
+		current_song = 1 + current_stage;
 }
 
 // opens mixer

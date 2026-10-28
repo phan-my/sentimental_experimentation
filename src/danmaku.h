@@ -52,8 +52,7 @@ void launch_spiral_accelerated(int type, double xcoord, double ycoord, double sp
 		double angle, double angle_rate, double angle_acceleration,
 		double t);
 void launch_ring_spiral(int type, double xcoord, double ycoord,
-		int n, double speed, double angle, double angle_rate,
-		double angle_acceleration, double t);
+		int n, double speed, double angle, double angle_rate, double t);
 void launch_ring_spiral_accelerated(int type, double xcoord, double ycoord,
 		int n, double speed, double angle, double angle_rate,
 		double angle_acceleration, double t);

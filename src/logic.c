@@ -96,40 +96,40 @@ void reset_player_position()
 //	update_player_render(&player[curr_player]); // subpixel hitbox -> integer SDL_Rect
 }
 
-// FIXME: does not work as intended
-// returns timer since stage phase started
-int get_phase_progress()
-{
-	int size = stages[current_stage][0]; // first item in array is size
-	int i = 1;
-
-	// loops through array until ith item is geq stage timestamp
-	while (stage_progress_frames >= stages[current_stage - 1][i] ) {
-		i++;
-	}
-	
-	// return error
-	if (i == size)
-		return -1;
-	return stage_progress_frames - stages[current_stage - 1][i - 1];
-}
-
-// FIXME: does not work as intended
-// returns timer since stage phase started; starts at 0
+// TODO: check it works
+// returns timer since stage phase started; starts at 1;
+// returns -1 if current stage progress is before first stage element;
+// returns -2 if current stage progress is at final frame (boss)
 int get_phase()
 {
 	int size = stages[current_stage][0]; // first item in array is size
-	int i = 1;
-
-	// loops through array until ith item is geq stage timestamp
-	while (stage_progress_frames > stages[current_stage - 1][i] ) {
-		// return error
-		if (i == size)
-			return -1;
-		i++;
+	int i; // ith element in stage array
+	
+	// returns -1 if current stage progress is before first stage element;
+	if (stage_progress_frames < stages[current_stage][1]) 
+		return -1;
+	
+	// loops through stages array until suitable value is found
+	for (i = 1; i < size; i++) {
+		if (stage_progress_frames < stages[current_stage][i+1])
+			return i;
 	}
+	
+	// returns -2 if current stage progress is at final frame (boss fight)
+	return -2;
+}
 
-	return i - 1;
+// returns timer since stage phase started; starts at 0
+int get_phase_progress()
+{
+	int phase = get_phase();
+	
+	// if currently before any phase or currently at boss fight
+	if (phase <= 0)
+		return phase;
+	
+	// return difference
+	return stage_progress_frames - stages[current_stage][phase];
 }
 
 // sets default value of struct kinematics (except player)
@@ -194,8 +194,7 @@ void update_velocity_by_angle(struct kinematics *motion)
 // updates all motion values with given acceleration
 // motion: kinematic properties, passed by reference
 void update_motion(struct kinematics *motion)
-{
-	
+{	
 	// get new angles
 	// optimization: update only if angular rate and acceleration exist
 	if (motion -> angle_rate != 0. && motion -> angle_acceleration != 0.)
@@ -216,7 +215,8 @@ void update_motion(struct kinematics *motion)
 // entity: struct kinematics
 bool in_unload_zone(struct kinematics entity)
 {
-	if ((0 <= entity.hb.p.x && entity.hb.p.x <= FIELD_RIGHT) ||
+	// in-screen: the playing field plus padding using FIELD_OFFSET_*
+	if ((0 <= entity.hb.p.x && entity.hb.p.x <= FIELD_RIGHT + FIELD_OFFSET_X) &&
 			(0 <= entity.hb.p.y &&
 			 entity.hb.p.y <= + FIELD_BOTTOM + FIELD_OFFSET_Y))
 		return false;
