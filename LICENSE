@@ -51,5 +51,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The sound effects located at ``src/assets/sfx/`` are taken from "Taisei Project"
 by Lukas Weber and Andrei Alexeyev. "Taisei Project" is free-and-open-source
-software that is licensed under the MIT License.
+software that is licensed under the MIT License. See ``src/assets/sfx/LICENSE``
+for licensing terms.
+	https://github.com/taisei-project/taisei
 
