@@ -22,6 +22,8 @@
 
 /* GLOBALS */
 
+/* START EDITING HERE */
+
 // PHASES START AT 1
 // double stages_s[MAX_STAGES][MAX_CHECKPOINTS] = {{1, 4.5, 42, 70.5}};
 int stages[MAX_STAGES][MAX_CHECKPOINTS] = {
@@ -33,7 +35,7 @@ int current_stage = 0; // STARTS AT 0
 // boss timing : number of spells of boss
 bool is_boss = 0;
 int boss_phases[MAX_STAGES] = {
-	2
+	2 // number of spells or nonspells of the stage boss
 };
 int curr_boss_phase;
 
@@ -43,13 +45,7 @@ int midboss_phases[MAX_STAGES] = {
 	3
 };
 
-// stage variables
-double speed[MAX_BULLET_MULTIPLE];
-double cap_speed;
-double angles[MAX_BULLET_MULTIPLE];
-
-int stopping_line = FIELD_OFFSET_Y + 200;
-double fairy_speed = 2.;
+/* HALT EDITING HERE */
 
 // timing
 struct timespec stage_start;
@@ -91,277 +87,7 @@ double get_cycle(int delay)
 
 /* START EDITING HERE */
 
-// 17-spread (aimed) of ball_8x8
-void pattern_spread_test()
-{
-	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-	double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
-	if (get_phase_progress() % 20 == 0) {	
-		launch_aimed_spread(BULLET_BALL_8x8, x, y, 17, 2.4,
-				M_PI / 2.);
-	}
-}
 
-// testing two fairy columns
-void pattern_two_fairy_columns()
-{
-	int delay = 40;
-	int i, j;
-	
-	double x = FIELD_OFFSET_X + MIDDLE_X;
-	double y = FIELD_OFFSET_Y;
-	
-	// firing rate: spawn fairies continuously only with breaks of the interval `delay`
-	if (get_phase_progress() % delay == 0) {
-		// condition to fire exactly 12 enemies
-		if (get_cycle(delay) <= 24) {
-			enemy_launch_straight(ENEMY_FAIRY_BLUE, x + 200, y, 2., M_PI / 2. + M_PI / 3.);
-			enemy_launch_straight(ENEMY_FAIRY_RED, x - 200, y, 2., M_PI / 2. - M_PI / 3.);
-		}
-	}
-	
-	// red fairies fire 8-rings
-	delay = 120;
-	for (i = 0; i < MAX_ENEMIES; i++) {
-	for (j = 0; j < MAX_ENEMY_MULTIPLE; j++) {
-		if (enemylist[i][j].active &&
-				enemylist[i][j].id == ENEMY_FAIRY_RED) {
-			if ((stage_progress_frames - enemylist[i][j].motion.time_0) % delay == 0) {
-				launch_aimed_ring(BULLET_BALL_8x8,
-						enemylist[i][j].motion.hb.p.x,
-						enemylist[i][j].motion.hb.p.y, 16, 2.4);
-			}
-		}
-	}
-	}
-	
-	// blue fairies fire stacks
-	delay = 120;
-	for (i = 0; i < MAX_ENEMIES; i++) {
-	for (j = 0; j < MAX_ENEMY_MULTIPLE; j++) {
-		if (enemylist[i][j].active &&
-				enemylist[i][j].id == ENEMY_FAIRY_BLUE) {
-			if ((stage_progress_frames - enemylist[i][j].motion.time_0) % delay == 0) {
-				launch_aimed_stack(BULLET_BALL_8x8,
-						enemylist[i][j].motion.hb.p.x,
-						enemylist[i][j].motion.hb.p.y, 4, 2.4, 3);
-			}
-		}
-	}
-	}
-}
-
-// three aimed rings of bubbles
-void pattern_ring_test()
-{
-	double x = FIELD_MIDDLE_X;
-	double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
-	if (get_phase_progress() % 20 == 0) {
-		launch_aimed_ring(BULLET_BUBBLE, x, y, 8, 2.4);
-		launch_aimed_ring(BULLET_BUBBLE, x+60, y, 7, 3.);
-		launch_aimed_ring(BULLET_BUBBLE, x-60, y, 7, 3.);
-	}
-}
-
-// one fixed and one aimed stack
-void pattern_stack_test()
-{
-	int delay = 120;
-	double x = FIELD_MIDDLE_X;
-	double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
-	
-	if (get_phase_progress() % delay == 0) {
-		launch_stack(BULLET_BALL_8x8, x, y, 6, 2.4, 5., M_PI / 2.);
-		launch_aimed_stack(BULLET_BALL_8x8, x, y, 6, 2.4, 5.);
-	}
-}
-
-// testing moving spawner pattern with rings
-void pattern_moving_spawner_test()
-{
-	int delay = 20;
-
-	double x0 = 50;
-	double y0 = 50;
-	double x1 = 512;
-	double y1 = 50;
-
-	int duration = 60 * 5;
-	double t = (double)(get_phase_progress() % duration) / (double) duration; 
-
-//	printf("%d\n", phase_progress % duration);
-	if (get_phase_progress() % delay == 0) {
-		launch_aimed_ring(BULLET_BALL_8x8,
-				lerp(x0, x1, t), lerp(y0, y1, t), 18, 2.4);
-	}
-}
-
-// testing moving spawner that moves back and forth
-// TODO: remove the global variable requirement
-int global_i = 1;
-
-void pattern_moving_spawner_test_2()
-{
-	int delay = 2;
-		
-	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-	double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
-	double t = 0;
-	
-	struct position p_0;
-	p_0.x = x - 20;
-	p_0.y = y;
-	
-	struct position p_1;
-	p_1.x = x - 20;
-	p_1.y = y - 20;
-
-	struct position p_2;
-	p_2.x = x + 20;
-	p_2.y = y - 20;
-
-	struct position p_3;
-	p_3.x = x + 20;
-	p_3.y = y;
-
-	if (get_phase_progress() % delay == 0) {
-		if (t > 1)
-			global_i = -1;
-		if (t < 0)
-			global_i = 1;
-		t += global_i * 0.05 * get_cycle(delay);
-		struct position s = cubic_bezier(p_0, p_1, p_2, p_3, t);
-		launch_spread(BULLET_BALL_16x16, s.x, s.y, 8, 3, M_PI / 2., M_PI / 2.);
-	}
-}
-
-// curved laser in flower pattern (no danmaku attack)
-void pattern_curved_laster_test()
-{
-	int delay;
-	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-	double y = FIELD_HEIGHT * (1. / 4) + FIELD_OFFSET_Y;
-	launch_ring_spiral(BULLET_BALL_16x16, x, y, 5, 2.5,
-			0, 0.01, get_cycle(delay));
-}
-
-// implementation of spell card in TH11 Stage 5 under ReimuA
-void pattern_boundary_of_wave_and_particle()
-{
-	int delay = 2;
-	
-	// constants
-	// values at https://youtu.be/cpz4mnXJYb0?t=318
-      	double angle = 0.3 * M_PI;
-	double angle_v = -0.078539816;
-	double angle_a = 0.003926991;
-	
-	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-	double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
-	
-	
-	if (get_phase_progress() % delay == 0) {
-		launch_ring_spiral_accelerated(BULLET_BALL_8x8, x, y,
-			5, 3, angle, angle_v, angle_a, get_cycle(delay));
-	}
-}
-
-// Hong Meiling's spell card
-void pattern_gorgeous_sweet_flower()
-{
-	int delay = 5;
-	double x = FIELD_MIDDLE_X;
-	double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
-	
-	double alpha = 0;
-	double alpha_v = 0.14; // GOLDEN_RATIO * 2 * M_PI;
-	
-	if (get_phase_progress() % delay == 0) {
-		alpha += alpha_v * get_cycle(delay);
-		launch_ring(BULLET_BALL_8x8, x, y, 6, 2, alpha);
-		launch_ring(BULLET_BALL_8x8, x, y, 6, 2, -(alpha + M_PI / 3.));
-	}
-}
-
-// pattern using phyllotaxis theory
-void pattern_sunflower()
-{
-	int delay = 1;
-	double x = FIELD_MIDDLE_X;
-	double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
-	
-	double alpha = 0;
-	double alpha_v = GOLDEN_RATIO * 2 * M_PI;
-	
-	if (get_phase_progress() % delay == 0) {
-		alpha += alpha_v * get_cycle(delay);
-		launch_ring(BULLET_BALL_8x8, x, y, 1, 1.4, alpha);
-//		launch_ring(BULLET_BALL_8x8, x, y, 6, 2, -(alpha + M_PI / 3.));
-	}
-}
-
-// testing spiral function
-void pattern_spiral_test()
-{
-	int delay = 2;
-	double x = FIELD_MIDDLE_X;
-	double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
-	
-	if (get_phase_progress() % delay == 0) {
-		launch_spiral_accelerated(BULLET_BALL_8x8, x, y, 3,
-			0, GOLDEN_RATIO * M_PI * 2, 0.1, get_cycle(delay));
-	}
-}
-
-// titlepage of the matura, consisting of the sunflower pattern and BoWaP
-void pattern_titlepage()
-{
-	int delay = 2;
-	
-	// constants
-	// values at https://youtu.be/cpz4mnXJYb0?t=318
-	double alpha_v = -0.078539816;
-	double alpha_a = 0.003926991;
-	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-	double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
-	
-      	// globals
-	double alpha = M_PI * (0.3);
-	
-	if (get_phase_progress() % delay == 0) {
-		// implementation for "global" variables by basing the 
-		// current value (alpha_v) on phase_progress and firing rate
-//		alpha_v += alpha_a * (double)phase_progress / delay;
-		alpha += alpha_v * get_cycle(delay)
-			+ alpha_a * .5 * pow(get_cycle(delay), 2);
-		launch_ring(BULLET_BALL_16x16, x, y, 8, 3, alpha);
-	}
-}
-
-// tests acceleration functionality
-void pattern_acceleration_test()
-{
-	int delay = 2;
-	
-	// constants
-	// values at https://youtu.be/cpz4mnXJYb0?t=318
-	double alpha_v = -0.078539816;
-	double alpha_a = 0.003926991;
-	double x = FIELD_WIDTH / 2 + FIELD_OFFSET_X;
-	double y = FIELD_HEIGHT * (0.4) + FIELD_OFFSET_Y;
-	
-      	// globals
-	double alpha = M_PI * (0.3);
-	
-	if (get_phase_progress() % delay == 0) {
-		// implementation for "global" variables by basing the 
-		// current value (alpha_v) on phase_progress and firing rate
-//		alpha_v += alpha_a * (double)phase_progress / delay;
-		alpha += alpha_v * get_cycle(delay)
-			+ alpha_a * .5 * pow(get_cycle(delay), 2);
-		launch_ring_accelerated(BULLET_BALL_8x8, x, y, 5, 1, .01, 6, alpha);
-	}
-}
 
 /* main loop */
 
@@ -371,7 +97,7 @@ void do_1st_stage()
 	// stage proper
 	switch (get_phase()) {
 	case 1:
-		pattern_two_fairy_columns();
+
 		break;
 	case 2:
 		break;
@@ -408,11 +134,6 @@ void do_stage()
 		initialize_stage();
 	}
 	
-	
-
-	printf("%d ; %d ; %d \n", stage_progress_frames, get_phase(), get_phase_progress());
-
-	/* START EDITING HERE */
 
 	// main timing of stage elements
 	switch (current_stage) {
