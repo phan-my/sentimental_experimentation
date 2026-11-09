@@ -40,8 +40,10 @@ void play_track_title(const char *title)
 		printf("ERROR loading music: %s\n", Mix_GetError());
 		exit(1);
 	}
-
-	Mix_PlayMusic(song, -2);
+	
+	// play track, returning error on failure
+	if (Mix_PlayMusic(song, -1) != 0)
+		printf("ERROR playing music: %s\n", Mix_GetError());
 }
 
 // plays a song in songlist with given index
