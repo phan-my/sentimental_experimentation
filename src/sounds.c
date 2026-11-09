@@ -84,9 +84,9 @@ void initialize_sounds()
 	// https://thenumb.at/cpp-course/sdl2/06/06.html#mixer
 	int result = Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
 	current_song = 0;
-	songlist[0] = "assets/bgm/01_title.opus";
-	songlist[1] = "assets/bgm/02_stage1.opus";
-	songlist[2] = "assets/bgm/03_stage1boss.opus";
+	songlist[0] = "bgm/01_title.opus";
+	songlist[1] = "bgm/02_stage1.opus";
+	songlist[2] = "bgm/03_stage1boss.opus";
 
 	play_track(0); // title screen
 }
